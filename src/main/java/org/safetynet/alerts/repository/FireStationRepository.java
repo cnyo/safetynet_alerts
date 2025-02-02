@@ -1,29 +1,32 @@
 package org.safetynet.alerts.repository;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.safetynet.alerts.model.FireStation;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class FireStationRepository {
-    final String JSON_PATH = "resources/json/data.json";
+public class FireStationRepository extends AbstractBaseRepository {
 
-    public List<FireStation> findAll() throws IOException {
+    public List<String> findAllAddressByStation(String stationNumber) throws IOException {
+        List<String> addresses = new ArrayList<>();
+
         ObjectMapper objectMapper = new ObjectMapper();
-
-        // Charger le fichier depuis resources/json/data.json
-        File jsonFile = new ClassPathResource("json/data.json").getFile();
+        File jsonFile = new ClassPathResource(JSON_PATH).getFile();
         JsonNode jsonNodeRoot = objectMapper.readTree(jsonFile);
-        JsonNode jsonNodeFireStation = jsonNodeRoot.get("firestations");
+        JsonNode jsonNodeFireStations = jsonNodeRoot.get("firestations");
 
-        return objectMapper.readValue(jsonNodeFireStation.toString(), new TypeReference<List<FireStation>>() {});
+        for (JsonNode jsonNodeFireStation : jsonNodeFireStations) {
+            if (jsonNodeFireStation.get("station").asText().equals(stationNumber)) {
+                addresses.add(jsonNodeFireStation.get("address").asText());
+            }
+        }
+
+        return addresses;
     }
 }

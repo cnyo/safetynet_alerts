@@ -1,9 +1,10 @@
 package org.safetynet.alerts.service;
 
 import org.safetynet.alerts.dto.PersonDto;
+import org.safetynet.alerts.dto.StationPersonDto;
 import org.safetynet.alerts.dto.PersonMapper;
+import org.safetynet.alerts.dto.PersonStationMapper;
 import org.safetynet.alerts.model.Person;
-import org.safetynet.alerts.repository.FireStationRepository;
 import org.safetynet.alerts.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,14 +18,20 @@ public class PersonService {
     @Autowired
     private PersonRepository personRepository;
 
-    public PersonDto getPersonByStation(int stationNumber) throws IOException {
-        List<Person> persons = personRepository.findAllByStationNumber(stationNumber);
-        PersonDto personDto = null;
+    @Autowired
+    private PersonMapper personMapper;
 
-        for (Person person : persons) {
-//            PersonMapper.INSTANCE.personToDto(person);
-        }
+    @Autowired
+    private PersonStationMapper personStationMapper;
 
-        return personDto;
+    public List<PersonDto> getAllByAddresses(List<String> addresses) throws IOException {
+        List<Person> persons = personRepository.findAllByStationNumber(addresses);
+
+        return persons.stream().map(personMapper::personToDto).toList();
     }
+
+    public StationPersonDto getStationPersonDto(List<PersonDto> persons, String stationNumber) {
+        return personStationMapper.personStationToDto(persons, stationNumber);
+    }
+
 }

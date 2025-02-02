@@ -1,143 +1,33 @@
 package org.safetynet.alerts.repository;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.safetynet.alerts.model.Person;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 @Repository
-public class PersonRepository {
+public class PersonRepository extends AbstractBaseRepository {
 
-    public List<Person> findAllByStationNumber(int stationNumber) throws IOException {
+    public List<Person> findAllByStationNumber(List<String> addresses) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-//        File jsonFile = new ClassPathResource(properties.getJsonPath()).getFile();
-//        JsonNode jsonNodeRoot = objectMapper.readTree(jsonFile);
-//        JsonNode jsonNodeFireStation = jsonNodeRoot.get("persons");
+        File jsonFile = new ClassPathResource(JSON_PATH).getFile();
+        JsonNode jsonNodePersons = objectMapper.readTree(jsonFile).get("persons");
 
-//        CustomProperties jsonPath = properties;
-//        String jsonPath2 = jsonPath;
+        List<Person> persons = new ArrayList<>();
 
-        return new List<Person>() {
-            @Override
-            public int size() {
-                return 0;
-            }
+        for (JsonNode jsonNodePerson : jsonNodePersons) {
 
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean contains(Object o) {
-                return false;
-            }
-
-            @Override
-            public Iterator<Person> iterator() {
-                return null;
-            }
-
-            @Override
-            public Object[] toArray() {
-                return new Object[0];
-            }
-
-            @Override
-            public <T> T[] toArray(T[] a) {
-                return null;
-            }
-
-            @Override
-            public boolean add(Person person) {
-                return false;
-            }
-
-            @Override
-            public boolean remove(Object o) {
-                return false;
-            }
-
-            @Override
-            public boolean containsAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(Collection<? extends Person> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(int index, Collection<? extends Person> c) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean retainAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public void clear() {
-
-            }
-
-            @Override
-            public Person get(int index) {
-                return null;
-            }
-
-            @Override
-            public Person set(int index, Person element) {
-                return null;
-            }
-
-            @Override
-            public void add(int index, Person element) {
-
-            }
-
-            @Override
-            public Person remove(int index) {
-                return null;
-            }
-
-            @Override
-            public int indexOf(Object o) {
-                return 0;
-            }
-
-            @Override
-            public int lastIndexOf(Object o) {
-                return 0;
-            }
-
-            @Override
-            public ListIterator<Person> listIterator() {
-                return null;
-            }
-
-            @Override
-            public ListIterator<Person> listIterator(int index) {
-                return null;
-            }
-
-            @Override
-            public List<Person> subList(int fromIndex, int toIndex) {
-                return List.of();
+            if (addresses.contains(jsonNodePerson.get("address").asText())) {
+                Person person = objectMapper.treeToValue(jsonNodePerson, Person.class);
+                persons.add(person);
             }
         };
-//        return objectMapper.readValue(jsonNodeFireStation.toString(), new TypeReference<List<Person>>() {});
+
+        return persons;
     }
 }

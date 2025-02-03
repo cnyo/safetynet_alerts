@@ -1,37 +1,36 @@
 package org.safetynet.alerts.service;
 
-import org.safetynet.alerts.dto.PersonDto;
-import org.safetynet.alerts.dto.StationPersonDto;
-import org.safetynet.alerts.dto.PersonMapper;
-import org.safetynet.alerts.dto.PersonStationMapper;
 import org.safetynet.alerts.model.Person;
-import org.safetynet.alerts.repository.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
 public class PersonService {
 
-    @Autowired
-    private PersonRepository personRepository;
+    final int MAJORITY_AGE = 18;
 
-    @Autowired
-    private PersonMapper personMapper;
+    public int countAdultFromPersons(List<Person> persons) {
+        int count = 0;
 
-    @Autowired
-    private PersonStationMapper personStationMapper;
+        for (Person person : persons) {
+            if (person.getMedicalRecord().getAge() >= MAJORITY_AGE) {
+                count++;
+            }
+        }
 
-    public List<PersonDto> getAllByAddresses(List<String> addresses) throws IOException {
-        List<Person> persons = personRepository.findAllByStationNumber(addresses);
-
-        return persons.stream().map(personMapper::personToDto).toList();
+        return count;
     }
 
-    public StationPersonDto getStationPersonDto(List<PersonDto> persons, String stationNumber) {
-        return personStationMapper.personStationToDto(persons, stationNumber);
-    }
+    public int countChildrenFromPersons(List<Person> persons) {
+        int count = 0;
 
+        for (Person person : persons) {
+            if (person.getMedicalRecord().getAge() < MAJORITY_AGE) {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }

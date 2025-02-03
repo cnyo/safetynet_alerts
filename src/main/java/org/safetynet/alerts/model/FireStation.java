@@ -5,17 +5,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class FireStation {
     private String address;
-    private int station;
+    private String station;
 
     public String getAddress() {
         return address;
     }
 
-    public int getStation() {
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getStation() {
         return station;
     }
 
-    public boolean isStation(int stationNumber) {
+    public void setStation(String station) {
+        this.station = station;
+    }
+
+    public boolean isStation(String stationNumber) {
         return this.station == stationNumber;
     }
+
 }

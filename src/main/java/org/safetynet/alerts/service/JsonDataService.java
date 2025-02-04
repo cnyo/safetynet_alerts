@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class JsonDataService {
@@ -45,7 +46,6 @@ public class JsonDataService {
     public List<Person> getAllPersonFromFireStation(List<FireStation> fireStations) {
         List<String> addresses = fireStations.stream().map(FireStation::getAddress).toList();
         List<Person> persons = new ArrayList<>();
-        JsonData test = jsonData;
 
         for (Person person : jsonData.getPersons()) {
             if (addresses.contains(person.getAddress())) {
@@ -58,5 +58,21 @@ public class JsonDataService {
 
     public List<FireStation> getAllFireStationByStation(String stationNumber) {
         return jsonData.getFirestations().stream().filter(f -> f.getStation().equals(stationNumber)).toList();
+    }
+
+    public List<Person> getChildrenAtAddress(String address) {
+        return jsonData
+                .getPersons()
+                .stream()
+                .filter(person -> person.getAddress().equals(address))
+                .filter(p -> p.getMedicalRecord().isChild()).collect(Collectors.toList());
+    }
+
+    public List<Person> getAdultAtAddress(String address) {
+        return jsonData
+                .getPersons()
+                .stream()
+                .filter(person -> person.getAddress().equals(address))
+                .filter(p -> p.getMedicalRecord().isAdult()).collect(Collectors.toList());
     }
 }

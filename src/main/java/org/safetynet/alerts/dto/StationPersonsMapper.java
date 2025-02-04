@@ -13,7 +13,7 @@ public class StationPersonsMapper {
     PersonService personService;
 
     public StationPersonsDto toDto(List<Person> persons, String stationNumber) {
-        List<PersonDto> personsDto = persons.stream().map(PersonDto::new).toList();
+        List<PersonAtStationDto> personsDto = persons.stream().map(PersonAtStationDto::new).toList();
         int adultNbr = personService.countAdultFromPersons(persons);
         int childrenNbr = personService.countChildrenFromPersons(persons);
 

@@ -5,13 +5,13 @@ import java.util.List;
 //@Getter
 public class StationPersonsDto {
 
-    public List<PersonDto> personDtoList;
+    public List<PersonAtStationDto> personDtoList;
     public String station;
     public int adultNumber;
     public int childrenNumber;
 
     public StationPersonsDto(
-            List<PersonDto> persons, String station, int adultNumber, int childrenNumber
+            List<PersonAtStationDto> persons, String station, int adultNumber, int childrenNumber
     ) {
         this.personDtoList = persons;
         this.station = station;
@@ -19,11 +19,11 @@ public class StationPersonsDto {
         this.childrenNumber = childrenNumber;
     }
 
-    public List<PersonDto> getPersonDtoList() {
+    public List<PersonAtStationDto> getPersonDtoList() {
         return personDtoList;
     }
 
-    public void setPersonDtoList(List<PersonDto> personDtoList) {
+    public void setPersonDtoList(List<PersonAtStationDto> personDtoList) {
         this.personDtoList = personDtoList;
     }
 

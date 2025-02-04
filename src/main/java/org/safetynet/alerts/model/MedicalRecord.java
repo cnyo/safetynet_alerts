@@ -69,4 +69,12 @@ public class MedicalRecord {
     public void setAllergies(List<String> allergies) {
         this.allergies = allergies;
     }
+
+    public boolean isChild() {
+        return getAge() < 18;
+    }
+
+    public boolean isAdult() {
+        return getAge() >= 18;
+    }
 }

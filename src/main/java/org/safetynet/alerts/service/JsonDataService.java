@@ -73,6 +73,67 @@ public class JsonDataService {
                 .getPersons()
                 .stream()
                 .filter(person -> person.getAddress().equals(address))
-                .filter(p -> p.getMedicalRecord().isAdult()).collect(Collectors.toList());
+                .filter(p -> p.getMedicalRecord().isAdult())
+                .collect(Collectors.toList());
     }
+
+    public FireStation getFireStationAtAddress(String address) {
+        return jsonData.getFirestations().stream().filter(f -> f.getAddress().equals(address)).findFirst().orElse(null);
+    }
+
+    public List<FireStation> filterFireStationForStations(String stations) {
+        String[] stationNumbers = stations.split(",");
+
+        return jsonData.getFirestations()
+                .stream()
+                .filter(f -> List.of(stationNumbers).contains(f.getStation()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Person> getAllPersonAtAddress(String address) {
+        return jsonData
+                .getPersons()
+                .stream()
+                .filter(person -> person.getAddress().equals(address))
+                .collect(Collectors.toList());
+    }
+
+    public List<Person> getAllPersonByFireStations(List<FireStation> fireStations) {
+        List<String> addresses = fireStations.stream().map(FireStation::getAddress).toList();
+        List<Person> persons = new ArrayList<>();
+
+        for (String address : addresses) {
+
+            List<Person> personsAtAddress = jsonData
+                    .getPersons()
+                    .stream()
+                    .filter(person -> person.getAddress().equals(address))
+                    .toList();
+
+            persons.addAll(personsAtAddress);
+        }
+
+        return persons;
+    }
+
+    public List<Person> getAllPersonByLastName(String lastName) {
+        return jsonData
+                .getPersons()
+                .stream()
+                .filter(person -> person.getLastName().equals(lastName))
+                .collect(Collectors.toList());
+    }
+
+    public List<Person> getAllPersonByCity(String city) {
+        return jsonData
+                .getPersons()
+                .stream()
+                .filter(person -> person.getCity().equals(city))
+                .collect(Collectors.toList());
+    }
+
+//    public Person createPerson(Person person) {
+//        jsonData
+//    }
+
 }

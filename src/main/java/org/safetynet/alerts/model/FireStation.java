@@ -24,7 +24,7 @@ public class FireStation {
     }
 
     public boolean isStation(String stationNumber) {
-        return this.station == stationNumber;
+        return this.station.equals(stationNumber);
     }
 
 }

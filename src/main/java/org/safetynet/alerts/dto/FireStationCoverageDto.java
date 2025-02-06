@@ -1,30 +1,32 @@
 package org.safetynet.alerts.dto;
 
+import org.safetynet.alerts.dto.person.PersonBasicInfoDto;
+
 import java.util.List;
 
 //@Getter
-public class StationPersonsDto {
+public class FireStationCoverageDto {
 
-    public List<PersonAtStationDto> personDtoList;
+    public List<PersonBasicInfoDto> persons;
     public String station;
     public int adultNumber;
     public int childrenNumber;
 
-    public StationPersonsDto(
-            List<PersonAtStationDto> persons, String station, int adultNumber, int childrenNumber
+    public FireStationCoverageDto(
+            List<PersonBasicInfoDto> persons, String station, int adultNumber, int childrenNumber
     ) {
-        this.personDtoList = persons;
+        this.persons = persons;
         this.station = station;
         this.adultNumber = adultNumber;
         this.childrenNumber = childrenNumber;
     }
 
-    public List<PersonAtStationDto> getPersonDtoList() {
-        return personDtoList;
+    public List<PersonBasicInfoDto> getPersons() {
+        return persons;
     }
 
-    public void setPersonDtoList(List<PersonAtStationDto> personDtoList) {
-        this.personDtoList = personDtoList;
+    public void setPersons(List<PersonBasicInfoDto> persons) {
+        this.persons = persons;
     }
 
     public String getStation() {

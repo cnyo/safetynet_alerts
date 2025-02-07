@@ -22,10 +22,7 @@ public class ApiController {
 
     private final JsonDataService jsonDataService;
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiController.class);
-
-    @Autowired
-    private StationPersonsMapper stationPersonsMapper;
+    final static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
 
     @Autowired
     private PersonMapper personMapper;
@@ -45,16 +42,14 @@ public class ApiController {
 
     @GetMapping("/firestation")
     public ResponseEntity<FireStationCoverageDto> getPersonByStationNumber(@RequestParam(required = false, defaultValue = "3") String station_number) {
-        logger.info("Test de Log4j2 - Est-ce que le fichier se crée ?");
-
         try {
             List<FireStation> fireStations = jsonDataService.getAllFireStationByStation(station_number);
             List<Person> persons = jsonDataService.getAllPersonFromFireStation(fireStations);
-            logger.info("Persons from firestation number {}: {} persons", station_number, (long) persons.size());
+            LOGGER.info("/firestation Persons from firestation number {}: {} persons", station_number, (long) persons.size());
 
             return ResponseEntity.ok(personMapper.personToFireStationCoverageDto(persons, station_number));
         } catch (Exception e) {
-            logger.info("Error: {}", e.getMessage());
+            LOGGER.error("/firestation Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }
@@ -67,14 +62,20 @@ public class ApiController {
             List<Person> children = jsonDataService.getChildrenAtAddress(address);
 
             if (children.isEmpty()) {
+                LOGGER.info("/childAlert Children not found for address {}.", address);
+
                 return ResponseEntity.noContent().build();
             }
 
             List<Person> adults = jsonDataService.getAdultAtAddress(address);
             ChildAlertDto childAlertDto = personMapper.toChildAlertDtoDto(children, adults);
 
+            LOGGER.info("/childAlert Children found for address {}: {}", address, (long) children.size());
+
             return ResponseEntity.ok(childAlertDto);
         } catch (Exception e) {
+            LOGGER.error("/childAlert Error: {}", e.getMessage());
+
             return ResponseEntity.internalServerError().body(null);
         }
     }
@@ -84,9 +85,13 @@ public class ApiController {
         try {
             List<FireStation> fireStations = jsonDataService.getAllFireStationByStation(firestation_number);
             List<Person> persons = jsonDataService.getAllPersonFromFireStation(fireStations);
+            PhoneAlertDto phoneAlertDto = new PhoneAlertDto(persons);
+            LOGGER.info("/phoneAlert Phone numbers found for fire station number {}: {}", firestation_number, (long) phoneAlertDto.phoneNumbers.size());
 
-            return ResponseEntity.ok(new PhoneAlertDto(persons));
+            return ResponseEntity.ok(phoneAlertDto);
         } catch (Exception e) {
+            LOGGER.error("/phoneAlert Error: {}", e.getMessage());
+
             return ResponseEntity.internalServerError().body(null);
         }
     }
@@ -97,14 +102,19 @@ public class ApiController {
             FireStation fireStation = jsonDataService.getFireStationAtAddress(address);
 
             if (fireStation == null) {
+                LOGGER.info("/fire Person not found for fire station address {}.", address);
+
                 return ResponseEntity.noContent().build();
             }
 
             List<Person> persons = jsonDataService.getAllPersonAtAddress(address);
+            LOGGER.info("/fire Persons found for fire station address {}: {}", address, (long) persons.size());
 
             return ResponseEntity.ok(personsAtAddressDtoMapper.toDto(persons, fireStation));
 
         } catch (Exception e) {
+            LOGGER.error("/fire Error: {}", e.getMessage());
+
             return ResponseEntity.internalServerError().body(null);
         }
     }
@@ -115,9 +125,13 @@ public class ApiController {
             List<FireStation> fireStations = jsonDataService.filterFireStationForStations(stations);
             List<Person> persons = jsonDataService.getAllPersonByFireStations(fireStations);
 
+            LOGGER.info("/flood/stations Persons found for fire stations {}: {}", stations, (long) persons.size());
+
             return ResponseEntity.ok(floodStationDtoMapper.toDto(persons, fireStations));
 
         } catch (Exception e) {
+            LOGGER.error("/flood/stations Error: {}", e.getMessage());
+
             return ResponseEntity.internalServerError().body(null);
         }
     }
@@ -126,10 +140,13 @@ public class ApiController {
     public ResponseEntity<List<PersonInfoDto>> getPersonInfoLastName(@RequestParam(required = false, defaultValue = "Boyd") String lastName) {
         try {
             List<Person> persons = jsonDataService.getAllPersonByLastName(lastName);
+            LOGGER.info("/personInfoLastName Persons found for lastname {}: {}", lastName, (long) persons.size());
 
             return ResponseEntity.ok(personInfoDtoMapper.personToPersonInfoDto(persons));
 
         } catch (Exception e) {
+            LOGGER.error("/personInfoLastName Error: {}", e.getMessage());
+
             return ResponseEntity.internalServerError().body(null);
         }
     }
@@ -138,26 +155,44 @@ public class ApiController {
     public ResponseEntity<List<String>> getCommunityEmail(@RequestParam(required = false, defaultValue = "Culver") String city) {
         try {
             List<Person> persons = jsonDataService.getAllPersonByCity(city);
+            List<String> emails = persons.stream().map(Person::getEmail).toList();
+            LOGGER.info("/communityEmail Email found for city {}: {}", city, (long) emails.size());
 
-            return ResponseEntity.ok(persons.stream().map(Person::getEmail).toList());
+            return ResponseEntity.ok(emails);
 
         } catch (Exception e) {
+            LOGGER.error("/communityEmail Error: {}", e.getMessage());
+
             return ResponseEntity.internalServerError().body(null);
         }
     }
 
     @PostMapping("/person")
-    public PersonDto postPerson(@RequestBody Person person) {
-        Person createdPerson = jsonDataService.createPerson(person);
+    public ResponseEntity<PersonDto> postPerson(@RequestBody Person person) {
+        try {
+            Person createdPerson = jsonDataService.createPerson(person);
+            LOGGER.info("POST /person {} has created with success.", person.getFullName());
 
-        return new PersonDto(createdPerson);
+            return ResponseEntity.ok(new PersonDto(createdPerson));
+        } catch (Exception e) {
+            LOGGER.error("POST /person Error: {}", e.getMessage());
+
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
 
     @PutMapping("/person")
-    public PersonDto putPerson(@RequestBody Person person) {
-        Person createdPerson = jsonDataService.updatePerson(person);
+    public ResponseEntity<PersonDto> putPerson(@RequestBody Person person) {
+        try {
+            Person createdPerson = jsonDataService.updatePerson(person);
+            LOGGER.info("PUT /person {} has updated with success.", person.getFullName());
 
-        return new PersonDto(createdPerson);
+            return ResponseEntity.ok(new PersonDto(createdPerson));
+        } catch (Exception e) {
+            LOGGER.error("PUT /person Error: {}", e.getMessage());
+
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
 
     @DeleteMapping("/person")
@@ -166,14 +201,17 @@ public class ApiController {
             Person person = jsonDataService.getPersonByFullName(fullName);
 
             if (person == null) {
+                LOGGER.info("DELETE /person No person with fullname {}.", fullName);
+
                 return ResponseEntity.noContent().build();
             }
 
             jsonDataService.removePerson(person);
+            LOGGER.info("DELETE /person {} has removed with success.", person.getFullName());
 
             return ResponseEntity.ok(person.getFullName());
         } catch (Exception e) {
-//            logger.info("Person {} not found !", fullName);
+            LOGGER.error("DELETE /person Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }

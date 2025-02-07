@@ -1,6 +1,7 @@
 package org.safetynet.alerts.controller;
 
 import org.safetynet.alerts.dto.*;
+import org.safetynet.alerts.dto.person.PersonDto;
 import org.safetynet.alerts.dto.person.PersonInfoDto;
 import org.safetynet.alerts.dto.person.PersonMedicalInfoDto;
 import org.safetynet.alerts.dto.person.PhoneAlertDto;
@@ -51,7 +52,7 @@ public class ApiController {
             List<Person> persons = jsonDataService.getAllPersonFromFireStation(fireStations);
             logger.info("Persons from firestation number {}: {} persons", station_number, (long) persons.size());
 
-            return ResponseEntity.ok(stationPersonsMapper.toDto(persons, station_number));
+            return ResponseEntity.ok(personMapper.personToFireStationCoverageDto(persons, station_number));
         } catch (Exception e) {
             logger.info("Error: {}", e.getMessage());
 

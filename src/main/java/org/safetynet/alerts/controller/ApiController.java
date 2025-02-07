@@ -27,7 +27,7 @@ public class ApiController {
     private StationPersonsMapper stationPersonsMapper;
 
     @Autowired
-    private ChildAlertDtoMapper childAlertDtoMapper;
+    private PersonMapper personMapper;
 
     @Autowired
     private PersonsAtAddressDtoMapper personsAtAddressDtoMapper;
@@ -70,7 +70,7 @@ public class ApiController {
             }
 
             List<Person> adults = jsonDataService.getAdultAtAddress(address);
-            ChildAlertDto childAlertDto = childAlertDtoMapper.toDto(children, adults);
+            ChildAlertDto childAlertDto = personMapper.toChildAlertDtoDto(children, adults);
 
             return ResponseEntity.ok(childAlertDto);
         } catch (Exception e) {
@@ -94,6 +94,11 @@ public class ApiController {
     public ResponseEntity<FireInfoDto> getAllPersonAtAddress(@RequestParam(required = false, defaultValue = "1509 Culver St") String address) {
         try {
             FireStation fireStation = jsonDataService.getFireStationAtAddress(address);
+
+            if (fireStation == null) {
+                return ResponseEntity.noContent().build();
+            }
+
             List<Person> persons = jsonDataService.getAllPersonAtAddress(address);
 
             return ResponseEntity.ok(personsAtAddressDtoMapper.toDto(persons, fireStation));
@@ -121,7 +126,7 @@ public class ApiController {
         try {
             List<Person> persons = jsonDataService.getAllPersonByLastName(lastName);
 
-            return ResponseEntity.ok(personInfoDtoMapper.toDto(persons));
+            return ResponseEntity.ok(personInfoDtoMapper.personToPersonInfoDto(persons));
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(null);
@@ -130,7 +135,6 @@ public class ApiController {
 
     @GetMapping("/communityEmail")
     public ResponseEntity<List<String>> getCommunityEmail(@RequestParam(required = false, defaultValue = "Culver") String city) {
-        // Cette url doit retourner les adresses mail de tous les habitants de la ville.
         try {
             List<Person> persons = jsonDataService.getAllPersonByCity(city);
 
@@ -141,18 +145,36 @@ public class ApiController {
         }
     }
 
-//    @PostMapping("/person")
-//    public ResponseEntity<String> postPerson(@RequestBody(Person person)) {
-//        personService.create(person);
-//    }
-//
-//    @PutMapping("/person")
-//    public ResponseEntity<String> putPerson() {
-//
-//    }
-//
-//    @DeleteMapping("/person")
-//    public ResponseEntity<String> deletePerson() {
-//
-//    }
+    @PostMapping("/person")
+    public PersonDto postPerson(@RequestBody Person person) {
+        Person createdPerson = jsonDataService.createPerson(person);
+
+        return new PersonDto(createdPerson);
+    }
+
+    @PutMapping("/person")
+    public PersonDto putPerson(@RequestBody Person person) {
+        Person createdPerson = jsonDataService.updatePerson(person);
+
+        return new PersonDto(createdPerson);
+    }
+
+    @DeleteMapping("/person")
+    public ResponseEntity<String> deletePerson(@RequestBody String fullName) {
+        try {
+            Person person = jsonDataService.getPersonByFullName(fullName);
+
+            if (person == null) {
+                return ResponseEntity.noContent().build();
+            }
+
+            jsonDataService.removePerson(person);
+
+            return ResponseEntity.ok(person.getFullName());
+        } catch (Exception e) {
+//            logger.info("Person {} not found !", fullName);
+
+            return ResponseEntity.internalServerError().body(null);
+        }
+    }
 }

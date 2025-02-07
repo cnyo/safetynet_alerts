@@ -80,4 +80,13 @@ public class JsonData {
 
         return this;
     }
+
+    public Person getPersonByFullName(String fullName) {
+        return persons
+                .stream()
+                .filter(person -> person.getFullName()
+                        .equals(fullName))
+                .findFirst()
+                .get();
+    }
 }

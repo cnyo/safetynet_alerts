@@ -8,7 +8,14 @@ import java.util.List;
 
 @Component
 public class PersonInfoDtoMapper {
-    public List<PersonInfoDto> toDto(List<Person> persons) {
+    public List<PersonInfoDto> personToPersonInfoDto(List<Person> persons) {
+        return persons
+                .stream()
+                .map(PersonInfoDto::new)
+                .toList();
+    }
+
+    public List<PersonInfoDto> personToPersonDto(List<Person> persons) {
         return persons
                 .stream()
                 .map(PersonInfoDto::new)

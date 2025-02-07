@@ -21,63 +21,79 @@ public class Person {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public Person setFirstName(String firstName) {
         this.firstName = firstName;
+
+        return this;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public Person setLastName(String lastName) {
         this.lastName = lastName;
+
+        return this;
     }
 
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public Person setAddress(String address) {
         this.address = address;
+
+        return this;
     }
 
     public String getCity() {
         return city;
     }
 
-    public void setCity(String city) {
+    public Person setCity(String city) {
         this.city = city;
+
+        return this;
     }
 
     public String getZip() {
         return zip;
     }
 
-    public void setZip(String zip) {
+    public Person setZip(String zip) {
         this.zip = zip;
+
+        return this;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public Person setEmail(String email) {
         this.email = email;
+
+        return this;
     }
 
     public String getPhone() {
         return phone;
     }
 
-    public void setPhone(String phone) {
+    public Person setPhone(String phone) {
         this.phone = phone;
+
+        return this;
     }
 
     public MedicalRecord getMedicalRecord() {
         return medicalRecord;
     }
 
-    public void setMedicalRecord(MedicalRecord medicalRecord) {
+    public Person setMedicalRecord(MedicalRecord medicalRecord) {
         this.medicalRecord = medicalRecord;
+
+        return this;
     }
 }

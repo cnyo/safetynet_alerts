@@ -132,8 +132,38 @@ public class JsonDataService {
                 .collect(Collectors.toList());
     }
 
-//    public Person createPerson(Person person) {
-//        jsonData
-//    }
+    public Person createPerson(Person person) {
+        jsonData.addPerson(person);
 
+        return person;
+    }
+
+    public Person updatePerson(Person person) {
+        Person currentPerson = jsonData.getPersonByFullName(person.getFullName());
+
+        return currentPerson
+                .setFirstName(person.getFirstName())
+                .setLastName(person.getFirstName())
+                .setAddress(person.getAddress())
+                .setCity(person.getCity())
+                .setZip(person.getZip())
+                .setEmail(person.getEmail())
+                .setPhone(person.getPhone())
+                .setAddress(person.getAddress());
+    }
+
+    public Person removePerson(Person person) {
+        jsonData.removePerson(person);
+
+        return person;
+    }
+
+    public Person getPersonByFullName(String fullName) {
+        return jsonData
+                .getPersons()
+                .stream()
+                .filter(person -> person.getFullName().equals(fullName))
+                .findFirst()
+                .orElse(null);
+    }
 }

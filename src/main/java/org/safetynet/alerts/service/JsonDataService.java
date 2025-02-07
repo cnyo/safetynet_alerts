@@ -138,9 +138,7 @@ public class JsonDataService {
         return person;
     }
 
-    public Person updatePerson(Person person) {
-        Person currentPerson = jsonData.getPersonByFullName(person.getFullName());
-
+    public Person updatePerson(Person person, Person currentPerson) {
         return currentPerson
                 .setFirstName(person.getFirstName())
                 .setLastName(person.getFirstName())

@@ -25,7 +25,7 @@ public class PersonService {
         int count = 0;
 
         for (Person person : persons) {
-            if (person.getMedicalRecord().getAge() >= MAJORITY_AGE) {
+            if (person.getMedicalRecord() != null && person.getMedicalRecord().getAge() >= MAJORITY_AGE) {
                 count++;
             }
         }
@@ -37,7 +37,7 @@ public class PersonService {
         int count = 0;
 
         for (Person person : persons) {
-            if (person.getMedicalRecord().getAge() < MAJORITY_AGE) {
+            if (person.getMedicalRecord() != null && person.getMedicalRecord().getAge() < MAJORITY_AGE) {
                 count++;
             }
         }

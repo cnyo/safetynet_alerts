@@ -15,7 +15,7 @@ public class PersonBasicInfoDto {
     public PersonBasicInfoDto(Person person) {
         this.firstName = person.getFirstName();
         this.lastName = person.getLastName();
-        this.address = MessageFormat.format("{0}, {1} {2}", person.getAddress(), person.getZip(), person.getCity());
+        this.address = person.getAddress();
         this.phone = person.getPhone();
     }
 

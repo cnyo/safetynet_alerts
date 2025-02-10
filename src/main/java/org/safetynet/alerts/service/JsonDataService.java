@@ -151,7 +151,8 @@ public class JsonDataService {
     }
 
     public Person removePerson(Person person) {
-        jsonData.removePerson(person);
+        Person personToRemove = jsonData.getPersonByFullName(person.getFullName());
+        jsonData.removePerson(personToRemove);
 
         return person;
     }

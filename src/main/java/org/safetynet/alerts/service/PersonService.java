@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class PersonService {
+    private final int MAJORITY_AGE = 18;
+
     public List<String> getAllPhoneNumbersFromPersons(List<Person> persons) {
         return persons
                 .stream()
@@ -17,5 +19,29 @@ public class PersonService {
 
     public List<String> getAllEmailsFromPersons(List<Person> persons) {
         return persons.stream().map(Person::getEmail).toList();
+    }
+
+    public int countAdultFromPersons(List<Person> persons) {
+        int count = 0;
+
+        for (Person person : persons) {
+            if (person.getMedicalRecord().getAge() >= MAJORITY_AGE) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    public int countChildrenFromPersons(List<Person> persons) {
+        int count = 0;
+
+        for (Person person : persons) {
+            if (person.getMedicalRecord().getAge() < MAJORITY_AGE) {
+                count++;
+            }
+        }
+
+        return count;
     }
 }

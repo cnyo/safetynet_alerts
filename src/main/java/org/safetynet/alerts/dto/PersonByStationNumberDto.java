@@ -5,14 +5,14 @@ import org.safetynet.alerts.dto.person.PersonBasicInfoDto;
 import java.util.List;
 
 //@Getter
-public class FireStationCoverageDto {
+public class PersonByStationNumberDto {
 
     public List<PersonBasicInfoDto> persons;
     public String station;
     public int adultNumber;
     public int childrenNumber;
 
-    public FireStationCoverageDto(
+    public PersonByStationNumberDto(
             List<PersonBasicInfoDto> persons, String station, int adultNumber, int childrenNumber
     ) {
         this.persons = persons;

@@ -14,11 +14,4 @@ public class PersonInfoDtoMapper {
                 .map(PersonInfoDto::new)
                 .toList();
     }
-
-    public List<PersonInfoDto> personToPersonDto(List<Person> persons) {
-        return persons
-                .stream()
-                .map(PersonInfoDto::new)
-                .toList();
-    }
 }

@@ -4,7 +4,6 @@ import org.safetynet.alerts.dto.*;
 import org.safetynet.alerts.dto.person.PersonDto;
 import org.safetynet.alerts.dto.person.PersonInfoDto;
 import org.safetynet.alerts.dto.person.PersonMedicalInfoDto;
-import org.safetynet.alerts.dto.person.PhoneAlertDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.*;
@@ -20,9 +19,10 @@ import java.util.Map;
 @RestController
 public class ApiController {
 
-    private final JsonDataService jsonDataService;
-
     final static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
+
+    @Autowired
+    private JsonDataService jsonDataService;
 
     @Autowired
     private PersonMapper personMapper;
@@ -35,6 +35,9 @@ public class ApiController {
 
     @Autowired
     private PersonInfoDtoMapper personInfoDtoMapper;
+
+    @Autowired
+    private PersonService personService;
 
     public ApiController(JsonDataService jsonDataService) {
         this.jsonDataService = jsonDataService;
@@ -81,14 +84,15 @@ public class ApiController {
     }
 
     @GetMapping("/phoneAlert")
-    public ResponseEntity<PhoneAlertDto> getAllPhoneNumberByStation(@RequestParam(required = false, defaultValue = "3") String firestation_number) {
+    public ResponseEntity<List<String>> getAllPhoneNumberByStation(@RequestParam(required = false, defaultValue = "3") String firestation_number) {
         try {
             List<FireStation> fireStations = jsonDataService.getAllFireStationByStation(firestation_number);
             List<Person> persons = jsonDataService.getAllPersonFromFireStation(fireStations);
-            PhoneAlertDto phoneAlertDto = new PhoneAlertDto(persons);
-            LOGGER.info("GET /phoneAlert Phone numbers found for fire station number {}: {}", firestation_number, (long) phoneAlertDto.phoneNumbers.size());
+            List<String> phoneNumbers = personService.getAllPhoneNumbersFromPersons(persons);
 
-            return ResponseEntity.ok(phoneAlertDto);
+            LOGGER.info("GET /phoneAlert Phone numbers found for fire station number {}: {}", firestation_number, (long) phoneNumbers.size());
+
+            return ResponseEntity.ok(phoneNumbers);
         } catch (Exception e) {
             LOGGER.error("GET /phoneAlert Error: {}", e.getMessage());
 
@@ -155,7 +159,8 @@ public class ApiController {
     public ResponseEntity<List<String>> getCommunityEmail(@RequestParam(required = false, defaultValue = "Culver") String city) {
         try {
             List<Person> persons = jsonDataService.getAllPersonByCity(city);
-            List<String> emails = persons.stream().map(Person::getEmail).toList();
+            List<String> emails = personService.getAllEmailsFromPersons(persons);
+
             LOGGER.info("GET /communityEmail Email found for city {}: {}", city, (long) emails.size());
 
             return ResponseEntity.ok(emails);

@@ -1,7 +1,6 @@
 package org.safetynet.alerts.controller;
 
 import org.safetynet.alerts.dto.*;
-import org.safetynet.alerts.dto.person.PersonDto;
 import org.safetynet.alerts.dto.person.PersonInfoDto;
 import org.safetynet.alerts.dto.person.PersonMedicalInfoDto;
 import org.safetynet.alerts.model.FireStation;
@@ -22,22 +21,18 @@ public class ApiController {
     final static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
 
     @Autowired
-    private JsonDataService jsonDataService;
-
-    @Autowired
     private PersonDtoMapper personDtoMapper;
 
     @Autowired
     private PersonService personService;
 
-    public ApiController(JsonDataService jsonDataService) {
-        this.jsonDataService = jsonDataService;
-    }
+    @Autowired
+    private FireStationService fireStationService;
 
     @GetMapping("/firestation")
     public ResponseEntity<PersonByStationNumberDto> getPersonByStationNumber(@RequestParam(required = false, defaultValue = "3") String station_number) {
         try {
-            List<FireStation> fireStations = jsonDataService.getAllFireStationByStation(station_number);
+            List<FireStation> fireStations = fireStationService.getAllFireStationByStation(station_number);
 
             if (fireStations.isEmpty()) {
                 LOGGER.info("GET /firestation fireStations not found for station number {}.", station_number);
@@ -45,7 +40,7 @@ public class ApiController {
                 return ResponseEntity.notFound().build();
             }
 
-            List<Person> persons = jsonDataService.getAllPersonFromFireStation(fireStations);
+            List<Person> persons = personService.getAllPersonFromFireStation(fireStations);
             LOGGER.info("GET /firestation Persons from firestation number {}: {} persons", station_number, (long) persons.size());
 
             return ResponseEntity.ok(personDtoMapper.toPersonByStationNumberDto(persons, station_number));
@@ -60,7 +55,7 @@ public class ApiController {
     @GetMapping("/childAlert")
     public ResponseEntity<ChildAlertDto> getChildAlert(@RequestParam(required = false, defaultValue = "1509 Culver St") String address) {
         try {
-            List<Person> children = jsonDataService.getChildrenAtAddress(address);
+            List<Person> children = personService.getChildrenAtAddress(address);
 
             if (children.isEmpty()) {
                 LOGGER.info("GET /childAlert Children not found for address {}.", address);
@@ -68,7 +63,7 @@ public class ApiController {
                 return ResponseEntity.notFound().build();
             }
 
-            List<Person> adults = jsonDataService.getAdultAtAddress(address);
+            List<Person> adults = personService.getAdultAtAddress(address);
             ChildAlertDto childAlertDto = personDtoMapper.toChildAlertDto(children, adults);
 
             LOGGER.info("GET /childAlert Children found for address {}: {}", address, (long) children.size());
@@ -84,7 +79,7 @@ public class ApiController {
     @GetMapping("/phoneAlert")
     public ResponseEntity<List<String>> getAllPhoneNumberByStation(@RequestParam(required = false, defaultValue = "3") String firestation_number) {
         try {
-            List<FireStation> fireStations = jsonDataService.getAllFireStationByStation(firestation_number);
+            List<FireStation> fireStations = fireStationService.getAllFireStationByStation(firestation_number);
 
             if (fireStations.isEmpty()) {
                 LOGGER.info("GET /phoneAlert fireStations not found for station number {}.", firestation_number);
@@ -92,7 +87,7 @@ public class ApiController {
                 return ResponseEntity.notFound().build();
             }
 
-            List<Person> persons = jsonDataService.getAllPersonFromFireStation(fireStations);
+            List<Person> persons = personService.getAllPersonFromFireStation(fireStations);
             List<String> phoneNumbers = personService.getAllPhoneNumbersFromPersons(persons);
 
             LOGGER.info("GET /phoneAlert Phone numbers found for fire station number {}: {}", firestation_number, (long) phoneNumbers.size());
@@ -108,7 +103,7 @@ public class ApiController {
     @GetMapping("/fire")
     public ResponseEntity<FireInfoDto> getAddressPersons(@RequestParam(required = false, defaultValue = "1509 Culver St") String address) {
         try {
-            FireStation fireStation = jsonDataService.getFireStationAtAddress(address);
+            FireStation fireStation = fireStationService.getFireStationAtAddress(address);
 
             if (fireStation == null) {
                 LOGGER.info("GET /fire Person not found for fire station address {}.", address);
@@ -116,7 +111,7 @@ public class ApiController {
                 return ResponseEntity.notFound().build();
             }
 
-            List<Person> persons = jsonDataService.getAllPersonAtAddress(address);
+            List<Person> persons = personService.getAllPersonAtAddress(address);
             LOGGER.info("GET /fire Persons found for fire station address {}: {}", address, (long) persons.size());
 
             return ResponseEntity.ok(personDtoMapper.toAddressPersonDto(persons, fireStation));
@@ -131,8 +126,8 @@ public class ApiController {
     @GetMapping("/flood/stations")
     public ResponseEntity<Map<String, List<PersonMedicalInfoDto>>> getFloodStation(@RequestParam(required = false, defaultValue = "1,3") String stations) {
         try {
-            List<FireStation> fireStations = jsonDataService.filterFireStationForStations(stations);
-            List<Person> persons = jsonDataService.getAllPersonByFireStations(fireStations);
+            List<FireStation> fireStations = fireStationService.filterFireStationForStations(stations);
+            List<Person> persons = personService.getAllPersonByFireStations(fireStations);
 
             LOGGER.info("GET /flood/stations Persons found for fire stations {}: {}", stations, (long) persons.size());
 
@@ -148,7 +143,7 @@ public class ApiController {
     @GetMapping("/personInfoLastName")
     public ResponseEntity<List<PersonInfoDto>> getPersonInfoLastName(@RequestParam(required = false, defaultValue = "Boyd") String lastName) {
         try {
-            List<Person> persons = jsonDataService.getAllPersonByLastName(lastName);
+            List<Person> persons = personService.getAllPersonByLastName(lastName);
             LOGGER.info("GET /personInfoLastName Persons found for lastname {}: {}", lastName, (long) persons.size());
 
             return ResponseEntity.ok(personDtoMapper.toPersonInfoLastNameDto(persons));
@@ -163,7 +158,7 @@ public class ApiController {
     @GetMapping("/communityEmail")
     public ResponseEntity<List<String>> getCommunityEmail(@RequestParam(required = false, defaultValue = "Culver") String city) {
         try {
-            List<Person> persons = jsonDataService.getAllPersonByCity(city);
+            List<Person> persons = personService.getAllPersonByCity(city);
             List<String> emails = personService.getAllEmailsFromPersons(persons);
 
             LOGGER.info("GET /communityEmail Email found for city {}: {}", city, (long) emails.size());

@@ -11,21 +11,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class ApiPersonController {
+public class ApiMedicalRecordController {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ApiPersonController.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(ApiMedicalRecordController.class);
 
     @Autowired
     private JsonDataLoader jsonDataService;
 
     @Autowired
+    private PersonDtoMapper personDtoMapper;
+
+    @Autowired
     private PersonService personService;
 
-    public ApiPersonController(JsonDataLoader jsonDataService) {
+    public ApiMedicalRecordController(JsonDataLoader jsonDataService) {
         this.jsonDataService = jsonDataService;
     }
 
-    @PostMapping("/person")
+    @PostMapping("/medicalRecord")
     public ResponseEntity<PersonDto> postPerson(@RequestBody Person person) {
         try {
             Person createdPerson = personService.createPerson(person);
@@ -39,7 +42,7 @@ public class ApiPersonController {
         }
     }
 
-    @PutMapping("/person")
+    @PutMapping("/medicalRecord")
     public ResponseEntity<PersonDto> putPerson(@RequestBody Person person) {
         try {
             Person currentPerson = personService.getPersonByFullName(person.getFullName());
@@ -54,8 +57,7 @@ public class ApiPersonController {
         }
     }
 
-    @DeleteMapping("/person")
-//    todo : public ResponseEntity<String> deletePerson(@RequestParam String firstName, @RequestParam String lastName) {
+    @DeleteMapping("/medicalRecord")
     public ResponseEntity<String> deletePerson(@RequestBody Person person) {
         try {
 

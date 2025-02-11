@@ -4,8 +4,8 @@ import java.util.List;
 
 public class JsonData {
     List<Person> persons;
-    List<FireStation> firestations;
-    List<MedicalRecord> medicalrecords;
+    List<FireStation> fireStations;
+    List<MedicalRecord> medicalRecords;
 
     public List<Person> getPersons() {
         return persons;
@@ -17,76 +17,27 @@ public class JsonData {
         return this;
     }
 
-    public List<FireStation> getFirestations() {
-        return firestations;
+    public List<FireStation> getFireStations() {
+        return fireStations;
     }
 
-    public void setFirestations(List<FireStation> firestations) {
-        this.firestations = firestations;
+    public void setFireStations(List<FireStation> fireStations) {
+        this.fireStations = fireStations;
     }
 
-    public List<MedicalRecord> getMedicalrecords() {
-        return medicalrecords;
+    public List<MedicalRecord> getMedicalRecords() {
+        return medicalRecords;
     }
 
-    public void setMedicalrecords(List<MedicalRecord> medicalrecords) {
-        this.medicalrecords = medicalrecords;
-    }
-
-    public JsonData addPerson(Person person) {
-        if (persons != null) {
-            persons.add(person);
-        }
-
-        return this;
-    }
-
-    public JsonData removePerson(Person person) {
-        if (persons != null) {
-            persons.remove(person);
-        }
-
-        return this;
-    }
-
-    public JsonData addFireStation(FireStation fireStation) {
-        if (fireStation != null) {
-            firestations.add(fireStation);
-        }
-
-        return this;
-    }
-
-    public JsonData removeFireStation(FireStation fireStation) {
-        if (firestations != null) {
-            firestations.remove(fireStation);
-        }
-
-        return this;
-    }
-
-    public JsonData addMedicalRecord(MedicalRecord medicalRecord) {
-        if (medicalrecords != null) {
-            medicalrecords.add(medicalRecord);
-        }
-
-        return this;
+    public void setMedicalRecords(List<MedicalRecord> medicalRecords) {
+        this.medicalRecords = medicalRecords;
     }
 
     public JsonData removeMedicalRecord(MedicalRecord medicalRecord) {
-        if (medicalrecords != null) {
-            medicalrecords.remove(medicalRecord);
+        if (medicalRecords != null) {
+            medicalRecords.remove(medicalRecord);
         }
 
         return this;
-    }
-
-    public Person getPersonByFullName(String fullName) {
-        return persons
-                .stream()
-                .filter(person -> person.getFullName()
-                        .equals(fullName))
-                .findFirst()
-                .get();
     }
 }

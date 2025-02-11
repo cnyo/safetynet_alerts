@@ -2,6 +2,8 @@ package org.safetynet.alerts.model;
 
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class Person {
     private String firstName;
@@ -12,6 +14,7 @@ public class Person {
     private String email;
     private String phone;
     private MedicalRecord medicalRecord;
+    private List<FireStation> fireStations;
 
     public String getFullName() {
         return firstName + " " + lastName;
@@ -93,6 +96,16 @@ public class Person {
 
     public Person setMedicalRecord(MedicalRecord medicalRecord) {
         this.medicalRecord = medicalRecord;
+
+        return this;
+    }
+
+    public List<FireStation> getFireStations() {
+        return fireStations;
+    }
+
+    public Person setFireStations(List<FireStation> fireStations) {
+        this.fireStations = fireStations;
 
         return this;
     }

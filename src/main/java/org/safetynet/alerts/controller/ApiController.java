@@ -127,7 +127,7 @@ public class ApiController {
     public ResponseEntity<Map<String, List<PersonMedicalInfoDto>>> getFloodStation(@RequestParam(required = false, defaultValue = "1,3") String stations) {
         try {
             List<FireStation> fireStations = fireStationService.filterFireStationForStations(stations);
-            List<Person> persons = personService.getAllPersonByFireStations(fireStations);
+            List<Person> persons = personService.getAllPersonFromFireStation(fireStations);
 
             LOGGER.info("GET /flood/stations Persons found for fire stations {}: {}", stations, (long) persons.size());
 

@@ -19,12 +19,13 @@ public class FireStation {
         return station;
     }
 
-    public void setStation(String station) {
+    public FireStation setStation(String station) {
         this.station = station;
+
+        return this;
     }
 
-    public boolean isStation(String stationNumber) {
-        return this.station.equals(stationNumber);
+    public String toString() {
+        return "FireStation [address=" + address + ", station=" + station + "]";
     }
-
 }

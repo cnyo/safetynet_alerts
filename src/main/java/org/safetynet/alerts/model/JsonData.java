@@ -32,12 +32,4 @@ public class JsonData {
     public void setMedicalRecords(List<MedicalRecord> medicalRecords) {
         this.medicalRecords = medicalRecords;
     }
-
-    public JsonData removeMedicalRecord(MedicalRecord medicalRecord) {
-        if (medicalRecords != null) {
-            medicalRecords.remove(medicalRecord);
-        }
-
-        return this;
-    }
 }

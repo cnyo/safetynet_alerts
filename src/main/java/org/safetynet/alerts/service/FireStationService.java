@@ -25,4 +25,20 @@ public class FireStationService {
 
         return fireStationRepository.findAllFireStationForStations(stationNumbers);
     }
+
+    public FireStation createFireStation(FireStation fireStation) {
+        return fireStationRepository.create(fireStation);
+    }
+
+    public FireStation getFireStation(String address, String station) {
+        return fireStationRepository.findOneFireStation(address, station);
+    }
+
+    public FireStation update(FireStation fireStation, String station) {
+        return fireStationRepository.update(fireStation, station);
+    }
+
+    public void remove(FireStation fireStation) {
+        fireStationRepository.remove(fireStation);
+    }
 }

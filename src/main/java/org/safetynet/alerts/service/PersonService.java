@@ -74,10 +74,6 @@ public class PersonService {
         return personRepository.findAllPersonAtAddress(address);
     }
 
-    public List<Person> getAllPersonByFireStations(List<FireStation> fireStations) {
-        return personRepository.findAllPersonByFireStations(fireStations);
-    }
-
     public List<Person> getAllPersonByLastName(String lastName) {
         return personRepository.findAllPersonByLastName(lastName);
     }
@@ -96,5 +92,11 @@ public class PersonService {
 
     public List<Person> getChildrenAtAddress(String address) {
         return personRepository.findAllChildrenAtAddress(address);
+    }
+
+    public void attachFireStationToPersons(FireStation fireStation) {
+        List<Person> persons = personRepository.findAllPersonAtAddress(fireStation.getAddress());
+
+        persons.forEach(person -> personRepository.addFireStationToPerson(person, fireStation));
     }
 }

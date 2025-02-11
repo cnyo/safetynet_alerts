@@ -64,24 +64,6 @@ public class PersonRepository {
                 .collect(Collectors.toList());
     }
 
-    public List<Person> findAllPersonByFireStations(List<FireStation> fireStations) {
-        List<String> addresses = fireStations.stream().map(FireStation::getAddress).toList();
-        List<Person> persons = new ArrayList<>();
-
-        for (String address : addresses) {
-
-            List<Person> personsAtAddress = jsonData
-                    .getPersons()
-                    .stream()
-                    .filter(person -> person.getAddress().equals(address))
-                    .toList();
-
-            persons.addAll(personsAtAddress);
-        }
-
-        return persons;
-    }
-
     public List<Person> findAllPersonByLastName(String lastName) {
         return jsonData
                 .getPersons()
@@ -126,5 +108,11 @@ public class PersonRepository {
                 .stream()
                 .filter(person -> person.getAddress().equals(address))
                 .filter(p -> p.getMedicalRecord().isChild()).collect(Collectors.toList());
+    }
+
+    public Person addFireStationToPerson(Person person, FireStation fireStation) {
+        person.getFireStations().add(fireStation);
+
+        return person;
     }
 }

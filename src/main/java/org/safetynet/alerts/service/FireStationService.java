@@ -47,7 +47,7 @@ public class FireStationService {
         return fireStationRepository.update(fireStation, station);
     }
 
-    public void remove(FireStation fireStation) {
-        fireStationRepository.remove(fireStation);
+    public boolean remove(FireStation fireStation) {
+        return fireStationRepository.remove(fireStation);
     }
 }

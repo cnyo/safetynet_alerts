@@ -61,16 +61,22 @@ public class ApiFireStationController {
     }
 
     @DeleteMapping("/firestation")
-    public ResponseEntity<Void> deleteFireStation(@RequestParam String address, @RequestParam String station) {
+    public ResponseEntity<String> deleteFireStation(@RequestParam String address, @RequestParam String station) {
         log.info("DELETE /firestation");
 
         try {
             FireStation fireStationToDelete = fireStationService.getFireStation(address, station);
-            fireStationService.remove(fireStationToDelete);
+            boolean removed = fireStationService.remove(fireStationToDelete);
+
+            if (!removed) {
+                log.info("DELETE /firestation firestation {} not found.", fireStationToDelete.toString());
+
+                return ResponseEntity.notFound().build();
+            }
 
             log.info("DELETE /firestation {} removed", fireStationToDelete.toString());
 
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("FireStation removed successfully.");
         } catch (NoSuchElementException e) {
             log.warn("FireStation to delete not found: {} - {}", address, station);
 

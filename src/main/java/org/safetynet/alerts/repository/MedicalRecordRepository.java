@@ -16,6 +16,10 @@ public class MedicalRecordRepository {
     }
 
     public MedicalRecord create(MedicalRecord medicalRecord) {
+        if (findOneByFullName(medicalRecord.getFullName()).isPresent()) {
+            throw new IllegalArgumentException("Person already exists");
+        }
+
         jsonData.getMedicalRecords().add(medicalRecord);
 
         return medicalRecord;
@@ -40,7 +44,7 @@ public class MedicalRecordRepository {
         return medicalRecordToUpdate;
     }
 
-    public void remove(MedicalRecord medicalRecord) {
-        jsonData.getMedicalRecords().remove(medicalRecord);
+    public boolean remove(MedicalRecord medicalRecord) {
+        return jsonData.getMedicalRecords().remove(medicalRecord);
     }
 }

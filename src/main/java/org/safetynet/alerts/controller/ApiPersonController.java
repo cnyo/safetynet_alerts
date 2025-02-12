@@ -1,39 +1,31 @@
 package org.safetynet.alerts.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.person.PersonDto;
 import org.safetynet.alerts.model.Person;
-import org.safetynet.alerts.service.JsonDataLoader;
 import org.safetynet.alerts.service.PersonService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
+
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class ApiPersonController {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ApiPersonController.class);
-
-    @Autowired
-    private JsonDataLoader jsonDataService;
-
-    @Autowired
-    private PersonService personService;
-
-    public ApiPersonController(JsonDataLoader jsonDataService) {
-        this.jsonDataService = jsonDataService;
-    }
+    private final PersonService personService;
 
     @PostMapping("/person")
     public ResponseEntity<PersonDto> postPerson(@RequestBody Person person) {
         try {
             Person createdPerson = personService.createPerson(person);
-            LOGGER.info("POST /person {} has created with success.", person.getFullName());
+            log.info("POST /person {} has created with success.", person.getFullName());
 
             return ResponseEntity.ok(new PersonDto(createdPerson));
         } catch (Exception e) {
-            LOGGER.error("POST /person Error: {}", e.getMessage());
+            log.error("POST /person Error: {}", e.getMessage(), e);
 
             return ResponseEntity.internalServerError().body(null);
         }
@@ -44,35 +36,43 @@ public class ApiPersonController {
         try {
             Person currentPerson = personService.getPersonByFullName(person.getFullName());
             Person updatededPerson = personService.updatePerson(person, currentPerson);
-            LOGGER.info("PUT /person {} has updated with success.", person.getFullName());
+            log.info("PUT /person {} has updated with success.", person.getFullName());
 
             return ResponseEntity.ok(new PersonDto(updatededPerson));
         } catch (Exception e) {
-            LOGGER.error("PUT /person Error: {}", e.getMessage());
+            log.error("PUT /person Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }
     }
 
     @DeleteMapping("/person")
-//    todo : public ResponseEntity<String> deletePerson(@RequestParam String firstName, @RequestParam String lastName) {
-    public ResponseEntity<String> deletePerson(@RequestBody Person person) {
+    public ResponseEntity<String> deletePerson(@RequestParam String firstName, @RequestParam String lastName) {
         try {
-
-            if (person == null) {
-                LOGGER.info("DELETE /person Person to update not found.");
+            Person personToRemove = personService.getPersonByFullName(firstName + " " + lastName);
+            if (personToRemove == null) {
+                log.info("DELETE /person Person not found.");
 
                 return ResponseEntity.notFound().build();
             }
 
-            Person personRemoved = personService.removePerson(person);
+            boolean removed = personService.removePerson(personToRemove);
 
-            // todo :  Vérifier ici si la personne n'existe effectivement plus ?
-            LOGGER.info("DELETE /person {} has removed with success.", person.getFullName());
+            if (!removed) {
+                log.info("DELETE /person medicalRecord not found.");
 
-            return ResponseEntity.ok(personRemoved.getFullName());
+                return ResponseEntity.notFound().build();
+            }
+
+            log.info("DELETE /person Person removed");
+
+            return ResponseEntity.ok("Person removed successfully.");
+        } catch (NoSuchElementException e) {
+            log.warn("Person to delete not found");
+
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            LOGGER.error("DELETE /person Error: {}", e.getMessage());
+            log.error("DELETE /person Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }

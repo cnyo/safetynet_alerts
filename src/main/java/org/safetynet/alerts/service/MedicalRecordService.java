@@ -25,7 +25,7 @@ public class MedicalRecordService {
         return medicalRecordRepository.update(medicalRecord, medicalRecordToUpdate);
     }
 
-    public void remove(MedicalRecord medicalRecord) {
-        medicalRecordRepository.remove(medicalRecord);
+    public boolean remove(MedicalRecord medicalRecord) {
+        return medicalRecordRepository.remove(medicalRecord);
     }
 }

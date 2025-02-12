@@ -39,6 +39,10 @@ public class FireStationRepository {
     }
 
     public FireStation create(FireStation fireStation) {
+        if (findOneFireStation(fireStation.getAddress(), fireStation.getStation()).isPresent()) {
+            throw new IllegalArgumentException("FireStation already exists");
+        }
+
         jsonData.getFireStations().add(fireStation);
 
         return fireStation;
@@ -56,7 +60,7 @@ public class FireStationRepository {
         return fireStation.setStation(station);
     }
 
-    public void remove(FireStation fireStationToDelete) {
-        jsonData.getFireStations().remove(fireStationToDelete);
+    public boolean remove(FireStation fireStationToDelete) {
+        return jsonData.getFireStations().remove(fireStationToDelete);
     }
 }

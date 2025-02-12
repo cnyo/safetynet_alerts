@@ -5,10 +5,8 @@ import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataLoader;
-import org.safetynet.alerts.service.PersonService;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,14 +14,20 @@ import java.util.stream.Collectors;
 public class PersonRepository {
 
     protected final JsonData jsonData;
-    private final PersonService personService;
 
-    public PersonRepository(JsonDataLoader jsonDataLoader, PersonService personService) {
+    public PersonRepository(JsonDataLoader jsonDataLoader) {
         this.jsonData = jsonDataLoader.getJsonData();
-        this.personService = personService;
     }
 
     public Person createPerson(Person person) {
+        if (person == null || person.getFullName() == null) {
+            throw new NullPointerException("Invalid person data");
+        }
+
+        if (findOneByFullName(person.getFullName()) != null) {
+            throw new IllegalArgumentException("Person already exists");
+        }
+
         jsonData.getPersons().add(person);
 
         return person;
@@ -32,20 +36,26 @@ public class PersonRepository {
     public Person updatePerson(Person person, Person currentPerson) {
         return currentPerson
                 .setFirstName(person.getFirstName())
-                .setLastName(person.getFirstName())
+                .setLastName(person.getLastName())
                 .setAddress(person.getAddress())
                 .setCity(person.getCity())
                 .setZip(person.getZip())
                 .setEmail(person.getEmail())
-                .setPhone(person.getPhone())
-                .setAddress(person.getAddress());
+                .setPhone(person.getPhone());
     }
 
-    public Person removePerson(Person person) {
-        Person personToRemove = personService.getPersonByFullName(person.getFullName());
-        jsonData.getPersons().remove(personToRemove);
+    public boolean remove(Person personToRemove) {
+        boolean personResult = jsonData.getPersons()
+                .removeIf(person -> person.getFullName().equals(personToRemove.getFullName()));
 
-        return person;
+        boolean medicalRecordResult = jsonData.getMedicalRecords()
+                .removeIf(medicalRecord -> medicalRecord.getFullName().equals(personToRemove.getFullName()));
+
+        if (!(personResult && medicalRecordResult)) {
+            throw new IllegalArgumentException("Person or medical record not removed");
+        }
+
+        return true;
     }
 
     public List<Person> findAdultAtAddress(String address) {
@@ -53,7 +63,7 @@ public class PersonRepository {
                 .getPersons()
                 .stream()
                 .filter(person -> person.getAddress().equals(address))
-                .filter(p -> p.getMedicalRecord().isAdult())
+                .filter(person -> person.getMedicalRecord() != null && person.getMedicalRecord().isAdult())
                 .collect(Collectors.toList());
     }
 
@@ -92,15 +102,11 @@ public class PersonRepository {
 
     public List<Person> findAllPersonFromFireStation(List<FireStation> fireStations) {
         List<String> addresses = fireStations.stream().map(FireStation::getAddress).toList();
-        List<Person> persons = new ArrayList<>();
 
-        for (Person person : jsonData.getPersons()) {
-            if (addresses.contains(person.getAddress())) {
-                persons.add(person);
-            }
-        }
-
-        return persons;
+        return jsonData.getPersons()
+                .stream()
+                .filter(person -> addresses.contains(person.getAddress()))
+                .collect(Collectors.toList());
     }
 
     public List<Person> findAllChildrenAtAddress(String address) {
@@ -108,7 +114,8 @@ public class PersonRepository {
                 .getPersons()
                 .stream()
                 .filter(person -> person.getAddress().equals(address))
-                .filter(p -> p.getMedicalRecord().isChild()).collect(Collectors.toList());
+                .filter(p -> p.getMedicalRecord() != null && p.getMedicalRecord().isChild())
+                .collect(Collectors.toList());
     }
 
     public Person addFireStationToPerson(Person person, FireStation fireStation) {
@@ -117,7 +124,7 @@ public class PersonRepository {
         return person;
     }
 
-    public Person updateMedicalRedord(Person person, MedicalRecord medicalRecord) {
+    public Person attachMedicalRecordToPerson(Person person, MedicalRecord medicalRecord) {
         return person.setMedicalRecord(medicalRecord);
     }
 }

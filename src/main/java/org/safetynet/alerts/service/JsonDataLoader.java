@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
+import org.safetynet.alerts.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,9 +57,6 @@ public class JsonDataLoader {
     }
 
     private void processJsonData() {
-        Map<String, MedicalRecord> medicalRecordMap = jsonData.getMedicalRecords()
-                .stream()
-                .collect(Collectors.toMap(MedicalRecord::getFullName, medicalRecord -> medicalRecord));
         Map<String, List<FireStation>> fireStationMap = jsonData.getFireStations()
                 .stream()
                 .collect(Collectors.groupingBy(FireStation::getAddress));
@@ -66,9 +64,23 @@ public class JsonDataLoader {
         jsonData
                 .getPersons()
                 .forEach(person -> {
-                    person.setMedicalRecord(medicalRecordMap.get(person.getFullName()));
+                    person.setMedicalRecord(getMedicalRecordForPerson(person));
                     person.setFireStations(fireStationMap.get(person.getAddress()));
                 });
+    }
+
+    private MedicalRecord getMedicalRecordForPerson(Person person) {
+        Map<String, MedicalRecord> medicalRecordMap = jsonData.getMedicalRecords()
+                .stream()
+                .collect(Collectors.toMap(MedicalRecord::getFullName, medicalRecord -> medicalRecord));
+
+        MedicalRecord medicalRecord = medicalRecordMap.get(person.getFullName());
+
+        if (medicalRecord == null) {
+            return new MedicalRecord();
+        }
+
+        return medicalRecord;
     }
 
     public JsonData getJsonData() {

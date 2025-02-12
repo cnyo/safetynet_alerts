@@ -24,12 +24,12 @@ public class ApiMedicalRecordController {
         log.info("POST /medicalRecord");
 
         try {
-            MedicalRecord createdMedicalRecord = medicalRecordService.createMedicalRecord(medicalRecord);
-            personService.attachMedicalRecordToPersons(createdMedicalRecord);
+            MedicalRecord medicalRecordToSave = medicalRecordService.createMedicalRecord(medicalRecord);
+            personService.attachMedicalRecordToPersons(medicalRecordToSave);
 
             log.info("POST /medicalRecord MedicalRecord created");
 
-            return ResponseEntity.ok(new MedicalRecordDto(createdMedicalRecord));
+            return ResponseEntity.ok(new MedicalRecordDto(medicalRecordToSave));
         } catch (Exception e) {
             log.error("POST /medicalRecord MedicalRecord error: {}", e.getMessage());
 
@@ -64,11 +64,17 @@ public class ApiMedicalRecordController {
 
         try {
             MedicalRecord medicalRecord = medicalRecordService.getByFullName(firstName + " " + lastName);
-            medicalRecordService.remove(medicalRecord);
+            boolean removed = medicalRecordService.remove(medicalRecord);
+
+            if (!removed) {
+                log.info("DELETE /medicalRecord medicalRecord not found.");
+
+                return ResponseEntity.notFound().build();
+            }
 
             log.info("DELETE /medicalRecord removed.");
 
-            return ResponseEntity.ok(medicalRecord.getFullName());
+            return ResponseEntity.ok("medicalRecord removed successfully.");
         } catch (NoSuchElementException e) {
             log.warn("MedicalRecord to delete not found");
 

@@ -27,8 +27,8 @@ public class PersonService {
         return personRepository.updatePerson(person, currentPerson);
     }
 
-    public Person removePerson(Person person) {
-        return personRepository.removePerson(person);
+    public boolean removePerson(Person person) {
+        return personRepository.remove(person);
     }
 
     public List<String> getAllPhoneNumbersFromPersons(List<Person> persons) {
@@ -42,28 +42,16 @@ public class PersonService {
         return persons.stream().map(Person::getEmail).toList();
     }
 
-    public int countAdultFromPersons(List<Person> persons) {
-        int count = 0;
-
-        for (Person person : persons) {
-            if (person.getMedicalRecord() != null && person.getMedicalRecord().getAge() >= MAJORITY_AGE) {
-                count++;
-            }
-        }
-
-        return count;
+    public Integer countAdultFromPersons(List<Person> persons) {
+        return (int) persons.stream()
+                .filter(person -> person.getMedicalRecord() != null && person.getMedicalRecord().getAge() >= MAJORITY_AGE)
+                .count();
     }
 
     public int countChildrenFromPersons(List<Person> persons) {
-        int count = 0;
-
-        for (Person person : persons) {
-            if (person.getMedicalRecord() != null && person.getMedicalRecord().getAge() < MAJORITY_AGE) {
-                count++;
-            }
-        }
-
-        return count;
+        return (int) persons.stream()
+                .filter(person -> person.getMedicalRecord() != null && person.getMedicalRecord().getAge() < MAJORITY_AGE)
+                .count();
     }
 
     public List<Person> getAdultAtAddress(String address) {
@@ -100,8 +88,9 @@ public class PersonService {
         persons.forEach(person -> personRepository.addFireStationToPerson(person, fireStation));
     }
 
-    public void attachMedicalRecordToPersons(MedicalRecord medicalRecord) {
+    public Person attachMedicalRecordToPersons(MedicalRecord medicalRecord) {
         Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
-        personRepository.updateMedicalRedord(person, medicalRecord);
+
+        return personRepository.attachMedicalRecordToPerson(person, medicalRecord);
     }
 }

@@ -6,18 +6,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class FireStationService {
     @Autowired
     private FireStationRepository fireStationRepository;
 
+    @Autowired
+    private PersonService personService;
+
     public List<FireStation> getAllFireStationByStation(String stationNumber) {
         return fireStationRepository.findAllFireStationByStation(stationNumber);
     }
 
     public FireStation getFireStationAtAddress(String address) {
-        return fireStationRepository.findFireStationAtAddress(address);
+        return fireStationRepository.findFireStationAtAddress(address)
+                .orElseThrow(() -> new NoSuchElementException("No fire station found"));
     }
 
     public List<FireStation> filterFireStationForStations(String stations) {
@@ -27,11 +32,15 @@ public class FireStationService {
     }
 
     public FireStation createFireStation(FireStation fireStation) {
-        return fireStationRepository.create(fireStation);
+        FireStation savedFireStation = fireStationRepository.create(fireStation);
+        personService.attachFireStationToPersons(savedFireStation);
+
+        return savedFireStation;
     }
 
     public FireStation getFireStation(String address, String station) {
-        return fireStationRepository.findOneFireStation(address, station);
+        return fireStationRepository.findOneFireStation(address, station)
+                .orElseThrow(() -> new NoSuchElementException("No fire station found"));
     }
 
     public FireStation update(FireStation fireStation, String station) {

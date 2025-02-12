@@ -1,94 +1,84 @@
 package org.safetynet.alerts.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.safetynet.alerts.dto.FireStationDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.service.FireStationService;
 import org.safetynet.alerts.service.PersonService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
+
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class ApiFireStationController {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ApiFireStationController.class);
-
-    @Autowired
-    private PersonService personService;
-
-    @Autowired
-    private FireStationService fireStationService;
+    private final PersonService personService;
+    private final FireStationService fireStationService;
 
     @PostMapping("/firestation")
-    public ResponseEntity<FireStation> postPerson(@RequestBody FireStation fireStation) {
-        LOGGER.info("POST /firestation");
+    public ResponseEntity<FireStationDto> postFireStation(@RequestBody FireStation fireStation) {
+        log.info("POST /firestation");
 
         try {
             FireStation createdFireStation = fireStationService.createFireStation(fireStation);
-            personService.attachFireStationToPersons(createdFireStation);
 
-            LOGGER.info("POST /firestation FireStation created: {}", createdFireStation);
+            log.info("POST /firestation FireStation created");
 
-            return ResponseEntity.ok(fireStation);
+            return ResponseEntity.ok(new FireStationDto(createdFireStation));
         } catch (Exception e) {
-            LOGGER.error("POST /firestation FireStation error: {}", e.getMessage());
+            log.error("POST /firestation FireStation error: {}", e.getMessage());
 
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @PutMapping("/firestation")
-    public ResponseEntity<FireStation> putFireStation(@RequestParam String address, String oldStation, String station) {
-        LOGGER.info("PUT /firestation");
+    public ResponseEntity<FireStationDto> putFireStation(@RequestParam String address, @RequestParam String oldStation, @RequestParam String station) {
+        log.info("PUT /firestation - Address: {}, Old Station: {}, New Station: {}", address, oldStation, station);
 
         try {
             FireStation fireStationToUpdate = fireStationService.getFireStation(address, oldStation);
+            FireStation updatedFireStation = fireStationService.update(fireStationToUpdate, station);
 
-            if (fireStationToUpdate == null) {
-                LOGGER.info("PUT /firestation FireStation not found");
+            log.info("PUT /firestation Firestation {} successfully updated", updatedFireStation.toString());
 
-                return ResponseEntity.notFound().build();
-            }
+            return ResponseEntity.ok(new FireStationDto(updatedFireStation));
 
+        } catch (NoSuchElementException e) {
+            log.warn("FireStation to update not found: {} - {}", address, oldStation);
 
-            fireStationToUpdate = fireStationService.update(fireStationToUpdate, station);
-            LOGGER.info("PUT /firestation Firestation updated: {}", fireStationToUpdate.toString());
+            return ResponseEntity.notFound().build();
+        }
+        catch (Exception e) {
+            log.error("Error updating FireStation: {}", e.getMessage(), e);
 
-            return ResponseEntity.ok(fireStationToUpdate);
-
-        } catch (Exception e) {
-            LOGGER.error("PUT /person Error: {}", e.getMessage());
-
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @DeleteMapping("/firestation")
-    public ResponseEntity<String> deleteFireStation(@RequestParam String address, String station) {
-        LOGGER.info("DELETE /firestation");
+    public ResponseEntity<Void> deleteFireStation(@RequestParam String address, @RequestParam String station) {
+        log.info("DELETE /firestation");
 
         try {
             FireStation fireStationToDelete = fireStationService.getFireStation(address, station);
-            if (fireStationToDelete == null) {
-                LOGGER.info("DELETE /firestation fireStation not found {}.", address + " " + station );
-
-                return ResponseEntity.notFound().build();
-            }
-
             fireStationService.remove(fireStationToDelete);
 
-            if (fireStationService.getFireStation(address, station) == null) {
-                LOGGER.info("DELETE /firestation {} removed.", fireStationToDelete.toString());
+            log.info("DELETE /firestation {} removed", fireStationToDelete.toString());
 
-                return ResponseEntity.ok(fireStationToDelete.toString());
-            }
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            log.warn("FireStation to delete not found: {} - {}", address, station);
 
-            throw new RuntimeException("DELETE /firestation fireStation not deleted");
-        } catch (Exception e) {
-            LOGGER.error("DELETE /firestation Error: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        }  catch (Exception e) {
+            log.error("Error deleting FireStation: {}", e.getMessage(), e);
 
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

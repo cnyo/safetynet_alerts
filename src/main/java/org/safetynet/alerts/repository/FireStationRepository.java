@@ -6,6 +6,7 @@ import org.safetynet.alerts.service.JsonDataLoader;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -22,9 +23,11 @@ public class FireStationRepository {
         return jsonData.getFireStations().stream().filter(f -> f.getStation().equals(stationNumber)).toList();
     }
 
-    public FireStation findFireStationAtAddress(String address) {
+    public Optional<FireStation> findFireStationAtAddress(String address) {
 
-        return jsonData.getFireStations().stream().filter(f -> f.getAddress().equals(address)).findFirst().orElse(null);
+        return jsonData.getFireStations().stream()
+                .filter(f -> f.getAddress().equals(address))
+                .findFirst();
     }
 
     public List<FireStation> findAllFireStationForStations(String[] stationNumbers) {
@@ -41,12 +44,12 @@ public class FireStationRepository {
         return fireStation;
     }
 
-    public FireStation findOneFireStation(String address, String station) {
+    public Optional<FireStation> findOneFireStation(String address, String station) {
         return jsonData
                 .getFireStations()
                 .stream()
                 .filter(fireStation -> fireStation.getAddress().equals(address) && fireStation.getStation().equals(station))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 
     public FireStation update(FireStation fireStation, String station) {

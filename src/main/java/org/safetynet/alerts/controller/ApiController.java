@@ -1,14 +1,13 @@
 package org.safetynet.alerts.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.*;
 import org.safetynet.alerts.dto.person.PersonInfoDto;
 import org.safetynet.alerts.dto.person.PersonMedicalInfoDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,36 +15,26 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class ApiController {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(ApiController.class);
-
-    @Autowired
-    private PersonDtoMapper personDtoMapper;
-
-    @Autowired
-    private PersonService personService;
-
-    @Autowired
-    private FireStationService fireStationService;
+    private final PersonDtoMapper personDtoMapper;
+    private final PersonService personService;
+    private final FireStationService fireStationService;
 
     @GetMapping("/firestation")
     public ResponseEntity<PersonByStationNumberDto> getPersonByStationNumber(@RequestParam(required = false, defaultValue = "3") String station_number) {
         try {
-            List<FireStation> fireStations = fireStationService.getAllFireStationByStation(station_number);
+            List<Person> persons = personService.getAllPersonFromFireStation(station_number);
+            int adultNbr = personService.countAdultFromPersons(persons);
+            int childrenNbr = personService.countChildrenFromPersons(persons);
 
-            if (fireStations.isEmpty()) {
-                LOGGER.info("GET /firestation fireStations not found for station number {}.", station_number);
+            log.info("GET /firestation Persons from firestation number {}: {} persons", station_number, (long) persons.size());
 
-                return ResponseEntity.notFound().build();
-            }
-
-            List<Person> persons = personService.getAllPersonFromFireStation(fireStations);
-            LOGGER.info("GET /firestation Persons from firestation number {}: {} persons", station_number, (long) persons.size());
-
-            return ResponseEntity.ok(personDtoMapper.toPersonByStationNumberDto(persons, station_number));
+            return ResponseEntity.ok(personDtoMapper.toPersonByStationNumberDto(persons, station_number, adultNbr, childrenNbr));
         } catch (Exception e) {
-            LOGGER.error("GET /firestation Error: {}", e.getMessage());
+            log.error("GET /firestation Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }
@@ -58,7 +47,7 @@ public class ApiController {
             List<Person> children = personService.getChildrenAtAddress(address);
 
             if (children.isEmpty()) {
-                LOGGER.info("GET /childAlert Children not found for address {}.", address);
+                log.info("GET /childAlert Children not found for address {}.", address);
 
                 return ResponseEntity.notFound().build();
             }
@@ -66,11 +55,11 @@ public class ApiController {
             List<Person> adults = personService.getAdultAtAddress(address);
             ChildAlertDto childAlertDto = personDtoMapper.toChildAlertDto(children, adults);
 
-            LOGGER.info("GET /childAlert Children found for address {}: {}", address, (long) children.size());
+            log.info("GET /childAlert Children found for address {}: {}", address, (long) children.size());
 
             return ResponseEntity.ok(childAlertDto);
         } catch (Exception e) {
-            LOGGER.error("GET /childAlert Error: {}", e.getMessage());
+            log.error("GET /childAlert Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }
@@ -79,22 +68,14 @@ public class ApiController {
     @GetMapping("/phoneAlert")
     public ResponseEntity<List<String>> getAllPhoneNumberByStation(@RequestParam(required = false, defaultValue = "3") String firestation_number) {
         try {
-            List<FireStation> fireStations = fireStationService.getAllFireStationByStation(firestation_number);
-
-            if (fireStations.isEmpty()) {
-                LOGGER.info("GET /phoneAlert fireStations not found for station number {}.", firestation_number);
-
-                return ResponseEntity.notFound().build();
-            }
-
-            List<Person> persons = personService.getAllPersonFromFireStation(fireStations);
+            List<Person> persons = personService.getAllPersonFromFireStation(firestation_number);
             List<String> phoneNumbers = personService.getAllPhoneNumbersFromPersons(persons);
 
-            LOGGER.info("GET /phoneAlert Phone numbers found for fire station number {}: {}", firestation_number, (long) phoneNumbers.size());
+            log.info("GET /phoneAlert Phone numbers found for fire station number {}: {}", firestation_number, (long) phoneNumbers.size());
 
             return ResponseEntity.ok(phoneNumbers);
         } catch (Exception e) {
-            LOGGER.error("GET /phoneAlert Error: {}", e.getMessage());
+            log.error("GET /phoneAlert Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }
@@ -106,18 +87,18 @@ public class ApiController {
             FireStation fireStation = fireStationService.getFireStationAtAddress(address);
 
             if (fireStation == null) {
-                LOGGER.info("GET /fire Person not found for fire station address {}.", address);
+                log.info("GET /fire Person not found for fire station address {}.", address);
 
                 return ResponseEntity.notFound().build();
             }
 
             List<Person> persons = personService.getAllPersonAtAddress(address);
-            LOGGER.info("GET /fire Persons found for fire station address {}: {}", address, (long) persons.size());
+            log.info("GET /fire Persons found for fire station address {}: {}", address, (long) persons.size());
 
             return ResponseEntity.ok(personDtoMapper.toAddressPersonDto(persons, fireStation));
 
         } catch (Exception e) {
-            LOGGER.error("GET /fire Error: {}", e.getMessage());
+            log.error("GET /fire Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }
@@ -126,15 +107,14 @@ public class ApiController {
     @GetMapping("/flood/stations")
     public ResponseEntity<Map<String, List<PersonMedicalInfoDto>>> getFloodStation(@RequestParam(required = false, defaultValue = "1,3") String stations) {
         try {
-            List<FireStation> fireStations = fireStationService.filterFireStationForStations(stations);
-            List<Person> persons = personService.getAllPersonFromFireStation(fireStations);
+            List<Person> persons = personService.getAllPersonFromFireStations(stations);
 
-            LOGGER.info("GET /flood/stations Persons found for fire stations {}: {}", stations, (long) persons.size());
+            log.info("GET /flood/stations Persons found for fire stations {}: {}", stations, (long) persons.size());
 
-            return ResponseEntity.ok(personDtoMapper.toFloodStationDto(persons, fireStations));
+            return ResponseEntity.ok(personDtoMapper.toFloodStationDto(persons));
 
         } catch (Exception e) {
-            LOGGER.error("GET /flood/stations Error: {}", e.getMessage());
+            log.error("GET /flood/stations Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }
@@ -144,12 +124,12 @@ public class ApiController {
     public ResponseEntity<List<PersonInfoDto>> getPersonInfoLastName(@RequestParam(required = false, defaultValue = "Boyd") String lastName) {
         try {
             List<Person> persons = personService.getAllPersonByLastName(lastName);
-            LOGGER.info("GET /personInfoLastName Persons found for lastname {}: {}", lastName, (long) persons.size());
+            log.info("GET /personInfoLastName Persons found for lastname {}: {}", lastName, (long) persons.size());
 
             return ResponseEntity.ok(personDtoMapper.toPersonInfoLastNameDto(persons));
 
         } catch (Exception e) {
-            LOGGER.error("GET /personInfoLastName Error: {}", e.getMessage());
+            log.error("GET /personInfoLastName Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }
@@ -161,12 +141,12 @@ public class ApiController {
             List<Person> persons = personService.getAllPersonByCity(city);
             List<String> emails = personService.getAllEmailsFromPersons(persons);
 
-            LOGGER.info("GET /communityEmail Email found for city {}: {}", city, (long) emails.size());
+            log.info("GET /communityEmail Email found for city {}: {}", city, (long) emails.size());
 
             return ResponseEntity.ok(emails);
 
         } catch (Exception e) {
-            LOGGER.error("GET /communityEmail Error: {}", e.getMessage());
+            log.error("GET /communityEmail Error: {}", e.getMessage());
 
             return ResponseEntity.internalServerError().body(null);
         }

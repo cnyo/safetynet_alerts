@@ -74,8 +74,14 @@ public class PersonService {
         return personRepository.findOneByFullName(fullName);
     }
 
-    public List<Person> getAllPersonFromFireStation(List<FireStation> fireStations) {
-        return personRepository.findAllPersonFromFireStation(fireStations);
+    public List<Person> getAllPersonFromFireStation(String stationNumber) {
+        return personRepository.findAllPersonFromFireStation(stationNumber);
+    }
+
+    public List<Person> getAllPersonFromFireStations(String stations) {
+        String[] stationNumbers = stations.split(",");
+
+        return personRepository.findAllPersonFromStations(stationNumbers);
     }
 
     public List<Person> getChildrenAtAddress(String address) {

@@ -100,8 +100,24 @@ public class PersonRepository {
                 .orElse(null);
     }
 
-    public List<Person> findAllPersonFromFireStation(List<FireStation> fireStations) {
-        List<String> addresses = fireStations.stream().map(FireStation::getAddress).toList();
+    public List<Person> findAllPersonFromFireStation(String stationNumber) {
+        List <String> addresses = jsonData.getFireStations().stream()
+                .filter(fireStation -> fireStation.getStation().equals(stationNumber))
+                .map(FireStation::getAddress)
+                .toList();
+
+        return jsonData.getPersons()
+                .stream()
+                .filter(person -> addresses.contains(person.getAddress()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Person> findAllPersonFromStations(String[] stations) {
+        List <String> addresses = jsonData.getFireStations()
+                .stream()
+                .filter(fireStation -> List.of(stations).contains(fireStation.getStation()))
+                .map(FireStation::getAddress)
+                .toList();
 
         return jsonData.getPersons()
                 .stream()

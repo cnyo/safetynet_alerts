@@ -6,26 +6,16 @@ import org.safetynet.alerts.dto.person.*;
 import org.safetynet.alerts.dto.PersonByStationNumberDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.Person;
-import org.safetynet.alerts.service.PersonService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class PersonDtoMapper {
 
-    @Autowired
-    private PersonService personService;
-
-//   todo : public PersonByStationNumberDto toPersonByStationNumberDto(List<Person> persons, String stationNumber, int adultNbr, int childrenNbr) {
-    public PersonByStationNumberDto toPersonByStationNumberDto(List<Person> persons, String stationNumber) {
+    public PersonByStationNumberDto toPersonByStationNumberDto(List<Person> persons, String stationNumber, int adultNbr, int childrenNbr) {
         List<PersonBasicInfoDto> personsDto = persons.stream().map(PersonBasicInfoDto::new).toList();
-        int adultNbr = personService.countAdultFromPersons(persons);
-        int childrenNbr = personService.countChildrenFromPersons(persons);
 
         return new PersonByStationNumberDto(personsDto, stationNumber, adultNbr, childrenNbr);
     }
@@ -49,20 +39,16 @@ public class PersonDtoMapper {
         return new FireInfoDto(personsDto, fireStation);
     }
 
-    public Map<String, List<PersonMedicalInfoDto>> toFloodStationDto(List<Person> persons, List<FireStation> fireStations) {
-        List<String> addresses = fireStations.stream().map(FireStation::getAddress).toList();
-        Map<String, List<PersonMedicalInfoDto>> personsByAddress = new TreeMap<>();
+    public Map<String, List<PersonMedicalInfoDto>> toFloodStationDto(List<Person> persons) {
+        Map<String, List<PersonMedicalInfoDto>> personMedicalInfoDtoMap = new HashMap<>();
 
-        for (String address : addresses) {
-            List<PersonMedicalInfoDto> personsAtAddress = persons
-                    .stream()
-                    .filter(person -> person.getAddress().equals(address))
-                    .map(PersonMedicalInfoDto::new).toList();
+        persons.forEach(person -> {
+                    personMedicalInfoDtoMap
+                            .computeIfAbsent(person.getAddress(), k -> new ArrayList<>())
+                            .add(new PersonMedicalInfoDto(person));
+        });
 
-            personsByAddress.put(address, personsAtAddress);
-        }
-
-        return personsByAddress;
+        return personMedicalInfoDtoMap;
     }
 
     public List<PersonInfoDto> toPersonInfoLastNameDto(List<Person> persons) {

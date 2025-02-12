@@ -1,9 +1,7 @@
 package org.safetynet.alerts.controller;
 
 import org.safetynet.alerts.model.FireStation;
-import org.safetynet.alerts.repository.FireStationRepository;
 import org.safetynet.alerts.service.FireStationService;
-import org.safetynet.alerts.service.JsonDataLoader;
 import org.safetynet.alerts.service.PersonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +22,8 @@ public class ApiFireStationController {
 
     @PostMapping("/firestation")
     public ResponseEntity<FireStation> postPerson(@RequestBody FireStation fireStation) {
+        LOGGER.info("POST /firestation");
+
         try {
             FireStation createdFireStation = fireStationService.createFireStation(fireStation);
             personService.attachFireStationToPersons(createdFireStation);
@@ -40,6 +40,8 @@ public class ApiFireStationController {
 
     @PutMapping("/firestation")
     public ResponseEntity<FireStation> putFireStation(@RequestParam String address, String oldStation, String station) {
+        LOGGER.info("PUT /firestation");
+
         try {
             FireStation fireStationToUpdate = fireStationService.getFireStation(address, oldStation);
 
@@ -64,6 +66,8 @@ public class ApiFireStationController {
 
     @DeleteMapping("/firestation")
     public ResponseEntity<String> deleteFireStation(@RequestParam String address, String station) {
+        LOGGER.info("DELETE /firestation");
+
         try {
             FireStation fireStationToDelete = fireStationService.getFireStation(address, station);
             if (fireStationToDelete == null) {

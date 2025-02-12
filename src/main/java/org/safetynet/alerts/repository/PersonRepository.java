@@ -2,6 +2,7 @@ package org.safetynet.alerts.repository;
 
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
+import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataLoader;
 import org.safetynet.alerts.service.PersonService;
@@ -114,5 +115,9 @@ public class PersonRepository {
         person.getFireStations().add(fireStation);
 
         return person;
+    }
+
+    public Person updateMedicalRedord(Person person, MedicalRecord medicalRecord) {
+        return person.setMedicalRecord(medicalRecord);
     }
 }

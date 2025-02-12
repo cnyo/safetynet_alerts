@@ -34,40 +34,50 @@ public class MedicalRecord {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public MedicalRecord setFirstName(String firstName) {
         this.firstName = firstName;
+
+        return this;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public MedicalRecord setLastName(String lastName) {
         this.lastName = lastName;
+
+        return this;
     }
 
     public String getBirthdate() {
         return birthdate;
     }
 
-    public void setBirthdate(String birthdate) {
+    public MedicalRecord setBirthdate(String birthdate) {
         this.birthdate = birthdate;
+
+        return this;
     }
 
     public List<String> getMedications() {
         return medications;
     }
 
-    public void setMedications(List<String> medications) {
+    public MedicalRecord setMedications(List<String> medications) {
         this.medications = medications;
+
+        return this;
     }
 
     public List<String> getAllergies() {
         return allergies;
     }
 
-    public void setAllergies(List<String> allergies) {
+    public MedicalRecord setAllergies(List<String> allergies) {
         this.allergies = allergies;
+
+        return this;
     }
 
     public boolean isChild() {

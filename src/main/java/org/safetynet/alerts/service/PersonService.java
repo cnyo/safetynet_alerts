@@ -1,12 +1,12 @@
 package org.safetynet.alerts.service;
 
 import org.safetynet.alerts.model.FireStation;
+import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,5 +98,10 @@ public class PersonService {
         List<Person> persons = personRepository.findAllPersonAtAddress(fireStation.getAddress());
 
         persons.forEach(person -> personRepository.addFireStationToPerson(person, fireStation));
+    }
+
+    public void attachMedicalRecordToPersons(MedicalRecord medicalRecord) {
+        Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
+        personRepository.updateMedicalRedord(person, medicalRecord);
     }
 }

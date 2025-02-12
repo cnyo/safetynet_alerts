@@ -15,22 +15,18 @@ public class MedicalRecordRepository {
         this.jsonData = jsonDataLoader.getJsonData();
     }
 
-    public Optional<MedicalRecord> findOne(String fullName) {
-        return Optional.of(jsonData.getMedicalRecords().stream().filter(mr -> mr.getFullName().equals(fullName)).findFirst().get());
-    }
-
     public MedicalRecord create(MedicalRecord medicalRecord) {
         jsonData.getMedicalRecords().add(medicalRecord);
 
         return medicalRecord;
     }
 
-    public MedicalRecord findOneByFullName(String fullName) {
+    public Optional<MedicalRecord> findOneByFullName(String fullName) {
         return jsonData
                 .getMedicalRecords()
                 .stream()
                 .filter(medicalRecord -> medicalRecord.getFullName().equals(fullName))
-                .findFirst().get();
+                .findFirst();
     }
 
     public MedicalRecord update(MedicalRecord medicalRecord, MedicalRecord medicalRecordToUpdate) {

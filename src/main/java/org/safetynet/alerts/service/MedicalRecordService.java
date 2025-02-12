@@ -5,6 +5,8 @@ import org.safetynet.alerts.repository.MedicalRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class MedicalRecordService {
     @Autowired
@@ -15,7 +17,8 @@ public class MedicalRecordService {
     }
 
     public MedicalRecord getByFullName(String fullName) {
-        return medicalRecordRepository.findOneByFullName(fullName);
+        return medicalRecordRepository.findOneByFullName(fullName)
+                .orElseThrow(() -> new NoSuchElementException("No medical record found"));
     }
 
     public MedicalRecord update(MedicalRecord medicalRecord, MedicalRecord medicalRecordToUpdate) {

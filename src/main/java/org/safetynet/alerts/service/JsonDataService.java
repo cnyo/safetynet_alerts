@@ -1,13 +1,14 @@
 package org.safetynet.alerts.service;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -19,45 +20,40 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class JsonDataLoader {
+@Slf4j
+public class JsonDataService {
 
     @Value("${json.data.path}")
     private String jsonPath;
 
-    private static JsonData jsonData;
+    private JsonData jsonData;
 
-    final static Logger LOGGER = LoggerFactory.getLogger(JsonDataLoader.class);
-
-    private final ObjectMapper objectMapper;
-
-    public JsonDataLoader(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public JsonDataService() {
+        log.info("JsonDataLoader instantiated");
     }
 
     @PostConstruct
     public void init() {
-        LOGGER.info("Loading json data from {}", jsonPath);
+        ObjectMapper objectMapper2 = new ObjectMapper();
 
-        if (jsonData == null) {
-            try {
-                loadJsonData();
-            } catch (Exception e) {
-                LOGGER.error("Error loading json data from {}", jsonPath);
-                throw new RuntimeException("Failed to load json data from " + jsonPath, e);
-            }
-        }
-
-        processJsonData();
-    }
-
-    private void loadJsonData() throws IOException {
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
-            jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
+            jsonData = objectMapper2.readValue(inputStreamJson, JsonData.class);
+            processJsonData();
+            log.info("Données chargées avec succès !");
+        } catch (StreamReadException e) {
+            log.error("Failed to read the JSON stream.", e);
+            throw new RuntimeException("Failed to read the JSON stream.", e);
+        } catch (DatabindException e) {
+            log.error("Failed to bind JSON data to Java objects.", e);
+            throw new RuntimeException("Failed to bind JSON data to Java objects.", e);
+        } catch (IOException e) {
+            log.error("I/O error while loading JSON data.", e);
+            throw new RuntimeException("I/O error while loading JSON data.", e);
         }
     }
 
     private void processJsonData() {
-        Map<String, List<FireStation>> fireStationMap = jsonData.getFireStations()
+        Map<String, List<FireStation>> fireStationMap = jsonData.getFirestations()
                 .stream()
                 .collect(Collectors.groupingBy(FireStation::getAddress));
 
@@ -70,7 +66,7 @@ public class JsonDataLoader {
     }
 
     private MedicalRecord getMedicalRecordForPerson(Person person) {
-        Map<String, MedicalRecord> medicalRecordMap = jsonData.getMedicalRecords()
+        Map<String, MedicalRecord> medicalRecordMap = jsonData.getMedicalrecords()
                 .stream()
                 .collect(Collectors.toMap(MedicalRecord::getFullName, medicalRecord -> medicalRecord));
 
@@ -84,7 +80,7 @@ public class JsonDataLoader {
     }
 
     public JsonData getJsonData() {
-        return jsonData;
+        return this.jsonData;
     }
 }
 

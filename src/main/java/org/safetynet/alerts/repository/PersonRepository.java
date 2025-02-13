@@ -1,22 +1,25 @@
 package org.safetynet.alerts.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
-import org.safetynet.alerts.service.JsonDataLoader;
+import org.safetynet.alerts.service.JsonDataService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
+@Slf4j
 public class PersonRepository {
 
     protected final JsonData jsonData;
 
-    public PersonRepository(JsonDataLoader jsonDataLoader) {
-        this.jsonData = jsonDataLoader.getJsonData();
+    public PersonRepository(JsonDataService jsonDataService) {
+        this.jsonData = jsonDataService.getJsonData();
     }
 
     public Person createPerson(Person person) {
@@ -48,7 +51,7 @@ public class PersonRepository {
         boolean personResult = jsonData.getPersons()
                 .removeIf(person -> person.getFullName().equals(personToRemove.getFullName()));
 
-        boolean medicalRecordResult = jsonData.getMedicalRecords()
+        boolean medicalRecordResult = jsonData.getMedicalrecords()
                 .removeIf(medicalRecord -> medicalRecord.getFullName().equals(personToRemove.getFullName()));
 
         if (!(personResult && medicalRecordResult)) {
@@ -101,7 +104,7 @@ public class PersonRepository {
     }
 
     public List<Person> findAllPersonFromFireStation(String stationNumber) {
-        List <String> addresses = jsonData.getFireStations().stream()
+        List <String> addresses = jsonData.getFirestations().stream()
                 .filter(fireStation -> fireStation.getStation().equals(stationNumber))
                 .map(FireStation::getAddress)
                 .toList();
@@ -113,7 +116,7 @@ public class PersonRepository {
     }
 
     public List<Person> findAllPersonFromStations(String[] stations) {
-        List <String> addresses = jsonData.getFireStations()
+        List <String> addresses = jsonData.getFirestations()
                 .stream()
                 .filter(fireStation -> List.of(stations).contains(fireStation.getStation()))
                 .map(FireStation::getAddress)

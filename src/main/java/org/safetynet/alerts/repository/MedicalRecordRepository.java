@@ -1,18 +1,20 @@
 package org.safetynet.alerts.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
-import org.safetynet.alerts.service.JsonDataLoader;
+import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class MedicalRecordRepository {
     protected final JsonData jsonData;
 
-    public MedicalRecordRepository(JsonDataLoader jsonDataLoader) {
-        this.jsonData = jsonDataLoader.getJsonData();
+    public MedicalRecordRepository(JsonDataService jsonDataService) {
+        this.jsonData = jsonDataService.getJsonData();
     }
 
     public MedicalRecord create(MedicalRecord medicalRecord) {
@@ -20,14 +22,14 @@ public class MedicalRecordRepository {
             throw new IllegalArgumentException("Person already exists");
         }
 
-        jsonData.getMedicalRecords().add(medicalRecord);
+        jsonData.getMedicalrecords().add(medicalRecord);
 
         return medicalRecord;
     }
 
     public Optional<MedicalRecord> findOneByFullName(String fullName) {
         return jsonData
-                .getMedicalRecords()
+                .getMedicalrecords()
                 .stream()
                 .filter(medicalRecord -> medicalRecord.getFullName().equals(fullName))
                 .findFirst();
@@ -45,6 +47,6 @@ public class MedicalRecordRepository {
     }
 
     public boolean remove(MedicalRecord medicalRecord) {
-        return jsonData.getMedicalRecords().remove(medicalRecord);
+        return jsonData.getMedicalrecords().remove(medicalRecord);
     }
 }

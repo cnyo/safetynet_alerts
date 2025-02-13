@@ -1,22 +1,22 @@
 package org.safetynet.alerts.service;
 
+import lombok.RequiredArgsConstructor;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.repository.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PersonService {
 
     private final int MAJORITY_AGE = 18;
 
-    @Autowired
-    private PersonRepository personRepository;
+    private final PersonRepository personRepository;
 
     public Person createPerson(Person person) {
 

@@ -25,10 +25,16 @@ public class ApiController {
 
     @GetMapping("/firestation")
     public ResponseEntity<PersonByStationNumberDto> getPersonByStationNumber(@RequestParam(required = false, defaultValue = "3") String station_number) {
+        log.info("GET /firestation Request getPersonByStationNumber for firestation number {}", station_number);
+
         try {
             List<Person> persons = personService.getAllPersonFromFireStation(station_number);
             int adultNbr = personService.countAdultFromPersons(persons);
             int childrenNbr = personService.countChildrenFromPersons(persons);
+
+            if (persons.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
 
             log.info("GET /firestation Persons from firestation number {}: {} persons", station_number, (long) persons.size());
 
@@ -38,7 +44,6 @@ public class ApiController {
 
             return ResponseEntity.internalServerError().body(null);
         }
-
     }
 
     @GetMapping("/childAlert")

@@ -43,7 +43,7 @@ public class ApiMedicalRecordController {
 
         try {
             MedicalRecord medicalRecordToSave = medicalRecordService.createMedicalRecord(medicalRecord);
-            personService.attachMedicalRecordToPersons(medicalRecordToSave);
+//            personService.attachMedicalRecordToPersons(medicalRecordToSave);
 
             log.info("POST /medicalRecord MedicalRecord created");
 
@@ -55,14 +55,13 @@ public class ApiMedicalRecordController {
         }
     }
 
-    @PutMapping("/medicalRecord")
-    public ResponseEntity<MedicalRecordDto> putMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
-        log.info("PUT /medicalRecord");
+    @PatchMapping("/medicalRecord")
+    public ResponseEntity<MedicalRecordDto> patchMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
+        log.info("PATCH /medicalRecord");
 
         try {
-            MedicalRecord currentMedicalRecord = medicalRecordService.getByFullName(medicalRecord.getFullName());
-            MedicalRecord updatedMedicalRecord = medicalRecordService.update(medicalRecord, currentMedicalRecord);
-            log.info("PUT /medicalRecord MedicalRecord successfully updated");
+            MedicalRecord updatedMedicalRecord = medicalRecordService.update(medicalRecord);
+            log.info("PATCH /medicalRecord MedicalRecord successfully updated");
 
             return ResponseEntity.ok(new MedicalRecordDto(updatedMedicalRecord));
         } catch (NoSuchElementException e) {
@@ -70,7 +69,7 @@ public class ApiMedicalRecordController {
 
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            log.error("PUT /medicalRecord MedicalRecord error: {}", e.getMessage(), e);
+            log.error("PATCH /medicalRecord MedicalRecord error: {}", e.getMessage(), e);
 
             return ResponseEntity.internalServerError().build();
         }

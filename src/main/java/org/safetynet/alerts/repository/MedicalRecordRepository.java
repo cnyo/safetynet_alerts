@@ -23,9 +23,17 @@ public class MedicalRecordRepository {
         this.personRepository = personRepository;
     }
 
-    public MedicalRecord create(MedicalRecord medicalRecord, Person person) {
+    public MedicalRecord create(MedicalRecord medicalRecord) {
+        Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
+
+        if (person.getMedicalRecord() != null) {
+            log.info("Medical record already exists");
+            throw new IllegalArgumentException("Medical record already exists");
+        }
+
         jsonData.getMedicalrecords().add(medicalRecord);
         person.setMedicalRecord(medicalRecord);
+        log.info("Medical record added to person.");
 
         return medicalRecord;
     }
@@ -38,7 +46,10 @@ public class MedicalRecordRepository {
                 .findFirst();
     }
 
-    public MedicalRecord update(MedicalRecord medicalRecord, MedicalRecord medicalRecordToUpdate) {
+    public MedicalRecord update(MedicalRecord medicalRecord) {
+        MedicalRecord medicalRecordToUpdate = findOneByFullName(medicalRecord.getFullName())
+                .orElseThrow(() -> new NoSuchElementException("Medical record not found"));
+
         medicalRecordToUpdate
                 .setFirstName(medicalRecord.getFirstName())
                 .setLastName(medicalRecord.getLastName())

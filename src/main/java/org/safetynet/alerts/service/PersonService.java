@@ -1,8 +1,6 @@
 package org.safetynet.alerts.service;
 
 import lombok.RequiredArgsConstructor;
-import org.safetynet.alerts.model.FireStation;
-import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.repository.PersonRepository;
 import org.springframework.stereotype.Service;
@@ -86,12 +84,6 @@ public class PersonService {
 
     public List<Person> getChildrenAtAddress(String address) {
         return personRepository.findAllChildrenAtAddress(address);
-    }
-
-    public Person attachMedicalRecordToPersons(MedicalRecord medicalRecord) {
-        Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
-
-        return personRepository.attachMedicalRecordToPerson(person, medicalRecord);
     }
 
     public List<Person> getAll() {

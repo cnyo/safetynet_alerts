@@ -6,10 +6,10 @@ import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Repository
@@ -100,7 +100,7 @@ public class PersonRepository {
                 .stream()
                 .filter(person -> person.getFullName().equals(fullName))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new NoSuchElementException("Person not found"));
     }
 
     public List<Person> findAllPersonFromFireStation(String stationNumber) {
@@ -145,5 +145,18 @@ public class PersonRepository {
 
     public Person attachMedicalRecordToPerson(Person person, MedicalRecord medicalRecord) {
         return person.setMedicalRecord(medicalRecord);
+    }
+
+    public void attachFireStation(FireStation savedFireStation) {
+        List<Person> persons = findAllPersonAtAddress(savedFireStation.getAddress());
+        persons.forEach(person -> addFireStationToPerson(person, savedFireStation));
+    }
+
+    public List<Person> findAll() {
+        return jsonData.getPersons();
+    }
+
+    public long countPersonByFullName(String fullName) {
+        return jsonData.getPersons().stream().filter(person -> person.getFullName().equals(fullName)).count();
     }
 }

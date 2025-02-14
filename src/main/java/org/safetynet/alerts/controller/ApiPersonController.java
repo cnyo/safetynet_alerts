@@ -3,11 +3,13 @@ package org.safetynet.alerts.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.person.PersonDto;
+import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.PersonService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -16,6 +18,22 @@ import java.util.NoSuchElementException;
 public class ApiPersonController {
 
     private final PersonService personService;
+
+    @GetMapping("/person/all")
+    public ResponseEntity<List<Person>> getAllPersons() {
+        log.info("GET /person/all Request Return all medical records.");
+
+        try {
+            List<Person> persons = personService.getAll();
+            log.info("GET /person/all Request Return {} medical records", persons.size());
+
+            return ResponseEntity.ok(persons);
+        } catch (Exception e) {
+            log.error("GET /person/all MedicalRecord error: {}", e.getMessage());
+
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
     @PostMapping("/person")
     public ResponseEntity<PersonDto> postPerson(@RequestBody Person person) {
@@ -47,7 +65,7 @@ public class ApiPersonController {
     }
 
     @DeleteMapping("/person")
-    public ResponseEntity<String> deletePerson(@RequestParam String firstName, @RequestParam String lastName) {
+    public ResponseEntity<String> deletePerson(@RequestBody String firstName, @RequestParam String lastName) {
         try {
             Person personToRemove = personService.getPersonByFullName(firstName + " " + lastName);
             if (personToRemove == null) {

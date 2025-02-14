@@ -2,13 +2,15 @@ package org.safetynet.alerts.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.dto.MedicalRecordDto;
+import org.safetynet.alerts.dto.medicalRecord.MedicalRecordDto;
+import org.safetynet.alerts.dto.medicalRecord.MedicalRecordToDeleteDto;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.service.MedicalRecordService;
 import org.safetynet.alerts.service.PersonService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -18,6 +20,22 @@ public class ApiMedicalRecordController {
 
     private final MedicalRecordService medicalRecordService;
     private final PersonService personService;
+
+    @GetMapping("/medicalRecord/all")
+    public ResponseEntity<List<MedicalRecord>> getAllMedicalRecords() {
+        log.info("GET /medicalRecord/all Request Return all medical records.");
+
+        try {
+            List<MedicalRecord> medicalRecords = medicalRecordService.getAll();
+            log.info("GET /medicalRecord/all Request Return {} medical records", medicalRecords.size());
+
+            return ResponseEntity.ok(medicalRecords);
+        } catch (Exception e) {
+            log.error("GET /medicalRecord/all MedicalRecord error: {}", e.getMessage());
+
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
     @PostMapping("/medicalRecord")
     public ResponseEntity<MedicalRecordDto> postMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
@@ -59,12 +77,11 @@ public class ApiMedicalRecordController {
     }
 
     @DeleteMapping("/medicalRecord")
-    public ResponseEntity<String> deleteMedicalRecord(@RequestParam String firstName, @RequestParam String lastName) {
-        log.info("DELETE /medicalRecord");
+    public ResponseEntity<String> deleteMedicalRecord(@RequestBody MedicalRecordToDeleteDto personToDeleteDto) {
+        log.info("DELETE personToDeleteDto: {}", personToDeleteDto);
 
         try {
-            MedicalRecord medicalRecord = medicalRecordService.getByFullName(firstName + " " + lastName);
-            boolean removed = medicalRecordService.remove(medicalRecord);
+            boolean removed = medicalRecordService.remove(personToDeleteDto);
 
             if (!removed) {
                 log.info("DELETE /medicalRecord medicalRecord not found.");

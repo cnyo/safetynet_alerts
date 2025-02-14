@@ -1,7 +1,7 @@
 package org.safetynet.alerts.controller;
 
 import org.safetynet.alerts.dto.ChildAlertDto;
-import org.safetynet.alerts.dto.FireInfoDto;
+import org.safetynet.alerts.dto.fireStation.FireInfoDto;
 import org.safetynet.alerts.dto.person.*;
 import org.safetynet.alerts.dto.PersonByStationNumberDto;
 import org.safetynet.alerts.model.FireStation;

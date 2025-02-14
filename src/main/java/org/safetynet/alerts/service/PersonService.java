@@ -88,15 +88,13 @@ public class PersonService {
         return personRepository.findAllChildrenAtAddress(address);
     }
 
-    public void attachFireStationToPersons(FireStation fireStation) {
-        List<Person> persons = personRepository.findAllPersonAtAddress(fireStation.getAddress());
-
-        persons.forEach(person -> personRepository.addFireStationToPerson(person, fireStation));
-    }
-
     public Person attachMedicalRecordToPersons(MedicalRecord medicalRecord) {
         Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
 
         return personRepository.attachMedicalRecordToPerson(person, medicalRecord);
+    }
+
+    public List<Person> getAll() {
+        return personRepository.findAll();
     }
 }

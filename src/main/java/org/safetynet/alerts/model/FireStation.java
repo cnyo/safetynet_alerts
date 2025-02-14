@@ -11,8 +11,10 @@ public class FireStation {
         return address;
     }
 
-    public void setAddress(String address) {
+    public FireStation setAddress(String address) {
         this.address = address;
+
+        return this;
     }
 
     public String getStation() {

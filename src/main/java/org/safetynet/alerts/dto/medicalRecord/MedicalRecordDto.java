@@ -1,4 +1,4 @@
-package org.safetynet.alerts.dto;
+package org.safetynet.alerts.dto.medicalRecord;
 
 import org.safetynet.alerts.model.MedicalRecord;
 

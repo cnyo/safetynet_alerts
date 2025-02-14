@@ -3,6 +3,7 @@ package org.safetynet.alerts.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.*;
+import org.safetynet.alerts.dto.fireStation.FireInfoDto;
 import org.safetynet.alerts.dto.person.PersonInfoDto;
 import org.safetynet.alerts.dto.person.PersonMedicalInfoDto;
 import org.safetynet.alerts.model.FireStation;
@@ -14,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@Slf4j
 public class ApiController {
 
     private final PersonDtoMapper personDtoMapper;
@@ -125,7 +126,7 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/personInfoLastName")
+    @GetMapping("/personInfo")
     public ResponseEntity<List<PersonInfoDto>> getPersonInfoLastName(@RequestParam(required = false, defaultValue = "Boyd") String lastName) {
         try {
             List<Person> persons = personService.getAllPersonByLastName(lastName);

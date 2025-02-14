@@ -1,12 +1,14 @@
 package org.safetynet.alerts.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.safetynet.alerts.dto.fireStation.FireStationToPatchDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,11 +60,21 @@ public class FireStationRepository {
                 .findFirst();
     }
 
-    public FireStation update(FireStation fireStation, String station) {
-        return fireStation.setStation(station);
+    public FireStation update(FireStationToPatchDto fireStationToPatchDto) {
+        FireStation fireStation = findOneFireStation(fireStationToPatchDto.getAddress(), fireStationToPatchDto.getStation())
+                .orElseThrow(() -> new NoSuchElementException("No fire station to update found"));
+
+        return fireStation.setStation(fireStationToPatchDto.newStation);
     }
 
-    public boolean remove(FireStation fireStationToDelete) {
+    public boolean remove(FireStation fireStation) {
+        FireStation fireStationToDelete = findOneFireStation(fireStation.getAddress(), fireStation.getStation())
+                .orElseThrow(() -> new NoSuchElementException("No fire station to delete found"));
+
         return jsonData.getFirestations().remove(fireStationToDelete);
+    }
+
+    public List<FireStation> findAll() {
+        return jsonData.getFirestations();
     }
 }

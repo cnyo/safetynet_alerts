@@ -1,4 +1,4 @@
-package org.safetynet.alerts.dto;
+package org.safetynet.alerts.dto.fireStation;
 
 import org.safetynet.alerts.model.FireStation;
 

@@ -1,19 +1,31 @@
 package org.safetynet.alerts.service;
 
+import org.safetynet.alerts.dto.medicalRecord.MedicalRecordToDeleteDto;
 import org.safetynet.alerts.model.MedicalRecord;
+import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.repository.MedicalRecordRepository;
+import org.safetynet.alerts.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class MedicalRecordService {
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
+    @Autowired
+    private PersonRepository personRepository;
 
     public MedicalRecord createMedicalRecord(MedicalRecord medicalRecord) {
-        return medicalRecordRepository.create(medicalRecord);
+        Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
+
+        if (person.getMedicalRecord() != null) {
+            throw new IllegalArgumentException("Medical record already exists");
+        }
+
+        return medicalRecordRepository.create(medicalRecord, person);
     }
 
     public MedicalRecord getByFullName(String fullName) {
@@ -25,7 +37,11 @@ public class MedicalRecordService {
         return medicalRecordRepository.update(medicalRecord, medicalRecordToUpdate);
     }
 
-    public boolean remove(MedicalRecord medicalRecord) {
-        return medicalRecordRepository.remove(medicalRecord);
+    public boolean remove(MedicalRecordToDeleteDto personToDeleteDto) {
+        return medicalRecordRepository.remove(personToDeleteDto);
+    }
+
+    public List<MedicalRecord> getAll() {
+        return medicalRecordRepository.findAll();
     }
 }

@@ -25,7 +25,7 @@ public class ApiController {
     private final FireStationService fireStationService;
 
     @GetMapping("/firestation")
-    public ResponseEntity<PersonByStationNumberDto> getPersonByStationNumber(@RequestParam(required = false, defaultValue = "3") String station_number) {
+    public ResponseEntity<PersonByStationNumberDto> getPersonByStationNumber(@RequestParam String station_number) {
         log.info("GET /firestation Request getPersonByStationNumber for firestation number {}", station_number);
 
         try {
@@ -48,16 +48,9 @@ public class ApiController {
     }
 
     @GetMapping("/childAlert")
-    public ResponseEntity<ChildAlertDto> getChildAlert(@RequestParam(required = false, defaultValue = "1509 Culver St") String address) {
+    public ResponseEntity<ChildAlertDto> getChildAlert(@RequestParam String address) {
         try {
             List<Person> children = personService.getChildrenAtAddress(address);
-
-            if (children.isEmpty()) {
-                log.info("GET /childAlert Children not found for address {}.", address);
-
-                return ResponseEntity.notFound().build();
-            }
-
             List<Person> adults = personService.getAdultAtAddress(address);
             ChildAlertDto childAlertDto = personDtoMapper.toChildAlertDto(children, adults);
 

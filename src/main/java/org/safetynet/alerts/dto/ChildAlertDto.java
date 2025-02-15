@@ -9,10 +9,10 @@ import java.util.List;
 public class ChildAlertDto {
 
     public List<ChildPersonDto> children;
-    public List<AdultPersonDto> adultAtAdressDto;
+    public List<AdultPersonDto> adults;
 
     public ChildAlertDto(List<ChildPersonDto> children, List<AdultPersonDto> residentAdults) {
         this.children = children;
-        this.adultAtAdressDto = residentAdults;
+        this.adults = residentAdults;
     }
 }

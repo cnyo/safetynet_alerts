@@ -1,13 +1,13 @@
 package org.safetynet.alerts.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.dto.medicalRecord.MedicalRecordToDeleteDto;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.stereotype.Component;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -23,12 +23,12 @@ public class MedicalRecordRepository {
         this.personRepository = personRepository;
     }
 
-    public MedicalRecord create(MedicalRecord medicalRecord) {
+    public MedicalRecord create(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException {
         Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
 
         if (person.getMedicalRecord() != null) {
             log.info("Medical record already exists");
-            throw new IllegalArgumentException("Medical record already exists");
+            throw new InstanceAlreadyExistsException("Medical record already exists");
         }
 
         jsonData.getMedicalrecords().add(medicalRecord);
@@ -60,14 +60,17 @@ public class MedicalRecordRepository {
         return medicalRecordToUpdate;
     }
 
-    public boolean remove(MedicalRecordToDeleteDto personToDeleteDto) {
-        MedicalRecord medicalRecordToDelete = findOneByFullName(personToDeleteDto.getFullName())
-                .orElseThrow(() -> new NoSuchElementException("Medical record not found"));
-
-        boolean removed = jsonData.getMedicalrecords().remove(medicalRecordToDelete);
+    public boolean remove(String firstName, String lastName) {
+        String fullName = firstName + " " + lastName;
+        boolean removed = jsonData.getMedicalrecords()
+                .removeIf(medicalRecord -> medicalRecord.getFullName().equals(fullName));
 
         if (removed) {
-            personRepository.findOneByFullName(personToDeleteDto.getFullName()).setMedicalRecord(null);
+            try {
+                personRepository.findOneByFullName(fullName).setMedicalRecord(null);
+            } catch (NoSuchElementException e) {
+                throw new NoSuchElementException("Person not found.");
+            }
         }
 
         return removed;

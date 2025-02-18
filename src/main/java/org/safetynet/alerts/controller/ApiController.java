@@ -38,7 +38,7 @@ public class ApiController {
                 return ResponseEntity.noContent().build();
             }
 
-            log.info("GET /firestation Success get person by sation number");
+            log.info("GET /firestation Get person by sation number success");
 
             return ResponseEntity.ok(personDtoMapper.toPersonByStationNumberDto(persons, stationNumber, adultNbr, childrenNbr));
         } catch (Exception e) {

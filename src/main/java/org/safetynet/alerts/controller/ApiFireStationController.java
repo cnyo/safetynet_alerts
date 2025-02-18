@@ -3,14 +3,14 @@ package org.safetynet.alerts.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.fireStation.FireStationDto;
-import org.safetynet.alerts.dto.fireStation.FireStationToPatchDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.service.FireStationService;
-import org.safetynet.alerts.service.PersonService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -18,57 +18,63 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class ApiFireStationController {
 
-    private final PersonService personService;
     private final FireStationService fireStationService;
 
     @GetMapping("/firestation/all")
     public ResponseEntity<List<FireStation>> postFireStation() {
-        log.info("GET /firestation/all Request Return all fires stations");
+        log.info("GET /firestation/all");
 
         try {
             List<FireStation> fireStations = fireStationService.getAll();
-            log.info("GET /firestation/all Request Return {} fires stations", fireStations.size());
+            log.info("GET /firestation/all return fire stations success");
 
             return ResponseEntity.ok(fireStations);
         } catch (Exception e) {
-            log.error("GET /firestation/all FireStation error: {}", e.getMessage());
+            log.error("GET /firestation/all FireStation error: {}", e.getMessage(), e);
 
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @PostMapping("/firestation")
-    public ResponseEntity<FireStationDto> postFireStation(@RequestBody FireStation fireStation) {
-        log.info("Post /firestation Request postFireStation for firestation number {}", fireStation.getStation());
+    public ResponseEntity<?> postFireStation(@RequestBody FireStation fireStation) {
+        log.info("Post /firestation");
 
         try {
             FireStation createdFireStation = fireStationService.createFireStation(fireStation);
-
-            log.info("POST /firestation FireStation created");
+            log.info("POST /firestation FireStation created success");
 
             return ResponseEntity.ok(new FireStationDto(createdFireStation));
+        } catch (IllegalArgumentException e) {
+            log.error("POST /firestation FireStation already exists {} : ", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("FireStation already exists.");
         } catch (Exception e) {
-            log.error("POST /firestation FireStation error: {}", e.getMessage());
+            log.error("POST /firestation FireStation error: {} : ", e.getMessage(), e);
 
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @PatchMapping("/firestation")
-    public ResponseEntity<FireStationDto> patchFireStation(@RequestBody FireStationToPatchDto fireStationToPatchDto) {
-        log.info("PATCH /firestation Request putFireStation update firestation {} to {} at address {}.",
-                fireStationToPatchDto.station, fireStationToPatchDto.newStation, fireStationToPatchDto.getAddress());
+    public ResponseEntity<?> patchFireStation(@RequestBody Map<String, Object> params) {
+        log.info("PATCH /firestation FireStation update success");
 
         try {
-            FireStation updatedFireStation = fireStationService.update(fireStationToPatchDto);
-            log.info("PATCH /firestation Firestation {} successfully updated", updatedFireStation.toString());
+            fireStationService.checkPatchParamsIsOk(params);
+            FireStation updatedFireStation = fireStationService.update(params);
+            log.info("PATCH /firestation Firestation updated success");
 
             return ResponseEntity.ok(new FireStationDto(updatedFireStation));
-
         } catch (NoSuchElementException e) {
-            log.warn("FireStation to update not found: {} - {}", fireStationToPatchDto.getAddress(), fireStationToPatchDto.station);
+            log.info("FireStation to update not found");
 
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("FireStation to update not found");
+        }
+        catch (IllegalArgumentException e) {
+            log.error(e.getMessage(), e);
+
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
         catch (Exception e) {
             log.error("Error updating FireStation: {}", e.getMessage(), e);
@@ -79,24 +85,24 @@ public class ApiFireStationController {
 
     @DeleteMapping("/firestation")
     public ResponseEntity<String> deleteFireStation(@RequestBody FireStation fireStation) {
-        log.info("DELETE /firestation Request {}", fireStation.toString());
+        log.info("DELETE /firestation");
 
         try {
             boolean removed = fireStationService.remove(fireStation);
 
             if (!removed) {
-                log.info("DELETE /firestation firestation {} not found.", fireStation);
+                log.error("DELETE /firestation firestation not found");
 
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.internalServerError().body("Firestation remove error.");
             }
 
-            log.info("DELETE /firestation {} removed", fireStation);
+            log.info("DELETE /firestation removed success");
 
             return ResponseEntity.ok("FireStation removed successfully.");
         } catch (NoSuchElementException e) {
-            log.warn("FireStation {} to delete not found.", fireStation);
+            log.info("FireStation to delete not found.");
 
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Firestation to delete not found.");
         }  catch (Exception e) {
             log.error("Error deleting FireStation: {}", e.getMessage(), e);
 

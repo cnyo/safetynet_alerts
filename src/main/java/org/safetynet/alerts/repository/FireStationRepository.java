@@ -1,7 +1,6 @@
 package org.safetynet.alerts.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.dto.fireStation.FireStationToPatchDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.service.JsonDataService;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -22,24 +20,11 @@ public class FireStationRepository {
         this.jsonData = jsonDataLoader.getJsonData();
     }
 
-    public List<FireStation> findAllFireStationByStation(String stationNumber) {
-
-        return jsonData.getFirestations().stream().filter(f -> f.getStation().equals(stationNumber)).toList();
-    }
-
     public Optional<FireStation> findFireStationAtAddress(String address) {
 
         return jsonData.getFirestations().stream()
                 .filter(f -> f.getAddress().equals(address))
                 .findFirst();
-    }
-
-    public List<FireStation> findAllFireStationForStations(String[] stationNumbers) {
-
-        return jsonData.getFirestations()
-                .stream()
-                .filter(f -> List.of(stationNumbers).contains(f.getStation()))
-                .collect(Collectors.toList());
     }
 
     public FireStation create(FireStation fireStation) {
@@ -60,11 +45,11 @@ public class FireStationRepository {
                 .findFirst();
     }
 
-    public FireStation update(FireStationToPatchDto fireStationToPatchDto) {
-        FireStation fireStation = findOneFireStation(fireStationToPatchDto.getAddress(), fireStationToPatchDto.getStation())
+    public FireStation update(String address, String station, String newStation) {
+        FireStation fireStationToUpdate = findOneFireStation(address, station)
                 .orElseThrow(() -> new NoSuchElementException("No fire station to update found"));
 
-        return fireStation.setStation(fireStationToPatchDto.newStation);
+        return fireStationToUpdate.setStation(newStation);
     }
 
     public boolean remove(FireStation fireStation) {

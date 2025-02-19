@@ -32,8 +32,8 @@ public class FireStationService {
         FireStation savedFireStation = fireStationRepository.create(fireStation);
         log.info("FireStation created success");
 
-        personRepository.attachFireStation(savedFireStation);
-        log.info("FireStation attached to persons with same address.");
+//        personRepository.attachFireStation(savedFireStation);
+//        log.info("FireStation attached to persons with same address.");
 
         return savedFireStation;
     }

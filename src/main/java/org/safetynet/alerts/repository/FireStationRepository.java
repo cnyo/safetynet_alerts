@@ -16,8 +16,8 @@ public class FireStationRepository {
 
     protected final JsonData jsonData;
 
-    public FireStationRepository(JsonDataService jsonDataLoader) {
-        this.jsonData = jsonDataLoader.getJsonData();
+    public FireStationRepository(JsonDataService jsonDataService) {
+        this.jsonData = jsonDataService.getJsonData();
     }
 
     public Optional<FireStation> findFireStationAtAddress(String address) {

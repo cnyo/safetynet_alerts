@@ -52,11 +52,9 @@ public class FireStationRepository {
         return fireStationToUpdate.setStation(newStation);
     }
 
-    public boolean remove(FireStation fireStation) {
-        FireStation fireStationToDelete = findOneFireStation(fireStation.getAddress(), fireStation.getStation())
-                .orElseThrow(() -> new NoSuchElementException("No fire station to delete found"));
-
-        return jsonData.getFirestations().remove(fireStationToDelete);
+    public boolean remove(FireStation fireStationToDelete) {
+        return jsonData.getFirestations()
+                .removeIf(fireStation -> fireStation.equals(fireStationToDelete));
     }
 
     public List<FireStation> findAll() {

@@ -91,9 +91,9 @@ public class ApiFireStationController {
             boolean removed = fireStationService.remove(fireStation);
 
             if (!removed) {
-                log.error("DELETE /firestation firestation not found");
+                log.error("DELETE /firestation fireStation not found");
 
-                return ResponseEntity.internalServerError().body("Firestation remove error.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fire station not found.");
             }
 
             log.info("DELETE /firestation removed success");

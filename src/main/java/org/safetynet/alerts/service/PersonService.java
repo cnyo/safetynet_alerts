@@ -25,10 +25,6 @@ public class PersonService {
         return personRepository.updatePerson(person, currentPerson);
     }
 
-    public boolean removePerson(Person person) {
-        return personRepository.remove(person);
-    }
-
     public List<String> getAllPhoneNumbersFromPersons(List<Person> persons) {
         return persons
                 .stream()
@@ -61,6 +57,7 @@ public class PersonService {
     }
 
     public List<Person> getAllPersonByLastName(String lastName) {
+//        todo : log.debug();
         return personRepository.findAllPersonByLastName(lastName);
     }
 
@@ -88,5 +85,11 @@ public class PersonService {
 
     public List<Person> getAll() {
         return personRepository.findAll();
+    }
+
+    public boolean remove(String firstName, String lastName) {
+        String fullName = String.format("%s %s", firstName, lastName);
+
+        return personRepository.remove(fullName);
     }
 }

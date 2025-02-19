@@ -47,12 +47,12 @@ public class PersonRepository {
                 .setPhone(person.getPhone());
     }
 
-    public boolean remove(Person personToRemove) {
+    public boolean remove(String fullName) {
         boolean personResult = jsonData.getPersons()
-                .removeIf(person -> person.getFullName().equals(personToRemove.getFullName()));
+                .removeIf(person -> person.getFullName().equals(fullName));
 
         boolean medicalRecordResult = jsonData.getMedicalrecords()
-                .removeIf(medicalRecord -> medicalRecord.getFullName().equals(personToRemove.getFullName()));
+                .removeIf(medicalRecord -> medicalRecord.getFullName().equals(fullName));
 
         if (!(personResult && medicalRecordResult)) {
             throw new IllegalArgumentException("Person or medical record not removed");

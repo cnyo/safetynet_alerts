@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,11 @@ public class JsonDataService {
     @Value("${json.data.path}")
     private String jsonPath;
 
+    @Getter
     private JsonData jsonData;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     public JsonDataService() {
         log.info("JsonDataLoader instantiated");
@@ -34,8 +40,6 @@ public class JsonDataService {
 
     @PostConstruct
     public void init() {
-        ObjectMapper objectMapper2 = new ObjectMapper();
-
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
             jsonData = objectMapper2.readValue(inputStreamJson, JsonData.class);
             processJsonData();
@@ -60,12 +64,12 @@ public class JsonDataService {
         jsonData
                 .getPersons()
                 .forEach(person -> {
-                    person.setMedicalRecord(getMedicalRecordForPerson(person));
+                    person.setMedicalRecord(matchMedicalRecordForPerson(person));
                     person.setFireStations(fireStationMap.get(person.getAddress()));
                 });
     }
 
-    private MedicalRecord getMedicalRecordForPerson(Person person) {
+    private MedicalRecord matchMedicalRecordForPerson(Person person) {
         Map<String, MedicalRecord> medicalRecordMap = jsonData.getMedicalrecords()
                 .stream()
                 .collect(Collectors.toMap(MedicalRecord::getFullName, medicalRecord -> medicalRecord));

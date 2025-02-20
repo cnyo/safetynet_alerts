@@ -3,17 +3,20 @@ package org.safetynet.alerts.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.*;
-import org.safetynet.alerts.dto.fireStation.FireInfoDto;
-import org.safetynet.alerts.dto.person.PersonInfoDto;
+import org.safetynet.alerts.dto.person.ChildAlertDto;
 import org.safetynet.alerts.dto.person.PersonMedicalInfoDto;
 import org.safetynet.alerts.model.FireStation;
+import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @RestController
@@ -23,6 +26,7 @@ public class ApiController {
     private final PersonDtoMapper personDtoMapper;
     private final PersonService personService;
     private final FireStationService fireStationService;
+    private final MedicalRecordService medicalRecordService;
 
     @GetMapping("/firestation")
     public ResponseEntity<PersonByStationNumberDto> getPersonByStationNumber(@RequestParam String stationNumber) {
@@ -30,8 +34,9 @@ public class ApiController {
 
         try {
             List<Person> persons = personService.getAllPersonFromFireStation(stationNumber);
-            int adultNbr = personService.countAdultFromPersons(persons);
-            int childrenNbr = personService.countChildrenFromPersons(persons);
+            List<String> fullNames = personService.getFullNamesFromPersons(persons);
+            int adultNbr = personService.countAdultFromPersons(fullNames);
+            int childrenNbr = personService.countChildrenFromPersons(fullNames);
 
             if (persons.isEmpty()) {
                 log.info("GET /firestation No person found");
@@ -49,17 +54,30 @@ public class ApiController {
     }
 
     @GetMapping("/childAlert")
-    public ResponseEntity<ChildAlertDto> getChildAlert(@RequestParam String address) {
+    public ResponseEntity<List<ChildAlertDto>> getChildAlert(@RequestParam String address) {
         log.info("GET /childAlert");
 
         try {
-            List<Person> children = personService.getChildrenAtAddress(address);
-            List<Person> adults = personService.getAdultAtAddress(address);
-            ChildAlertDto childAlertDto = personDtoMapper.toChildAlertDto(children, adults);
+            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
+            List<Person> persons = personService.getChildrenAtAddress(address, medicalRecordMap);
+            Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, address, medicalRecordMap);
 
-            log.info("GET /childAlert Get children and adults success");
+//            List<ChildPersonDto> childAlerts = personDtoMapper.toChildAlert2Dto(persons, address, medicalRecordMap);
 
-            return ResponseEntity.ok(childAlertDto);
+//            Map<String, List<Person>> adultChildrenMap = personService.getAdultsAndChildrenAtAddress(address, medicalRecordMap);
+//            ChildAlertDto childAlertDto = personDtoMapper.toChildAlertDto(adultChildrenMap, medicalRecordMap);
+
+            if (childAlerts.isEmpty()) {
+                log.info("GET /childAlert Children not found at address");
+
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+
+            List<ChildAlertDto> withOtherChildAlerts = personService.attachOtherPersonToChildAlertDto(persons, childAlerts, address);
+            log.info("GET /childAlert Get children with other persons household at address success");
+
+            return ResponseEntity.ok(withOtherChildAlerts);
+//            return ResponseEntity.ok(childAlertDto);
         } catch (Exception e) {
             log.error("GET /childAlert Error: {}", e.getMessage(), e);
 
@@ -72,12 +90,11 @@ public class ApiController {
         log.info("GET /phoneAlert");
 
         try {
-            List<Person> persons = personService.getAllPersonFromFireStation(fireStation);
-            List<String> phoneNumbers = personService.getAllPhoneNumbersFromPersons(persons);
-
+            List<String> addresses = fireStationService.getAddressesForOneFireStation(fireStation);
+            List<String> phones = personService.getAllPhoneNumberFromAddresses(addresses);
             log.info("GET /phoneAlert Get all phone numbers by station number success");
 
-            return ResponseEntity.ok(phoneNumbers);
+            return ResponseEntity.ok(phones);
         } catch (Exception e) {
             log.error("GET /phoneAlert Error: {}", e.getMessage(), e);
 
@@ -86,23 +103,21 @@ public class ApiController {
     }
 
     @GetMapping("/fire")
-    public ResponseEntity<FireInfoDto> getAddressPersons(@RequestParam String address) {
+    public ResponseEntity<?> getAddressPersons(@RequestParam String address) {
         log.info("GET /fire");
 
         try {
+            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
             FireStation fireStation = fireStationService.getFireStationAtAddress(address);
-
-            if (fireStation == null) {
-                log.info("GET /fire Person not found for fire station address");
-
-                return ResponseEntity.notFound().build();
-            }
-
             List<Person> persons = personService.getAllPersonAtAddress(address);
             log.info("GET /fire Persons Get persons at fire station address success");
 
-            return ResponseEntity.ok(personDtoMapper.toAddressPersonDto(persons, fireStation));
+            return ResponseEntity.ok(personDtoMapper.toAddressPersonDto(persons, fireStation, medicalRecordMap));
 
+        } catch (NoSuchElementException e) {
+            log.info("GET /fire Fire station not found: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fire station not found.");
         } catch (Exception e) {
             log.error("GET /fire Error: {}", e.getMessage(), e);
 
@@ -115,10 +130,12 @@ public class ApiController {
         log.info("GET /flood/stations");
 
         try {
-            List<Person> persons = personService.getAllPersonFromFireStations(stations);
+            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
+            List<String> addresses = fireStationService.getAddressesForFireStations(stations);
+            List<Person> persons = personService.getAllPersonFromAddresses(addresses);
             log.info("GET /flood/stations Persons found for fire stations");
 
-            return ResponseEntity.ok(personDtoMapper.toFloodStationDto(persons));
+            return ResponseEntity.ok(personDtoMapper.toFloodStationDto(persons, medicalRecordMap));
 
         } catch (Exception e) {
             log.error("GET /flood/stations Error: {}", e.getMessage(), e);
@@ -128,16 +145,20 @@ public class ApiController {
     }
 
     @GetMapping("/personInfo")
-    public ResponseEntity<List<PersonInfoDto>> getPersonInfoLastName(@RequestParam String lastName) {
+    public ResponseEntity<?> getPersonInfoLastName(@RequestParam String lastName) {
         log.info("GET /personInfoLastName");
 
         try {
+            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
             List<Person> persons = personService.getAllPersonByLastName(lastName);
-
             log.info("GET /personInfoLastName Success get info lastName");
 
-            return ResponseEntity.ok(personDtoMapper.toPersonInfoLastNameDto(persons));
+            return ResponseEntity.ok(personDtoMapper.toPersonInfoLastNameDto(persons, medicalRecordMap));
 
+        } catch (IllegalArgumentException e) {
+            log.error("GET /personInfoLastName Error: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("GET /personInfoLastName Error");
         } catch (Exception e) {
             log.error("GET /personInfoLastName Error: {}", e.getMessage(), e);
 
@@ -146,17 +167,19 @@ public class ApiController {
     }
 
     @GetMapping("/communityEmail")
-    public ResponseEntity<List<String>> getCommunityEmail(@RequestParam String city) {
+    public ResponseEntity<?> getCommunityEmail(@RequestParam String city) {
         log.info("GET /communityEmail");
 
         try {
-            List<Person> persons = personService.getAllPersonByCity(city);
-            List<String> emails = personService.getAllEmailsFromPersons(persons);
-
+            List<String> emails = personService.getAllEmailsAtCity(city);
             log.info("GET /communityEmail Get all email for city success");
-            ResponseEntity<List<String>> test = ResponseEntity.ok(emails);
+
             return ResponseEntity.ok(emails);
 
+        } catch (IllegalArgumentException e) {
+            log.error("GET /communityEmail Error: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("GET /communityEmail City name cannot be null or empty");
         } catch (Exception e) {
             log.error("GET /communityEmail Error: {}", e.getMessage(), e);
 

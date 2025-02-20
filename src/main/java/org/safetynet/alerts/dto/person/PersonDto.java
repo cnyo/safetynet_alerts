@@ -2,7 +2,6 @@ package org.safetynet.alerts.dto.person;
 
 import org.safetynet.alerts.model.Person;
 
-//@Data
 public class PersonDto {
 
     public String firstName;

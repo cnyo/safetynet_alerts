@@ -1,10 +1,10 @@
 package org.safetynet.alerts.dto.person;
 
+import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 
 import java.util.List;
 
-//@Data
 public class PersonInfoDto {
 
     public String lastName;
@@ -14,12 +14,12 @@ public class PersonInfoDto {
     public List<String> medications;
     public List<String> allergies;
 
-    public PersonInfoDto(Person person) {
+    public PersonInfoDto(Person person, MedicalRecord medicalRecord) {
         this.lastName = person.getLastName();
         this.address = person.getAddress();
-        this.age = person.getMedicalRecord().getAge();
+        this.age = medicalRecord.getAge();
         this.email = person.getEmail();
-        this.medications = person.getMedicalRecord().getMedications();
-        this.allergies = person.getMedicalRecord().getAllergies();
+        this.medications = medicalRecord.getMedications();
+        this.allergies = medicalRecord.getAllergies();
     }
 }

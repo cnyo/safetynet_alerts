@@ -3,7 +3,6 @@ package org.safetynet.alerts.service;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.repository.FireStationRepository;
-import org.safetynet.alerts.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,20 +19,20 @@ public class FireStationService {
     @Autowired
     private FireStationRepository fireStationRepository;
 
-    @Autowired
-    private PersonRepository personRepository;
-
     public FireStation getFireStationAtAddress(String address) {
-        return fireStationRepository.findFireStationAtAddress(address)
+        FireStation fireStation = fireStationRepository.findFireStationAtAddress(address)
                 .orElseThrow(() -> new NoSuchElementException("No fire station found"));
+        log.debug("getFireStationAtAddress: {}", fireStation);
+
+        if (fireStation == null) {
+            throw new NoSuchElementException("No fire station found");
+        }
+        return fireStation;
     }
 
     public FireStation createFireStation(FireStation fireStation) {
         FireStation savedFireStation = fireStationRepository.create(fireStation);
         log.info("FireStation created success");
-
-//        personRepository.attachFireStation(savedFireStation);
-//        log.info("FireStation attached to persons with same address.");
 
         return savedFireStation;
     }
@@ -63,5 +62,21 @@ public class FireStationService {
                 throw new IllegalArgumentException(message);
             }
         }
+    }
+
+    public List<String> getAddressesForOneFireStation(String stationNumber) {
+        String[] stationNumbers = stationNumber.split(",");
+        List<String> addresses = fireStationRepository.findAllAddressForOneStation(stationNumber);
+        log.debug("{} addresses found from FireStation {}", addresses.size(), stationNumber);
+
+        return addresses;
+    }
+
+    public List<String> getAddressesForFireStations(String stations) {
+        String[] stationNumbers = stations.split(",");
+        List<String> addresses = fireStationRepository.findAddressesForStations(stationNumbers);
+        log.debug("{} addresses found from FireStations {}", addresses.size(), stations);
+
+        return addresses;
     }
 }

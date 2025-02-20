@@ -1,6 +1,5 @@
 package org.safetynet.alerts.model;
 
-import lombok.Data;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -8,9 +7,10 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Data
 @Component
 public class MedicalRecord {
+    public int MAJORITY_AGE = 18;
+
     private String firstName;
     private String lastName;
     private String birthdate;
@@ -81,10 +81,10 @@ public class MedicalRecord {
     }
 
     public boolean isChild() {
-        return getAge() < 18;
+        return getAge() <= MAJORITY_AGE;
     }
 
     public boolean isAdult() {
-        return getAge() >= 18;
+        return getAge() > MAJORITY_AGE;
     }
 }

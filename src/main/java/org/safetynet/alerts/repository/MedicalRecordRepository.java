@@ -8,9 +8,8 @@ import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.stereotype.Component;
 
 import javax.management.InstanceAlreadyExistsException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -26,14 +25,12 @@ public class MedicalRecordRepository {
     public MedicalRecord create(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException {
         Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
 
-        if (person.getMedicalRecord() != null) {
+        if (person == null) {
             log.info("Medical record already exists");
             throw new InstanceAlreadyExistsException("Medical record already exists");
         }
 
         jsonData.getMedicalrecords().add(medicalRecord);
-        person.setMedicalRecord(medicalRecord);
-        log.info("Medical record added to person.");
 
         return medicalRecord;
     }
@@ -65,18 +62,31 @@ public class MedicalRecordRepository {
         boolean removed = jsonData.getMedicalrecords()
                 .removeIf(medicalRecord -> medicalRecord.getFullName().equals(fullName));
 
-        if (removed) {
-            try {
-                personRepository.findOneByFullName(fullName).setMedicalRecord(null);
-            } catch (NoSuchElementException e) {
-                throw new NoSuchElementException("Person not found.");
-            }
-        }
-
         return removed;
     }
 
     public List<MedicalRecord> findAll() {
         return jsonData.getMedicalrecords();
+    }
+
+    public int countAdultFromFullName(List<String> fullNames) {
+        return jsonData.getMedicalrecords().stream()
+                .filter(medicalRecord -> fullNames.contains(medicalRecord.getFullName()) && medicalRecord.isAdult())
+                .toList().size();
+    }
+
+    public int countChildrenFromFullName(List<String> fullNames) {
+        return jsonData.getMedicalrecords().stream()
+                .filter(medicalRecord -> fullNames.contains(medicalRecord.getFullName()) && medicalRecord.isChild())
+                .toList().size();
+    }
+
+    public Map<String, MedicalRecord> getAllByFullName() {
+        return jsonData.getMedicalrecords()
+                .stream()
+                .collect(Collectors.toMap(
+                        MedicalRecord::getFullName,
+                        medicalRecord -> medicalRecord
+                ));
     }
 }

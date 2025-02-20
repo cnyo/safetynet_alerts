@@ -3,16 +3,15 @@ package org.safetynet.alerts.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
-import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataService;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-@Repository
+@Component
 @Slf4j
 public class PersonRepository {
 
@@ -61,15 +60,6 @@ public class PersonRepository {
         return true;
     }
 
-    public List<Person> findAdultAtAddress(String address) {
-        return jsonData
-                .getPersons()
-                .stream()
-                .filter(person -> person.getAddress().equals(address))
-                .filter(person -> person.getMedicalRecord() != null && person.getMedicalRecord().isAdult())
-                .collect(Collectors.toList());
-    }
-
     public List<Person> findAllPersonAtAddress(String address) {
         return jsonData
                 .getPersons()
@@ -103,48 +93,25 @@ public class PersonRepository {
                 .orElseThrow(() -> new NoSuchElementException("Person not found"));
     }
 
-    public List<Person> findAllPersonFromFireStation(String stationNumber) {
-        List <String> addresses = jsonData.getFirestations().stream()
-                .filter(fireStation -> fireStation.getStation().equals(stationNumber))
-                .map(FireStation::getAddress)
-                .toList();
-
+    public List<Person> findAllPersonFromAddresses(List<String> addresses) {
         return jsonData.getPersons()
                 .stream()
                 .filter(person -> addresses.contains(person.getAddress()))
                 .collect(Collectors.toList());
     }
 
-    public List<Person> findAllPersonFromStations(String[] stations) {
-        List <String> addresses = jsonData.getFirestations()
-                .stream()
-                .filter(fireStation -> List.of(stations).contains(fireStation.getStation()))
-                .map(FireStation::getAddress)
-                .toList();
-
-        return jsonData.getPersons()
-                .stream()
-                .filter(person -> addresses.contains(person.getAddress()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Person> findAllChildrenAtAddress(String address) {
+    public List<Person> findAllForFullNameAtAddress(String address, List<String> fullNames) {
         return jsonData
                 .getPersons()
                 .stream()
-                .filter(person -> person.getAddress().equals(address))
-                .filter(p -> p.getMedicalRecord() != null && p.getMedicalRecord().isChild())
+                .filter(person -> person.getAddress().equals(address) && fullNames.contains(person.getFullName()))
                 .collect(Collectors.toList());
     }
 
     public Person addFireStationToPerson(Person person, FireStation fireStation) {
-        person.getFireStations().add(fireStation);
+//        person.getFireStations().add(fireStation);
 
         return person;
-    }
-
-    public Person attachMedicalRecordToPerson(Person person, MedicalRecord medicalRecord) {
-        return person.setMedicalRecord(medicalRecord);
     }
 
     public void attachFireStation(FireStation savedFireStation) {
@@ -158,5 +125,20 @@ public class PersonRepository {
 
     public long countPersonByFullName(String fullName) {
         return jsonData.getPersons().stream().filter(person -> person.getFullName().equals(fullName)).count();
+    }
+
+    public List<String> findPhoneNumbersFromAddresses(List<String> addresses) {
+        return jsonData.getPersons().stream()
+                .filter(person -> addresses.contains(person.getAddress()))
+                .map(Person::getPhone).toList();
+    }
+
+    public List<String> findAllEmailsAtCity(String city) {
+        return jsonData
+                .getPersons()
+                .stream()
+                .filter(person -> person.getCity().equals(city))
+                .map(Person::getEmail)
+                .collect(Collectors.toList());
     }
 }

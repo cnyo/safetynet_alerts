@@ -60,4 +60,19 @@ public class FireStationRepository {
     public List<FireStation> findAll() {
         return jsonData.getFirestations();
     }
+
+    public List<String> findAllAddressForOneStation(String stationNumber) {
+        return jsonData.getFirestations().stream()
+                .filter(fireStation -> fireStation.getStation().equals(stationNumber))
+                .map(FireStation::getAddress)
+                .toList();
+    }
+
+    public List<String> findAddressesForStations(String[] stations) {
+        return jsonData.getFirestations()
+                .stream()
+                .filter(fireStation -> List.of(stations).contains(fireStation.getStation()))
+                .map(FireStation::getAddress)
+                .toList();
+    }
 }

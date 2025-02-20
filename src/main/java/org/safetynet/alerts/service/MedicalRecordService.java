@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -29,5 +30,12 @@ public class MedicalRecordService {
 
     public List<MedicalRecord> getAll() {
         return medicalRecordRepository.findAll();
+    }
+
+    public Map<String, MedicalRecord> getAllByFullName() {
+        Map<String, MedicalRecord> medicalRecords = medicalRecordRepository.getAllByFullName();
+        log.debug("Medical records ordered by fullName found: {}", medicalRecords.size());
+
+        return medicalRecords;
     }
 }

@@ -6,6 +6,7 @@ import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.stereotype.Repository;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -27,9 +28,9 @@ public class FireStationRepository {
                 .findFirst();
     }
 
-    public FireStation create(FireStation fireStation) {
+    public FireStation create(FireStation fireStation) throws InstanceAlreadyExistsException {
         if (findOneFireStation(fireStation.getAddress(), fireStation.getStation()).isPresent()) {
-            throw new IllegalArgumentException("FireStation already exists");
+            throw new InstanceAlreadyExistsException("FireStation already exists at address");
         }
 
         jsonData.getFirestations().add(fireStation);

@@ -69,7 +69,7 @@ public class PersonService {
         List<Person> persons = Optional.ofNullable(personRepository.findAllPersonByLastName(lastName))
                 .orElse(Collections.emptyList());
 
-        log.debug("Found {} persons", persons.size());
+        log.debug("Found {} persons by lastname", persons.size());
 
         return persons;
     }
@@ -98,13 +98,18 @@ public class PersonService {
     }
 
     public List<Person> getAll() {
-        return personRepository.findAll();
+        List<Person> persons = personRepository.findAll();
+        log.debug("Found {} persons", persons.size());
+
+        return persons;
     }
 
     public boolean remove(String firstName, String lastName) {
         String fullName = String.format("%s %s", firstName, lastName);
+        boolean removed = personRepository.remove(fullName);
+        log.debug("Removed person {}", removed ? "successfully" : "failed");
 
-        return personRepository.remove(fullName);
+        return removed;
     }
 
     public List<String> getFullNamesFromPersons(List<Person> persons) {

@@ -6,6 +6,7 @@ import org.safetynet.alerts.repository.FireStationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.*;
 
 @Slf4j
@@ -30,27 +31,36 @@ public class FireStationService {
         return fireStation;
     }
 
-    public FireStation createFireStation(FireStation fireStation) {
+    public FireStation create(FireStation fireStation) throws InstanceAlreadyExistsException {
         FireStation savedFireStation = fireStationRepository.create(fireStation);
-        log.info("FireStation created success");
+        log.info("FireStation created successfully");
 
         return savedFireStation;
     }
 
     public FireStation update(Map<String, Object> params) {
-        return fireStationRepository.update(
+        FireStation fireStation = fireStationRepository.update(
                 params.get("address").toString(),
                 params.get("station").toString(),
                 params.get("new_station").toString()
         );
+        log.debug("FireStation {} updated successfully", fireStation);
+
+        return fireStation;
     }
 
     public boolean remove(FireStation fireStation) {
-        return fireStationRepository.remove(fireStation);
+        boolean removed = fireStationRepository.remove(fireStation);
+        log.debug("FireStation {} removed : {}", fireStation, removed ? "success" : "failure");
+
+        return removed;
     }
 
     public List<FireStation> getAll() {
-        return fireStationRepository.findAll();
+        List<FireStation> fireStations = fireStationRepository.findAll();
+        log.debug("getAll fire stations: {}", fireStations.size());
+
+        return fireStations;
     }
 
     public void checkPatchParamsIsOk(Map<String, Object> params) {

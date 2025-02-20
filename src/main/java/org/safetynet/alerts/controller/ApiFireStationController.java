@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -41,14 +42,14 @@ public class ApiFireStationController {
         log.info("Post /firestation");
 
         try {
-            FireStation createdFireStation = fireStationService.createFireStation(fireStation);
+            FireStation createdFireStation = fireStationService.create(fireStation);
             log.info("POST /firestation FireStation created success");
 
             return ResponseEntity.ok(new FireStationDto(createdFireStation));
-        } catch (IllegalArgumentException e) {
-            log.error("POST /firestation FireStation already exists {} : ", e.getMessage(), e);
+        } catch (InstanceAlreadyExistsException e) {
+            log.error("POST /firestation FireStation at address already exists {} : ", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("FireStation already exists.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("FireStation already exists at address.");
         } catch (Exception e) {
             log.error("POST /firestation FireStation error: {} : ", e.getMessage(), e);
 

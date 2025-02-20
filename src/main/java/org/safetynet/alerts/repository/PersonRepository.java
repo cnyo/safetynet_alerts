@@ -1,7 +1,6 @@
 package org.safetynet.alerts.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataService;
@@ -47,17 +46,16 @@ public class PersonRepository {
     }
 
     public boolean remove(String fullName) {
-        boolean personResult = jsonData.getPersons()
-                .removeIf(person -> person.getFullName().equals(fullName));
-
-        boolean medicalRecordResult = jsonData.getMedicalrecords()
+        // Delete medicalRecord corresponding to person
+        boolean medicalRecordRemoved = jsonData.getMedicalrecords()
                 .removeIf(medicalRecord -> medicalRecord.getFullName().equals(fullName));
 
-        if (!(personResult && medicalRecordResult)) {
-            throw new IllegalArgumentException("Person or medical record not removed");
+        if (!medicalRecordRemoved) {
+            return false;
         }
 
-        return true;
+        return jsonData.getPersons()
+                .removeIf(person -> person.getFullName().equals(fullName));
     }
 
     public List<Person> findAllPersonAtAddress(String address) {
@@ -73,14 +71,6 @@ public class PersonRepository {
                 .getPersons()
                 .stream()
                 .filter(person -> person.getLastName().equals(lastName))
-                .collect(Collectors.toList());
-    }
-
-    public List<Person> findAllPersonByCity(String city) {
-        return jsonData
-                .getPersons()
-                .stream()
-                .filter(person -> person.getCity().equals(city))
                 .collect(Collectors.toList());
     }
 
@@ -100,31 +90,8 @@ public class PersonRepository {
                 .collect(Collectors.toList());
     }
 
-    public List<Person> findAllForFullNameAtAddress(String address, List<String> fullNames) {
-        return jsonData
-                .getPersons()
-                .stream()
-                .filter(person -> person.getAddress().equals(address) && fullNames.contains(person.getFullName()))
-                .collect(Collectors.toList());
-    }
-
-    public Person addFireStationToPerson(Person person, FireStation fireStation) {
-//        person.getFireStations().add(fireStation);
-
-        return person;
-    }
-
-    public void attachFireStation(FireStation savedFireStation) {
-        List<Person> persons = findAllPersonAtAddress(savedFireStation.getAddress());
-        persons.forEach(person -> addFireStationToPerson(person, savedFireStation));
-    }
-
     public List<Person> findAll() {
         return jsonData.getPersons();
-    }
-
-    public long countPersonByFullName(String fullName) {
-        return jsonData.getPersons().stream().filter(person -> person.getFullName().equals(fullName)).count();
     }
 
     public List<String> findPhoneNumbersFromAddresses(List<String> addresses) {

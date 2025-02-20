@@ -17,19 +17,31 @@ public class MedicalRecordService {
     private MedicalRecordRepository medicalRecordRepository;
 
     public MedicalRecord createMedicalRecord(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException {
-        return medicalRecordRepository.create(medicalRecord);
+        MedicalRecord savedMedicalRecord = medicalRecordRepository.create(medicalRecord);
+        log.debug("MedicalRecord created successfully");
+
+        return savedMedicalRecord;
     }
 
     public MedicalRecord update(MedicalRecord medicalRecord) {
-        return medicalRecordRepository.update(medicalRecord);
+        MedicalRecord updatedMedicalRecord = medicalRecordRepository.update(medicalRecord);
+        log.debug("MedicalRecord updated successfully");
+
+        return updatedMedicalRecord;
     }
 
     public boolean remove(String firstName, String lastName) {
-        return medicalRecordRepository.remove(firstName, lastName);
+        boolean removed = medicalRecordRepository.remove(firstName, lastName);
+        log.debug("MedicalRecord removed : {}", removed ? "success" : "failure");
+
+        return removed;
     }
 
     public List<MedicalRecord> getAll() {
-        return medicalRecordRepository.findAll();
+        List<MedicalRecord> medicalRecords = medicalRecordRepository.findAll();
+        log.debug("getAll medical records: {}", medicalRecords.size());
+
+        return medicalRecords;
     }
 
     public Map<String, MedicalRecord> getAllByFullName() {

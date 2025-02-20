@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.person.PersonDto;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.PersonService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,9 +72,9 @@ public class ApiPersonController {
             boolean removed = personService.remove(firstName, lastName);
 
             if (!removed) {
-                log.info("DELETE /person medicalRecord not found.");
+                log.info("DELETE /person person not removed.");
 
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("person not removed.");
             }
 
             log.info("DELETE /person Person removed successfully");

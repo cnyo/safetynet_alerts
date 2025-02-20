@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -90,7 +91,7 @@ public class FireStationServiceTest {
 
     @DisplayName("Get one fire station by address successfully")
     @Test
-    public void test_createFireStation_successfully() {
+    public void test_createFireStation_successfully() throws InstanceAlreadyExistsException {
         List<FireStation> mockFireStationList = mock(List.class);
         FireStation mockFireStation = new FireStation();
         mockFireStation.setAddress("21 jump street");
@@ -100,7 +101,7 @@ public class FireStationServiceTest {
         when(fireStationRepository.create(any(FireStation.class))).thenReturn(mockFireStation);
         when(mockFireStationList.add(mockFireStation)).thenReturn(true);
 
-        FireStation fireStation = fireStationService.createFireStation(mockFireStation);
+        FireStation fireStation = fireStationService.create(mockFireStation);
 
         assertThat(fireStation).isNotNull();
     }

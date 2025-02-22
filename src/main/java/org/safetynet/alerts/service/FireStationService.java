@@ -23,35 +23,38 @@ public class FireStationService {
     public FireStation getFireStationAtAddress(String address) {
         FireStation fireStation = fireStationRepository.findFireStationAtAddress(address)
                 .orElseThrow(() -> new NoSuchElementException("No fire station found"));
-        log.debug("getFireStationAtAddress: {}", fireStation);
+        log.debug("Get fire station at address {} success", fireStation.getAddress());
 
-        if (fireStation == null) {
-            throw new NoSuchElementException("No fire station found");
-        }
         return fireStation;
     }
 
     public FireStation create(FireStation fireStation) throws InstanceAlreadyExistsException {
         FireStation savedFireStation = fireStationRepository.create(fireStation);
-        log.info("FireStation created successfully");
+        log.debug("FireStation created successfully");
 
         return savedFireStation;
     }
 
     public FireStation update(Map<String, Object> params) {
+        if (!validatePatchParams(params)) {
+            log.debug("Update fire station patch failed with invalid parameters.");
+
+            throw new IllegalArgumentException("Invalid parameters");
+        }
+
         FireStation fireStation = fireStationRepository.update(
                 params.get("address").toString(),
                 params.get("station").toString(),
                 params.get("new_station").toString()
         );
-        log.debug("FireStation {} updated successfully", fireStation);
+        log.debug("FireStation {} updated to {} successfully", params.get("station"), fireStation.getStation());
 
         return fireStation;
     }
 
     public boolean remove(FireStation fireStation) {
         boolean removed = fireStationRepository.remove(fireStation);
-        log.debug("FireStation {} removed : {}", fireStation, removed ? "success" : "failure");
+        log.debug("FireStation removed: {}", removed ? "success" : "failure");
 
         return removed;
     }
@@ -63,19 +66,20 @@ public class FireStationService {
         return fireStations;
     }
 
-    public void checkPatchParamsIsOk(Map<String, Object> params) {
+    public boolean validatePatchParams(Map<String, Object> params) {
         for (String param : PATCH_PARAMS) {
             if (params.get(param) == null) {
                 String message = String.format("Parameter '%s' is missing.", param);
-                log.debug(message);
+                log.debug("Parameter {} is missing.", param);
 
-                throw new IllegalArgumentException(message);
+                return false;
             }
         }
+
+        return true;
     }
 
     public List<String> getAddressesForOneFireStation(String stationNumber) {
-        String[] stationNumbers = stationNumber.split(",");
         List<String> addresses = fireStationRepository.findAllAddressForOneStation(stationNumber);
         log.debug("{} addresses found from FireStation {}", addresses.size(), stationNumber);
 

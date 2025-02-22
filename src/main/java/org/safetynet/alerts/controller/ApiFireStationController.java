@@ -62,7 +62,6 @@ public class ApiFireStationController {
         log.info("PATCH /firestation FireStation update success");
 
         try {
-            fireStationService.checkPatchParamsIsOk(params);
             FireStation updatedFireStation = fireStationService.update(params);
             log.info("PATCH /firestation Firestation updated success");
 

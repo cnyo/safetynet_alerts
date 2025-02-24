@@ -59,7 +59,7 @@ public class ApiController {
 
         try {
             Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
-            List<Person> persons = personService.getChildrenAtAddress(address, medicalRecordMap);
+            List<Person> persons = personService.getAllPersonAtAddress(address, medicalRecordMap);
             Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, address, medicalRecordMap);
 
 //            List<ChildPersonDto> childAlerts = personDtoMapper.toChildAlert2Dto(persons, address, medicalRecordMap);

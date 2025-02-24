@@ -18,9 +18,6 @@ import java.io.InputStream;
 @Slf4j
 public class JsonDataService {
 
-    @Value("${json.data.path}")
-    private String jsonPath;
-
     private JsonData jsonData;
 
     @Autowired
@@ -30,8 +27,7 @@ public class JsonDataService {
         log.info("JsonDataLoader instantiated");
     }
 
-    @PostConstruct
-    public void init() {
+    public void init(String jsonPath) {
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
             jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
             log.info("Données chargées avec succès !");

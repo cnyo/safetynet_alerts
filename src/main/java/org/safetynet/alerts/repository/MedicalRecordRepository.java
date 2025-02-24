@@ -22,11 +22,16 @@ public class MedicalRecordRepository {
         this.personRepository = personRepository;
     }
 
-    public MedicalRecord create(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException {
-        Person person = personRepository.findOneByFullName(medicalRecord.getFullName());
+    public MedicalRecord create(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException, NoSuchElementException {
+        Optional<Person> person = personRepository.findOneByFullName(medicalRecord.getFullName());
+        if (person.isEmpty()) {
+            log.debug("Person for new medical record not exists.");
+            throw new NoSuchElementException("Person for new medical record not exists");
+        }
 
-        if (person == null) {
-            log.info("Medical record already exists");
+        Optional<MedicalRecord> existingMedicalRecord = findOneByFullName(medicalRecord.getFullName());
+        if (existingMedicalRecord.isPresent()) {
+            log.debug("Medical record already exists.");
             throw new InstanceAlreadyExistsException("Medical record already exists");
         }
 

@@ -66,7 +66,7 @@ public class ApiPersonController {
     }
 
     @DeleteMapping("/person")
-    public ResponseEntity<String> deletePerson(@RequestBody String firstName, @RequestParam String lastName) {
+    public ResponseEntity<String> deletePerson(@RequestParam String firstName, @RequestParam String lastName) {
         log.info("DELETE /person.");
         try {
             boolean removed = personService.remove(firstName, lastName);

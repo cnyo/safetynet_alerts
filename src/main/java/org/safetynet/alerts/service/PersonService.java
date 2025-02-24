@@ -2,7 +2,6 @@ package org.safetynet.alerts.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.constants.AgeGroupConstants;
 import org.safetynet.alerts.dto.person.AdultPersonDto;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
 import org.safetynet.alerts.dto.person.OtherPersonDto;
@@ -75,7 +74,14 @@ public class PersonService {
     }
 
     public Person getPersonByFullName(String fullName) {
-        return personRepository.findOneByFullName(fullName);
+        Optional<Person> person = personRepository.findOneByFullName(fullName);
+
+        if (person.isEmpty()) {
+            log.debug("Person not exists.");
+            throw new NoSuchElementException("Person not exists");
+        }
+
+        return person.get();
     }
 
     public List<Person> getAllPersonFromFireStation(String stationNumber) {

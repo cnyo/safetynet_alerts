@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.medicalRecord.MedicalRecordDto;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.service.MedicalRecordService;
-import org.safetynet.alerts.service.PersonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,12 +41,12 @@ public class ApiMedicalRecordController {
         log.info("POST /medicalRecord");
 
         try {
-            MedicalRecord medicalRecordToSave = medicalRecordService.createMedicalRecord(medicalRecord);
+            MedicalRecord medicalRecordToSave = medicalRecordService.create(medicalRecord);
             log.info("POST /medicalRecord MedicalRecord created success");
 
             return ResponseEntity.ok(new MedicalRecordDto(medicalRecordToSave));
         } catch (InstanceAlreadyExistsException e) {
-            log.info("POST /medicalRecord MedicalRecord already exists for person");
+            log.error("POST /medicalRecord MedicalRecord already exists for person");
 
             return ResponseEntity.badRequest().body("MedicalRecord already exists for person.");
         } catch (Exception e) {

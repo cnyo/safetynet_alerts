@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -16,7 +17,11 @@ public class MedicalRecordService {
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
 
-    public MedicalRecord createMedicalRecord(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException {
+    public MedicalRecordService(MedicalRecordRepository medicalRecordRepository) {
+        this.medicalRecordRepository = medicalRecordRepository;
+    }
+
+    public MedicalRecord create(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException, NoSuchElementException {
         MedicalRecord savedMedicalRecord = medicalRecordRepository.create(medicalRecord);
         log.debug("MedicalRecord created successfully");
 
@@ -32,7 +37,7 @@ public class MedicalRecordService {
 
     public boolean remove(String firstName, String lastName) {
         boolean removed = medicalRecordRepository.remove(firstName, lastName);
-        log.debug("MedicalRecord removed : {}", removed ? "success" : "failure");
+        log.debug("MedicalRecord removed: {}", removed ? "success" : "failure");
 
         return removed;
     }

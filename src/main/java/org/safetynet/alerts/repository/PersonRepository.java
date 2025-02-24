@@ -74,13 +74,12 @@ public class PersonRepository {
                 .collect(Collectors.toList());
     }
 
-    public Person findOneByFullName(String fullName) {
+    public Optional<Person> findOneByFullName(String fullName) {
         return jsonData
                 .getPersons()
                 .stream()
                 .filter(person -> person.getFullName().equals(fullName))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Person not found"));
+                .findFirst();
     }
 
     public List<Person> findAllPersonFromAddresses(List<String> addresses) {

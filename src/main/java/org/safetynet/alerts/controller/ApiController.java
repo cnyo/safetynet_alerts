@@ -58,22 +58,17 @@ public class ApiController {
         log.info("GET /childAlert");
 
         try {
-            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
-            List<Person> persons = personService.getAllPersonAtAddress(address, medicalRecordMap);
-            Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, address, medicalRecordMap);
+//            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
+//            List<Person> persons = personService.getAllPersonAtAddress(address, medicalRecordMap);
+//            Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, address, medicalRecordMap);
+//
+//            if (childAlerts.isEmpty()) {
+//                log.info("GET /childAlert Children not found at address");
+//
+//                return ResponseEntity.ok(Collections.emptyList());
+//            }
 
-//            List<ChildPersonDto> childAlerts = personDtoMapper.toChildAlert2Dto(persons, address, medicalRecordMap);
-
-//            Map<String, List<Person>> adultChildrenMap = personService.getAdultsAndChildrenAtAddress(address, medicalRecordMap);
-//            ChildAlertDto childAlertDto = personDtoMapper.toChildAlertDto(adultChildrenMap, medicalRecordMap);
-
-            if (childAlerts.isEmpty()) {
-                log.info("GET /childAlert Children not found at address");
-
-                return ResponseEntity.ok(Collections.emptyList());
-            }
-
-            List<ChildAlertDto> withOtherChildAlerts = personService.attachOtherPersonToChildAlertDto(persons, childAlerts, address);
+            List<ChildAlertDto> withOtherChildAlerts = personService.attachOtherPersonToChildAlertDto(address);
             log.info("GET /childAlert Get children with other persons household at address success");
 
             return ResponseEntity.ok(withOtherChildAlerts);

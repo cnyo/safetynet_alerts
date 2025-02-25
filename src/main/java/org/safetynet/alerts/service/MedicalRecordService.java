@@ -55,4 +55,18 @@ public class MedicalRecordService {
 
         return medicalRecords;
     }
+
+    public int countAdultFromFullName(List<String> fullNames) {
+        int adultNbr = medicalRecordRepository.countAdultFromFullName(fullNames);
+        log.debug("Count {} adult from fullName", adultNbr);
+
+        return adultNbr;
+    }
+
+    public int countChildrenFromFullName(List<String> fullNames) {
+        int childrenNbr = medicalRecordRepository.countChildrenFromFullName(fullNames);
+        log.debug("Count {} children from fullName", childrenNbr);
+
+        return childrenNbr;
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.InstanceNotFoundException;
 import java.util.List;
 
 @RestController
@@ -38,7 +39,7 @@ public class ApiPersonController {
     public ResponseEntity<PersonDto> postPerson(@RequestBody Person person) {
         log.info("POST /person");
         try {
-            Person createdPerson = personService.createPerson(person);
+            Person createdPerson = personService.create(person);
             log.info("POST /person Person created success.");
 
             return ResponseEntity.ok(new PersonDto(createdPerson));
@@ -53,11 +54,14 @@ public class ApiPersonController {
     public ResponseEntity<PersonDto> putPerson(@RequestBody Person person) {
         log.info("Patch /person");
         try {
-            Person currentPerson = personService.getPersonByFullName(person.getFullName());
-            Person updatededPerson = personService.updatePerson(person, currentPerson);
+            Person updatededPerson = personService.update(person);
             log.info("PUT /person Person updated success.");
 
             return ResponseEntity.ok(new PersonDto(updatededPerson));
+        } catch (InstanceNotFoundException e) {
+            log.error("PUT /person Error: {}", e.getMessage());
+
+            return ResponseEntity.internalServerError().build();
         } catch (Exception e) {
             log.error("PUT /person Error: {}", e.getMessage());
 

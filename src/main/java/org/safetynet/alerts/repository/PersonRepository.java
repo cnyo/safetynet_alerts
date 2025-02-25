@@ -6,8 +6,10 @@ import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.stereotype.Component;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -20,13 +22,15 @@ public class PersonRepository {
         this.jsonData = jsonDataService.getJsonData();
     }
 
-    public Person createPerson(Person person) {
+    public Person create(Person person) throws IllegalArgumentException, InstanceAlreadyExistsException {
         if (person == null || person.getFullName() == null) {
-            throw new NullPointerException("Invalid person data");
+            log.debug("Invalid person data");
+            throw new IllegalArgumentException("Invalid person data");
         }
 
-        if (findOneByFullName(person.getFullName()) != null) {
-            throw new IllegalArgumentException("Person already exists");
+        if (findOneByFullName(person.getFullName()).isPresent()) {
+            log.debug("Person already exists");
+            throw new InstanceAlreadyExistsException("Person already exists");
         }
 
         jsonData.getPersons().add(person);
@@ -34,8 +38,16 @@ public class PersonRepository {
         return person;
     }
 
-    public Person updatePerson(Person person, Person currentPerson) {
-        return currentPerson
+    public Person update(Person person) throws InstanceNotFoundException {
+        Optional<Person> personToUpdate = jsonData.getPersons().stream()
+                .filter(curentPerson -> curentPerson.equals(person)).findFirst();
+
+        if (personToUpdate.isEmpty()) {
+            log.debug("Person not found");
+            throw new InstanceNotFoundException("Person not found to update not found");
+        }
+
+        return personToUpdate.get()
                 .setFirstName(person.getFirstName())
                 .setLastName(person.getLastName())
                 .setAddress(person.getAddress())

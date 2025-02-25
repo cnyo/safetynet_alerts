@@ -1,11 +1,11 @@
-package org.safetynet.alerts.unit;
+package org.safetynet.alerts.unit.service;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
-import org.safetynet.alerts.BusinessWorker;
+import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.logging.MemoryAppender;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
@@ -48,13 +48,13 @@ public class FireStationServiceTest {
 
     @BeforeAll
     public static void beforeAll() {
-        BusinessWorker worker = new BusinessWorker();
+        LogWorker worker = new LogWorker();
         worker.generateLogs("FireStationServiceTest");
     }
 
     @BeforeEach
     public void setUp() {
-        doNothing().when(jsonDataService).init();
+        doNothing().when(jsonDataService).init(anyString());
         JsonData mockJsonData = new JsonData();
         when(jsonDataService.getJsonData()).thenReturn(mockJsonData);
 
@@ -66,7 +66,7 @@ public class FireStationServiceTest {
         memoryAppender.start();
     }
 
-    @Tag("Get FireStation")
+    @Tag("Get")
     @DisplayName("Get one fire station by address successfully")
     @Test
     public void test_getFireStationAtAddress_successfully() {
@@ -85,7 +85,7 @@ public class FireStationServiceTest {
         assertThat(memoryAppender.search("Get fire station at address "+ mockFireStation.getAddress() +" success", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Get FireStation")
+    @Tag("Get")
     @DisplayName("Get not found fire station by address")
     @Test
     public void test_getFireStationAtAddress_notFound() {
@@ -101,17 +101,17 @@ public class FireStationServiceTest {
 
     }
 
-    @Tag("Create FireStation")
+    @Tag("Create")
     @DisplayName("Get one fire station by address successfully")
     @Test
     public void test_createFireStation_successfully() throws InstanceAlreadyExistsException {
-        List<FireStation> mockFireStationList = mock(List.class);
+//        List<FireStation> mockFireStationList = mock(List.class);
         FireStation mockFireStation = new FireStation();
         mockFireStation.setAddress("21 jump street");
         mockFireStation.setStation("2");
 
         when(fireStationRepository.create(any(FireStation.class))).thenReturn(mockFireStation);
-        when(mockFireStationList.add(mockFireStation)).thenReturn(true);
+//        when(mockFireStationList.add(mockFireStation)).thenReturn(true);
 
         FireStation fireStation = fireStationService.create(mockFireStation);
 

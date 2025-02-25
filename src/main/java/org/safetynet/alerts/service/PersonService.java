@@ -1,7 +1,9 @@
 package org.safetynet.alerts.service;
 
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.safetynet.alerts.controller.PersonDtoMapper;
 import org.safetynet.alerts.dto.person.AdultPersonDto;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
 import org.safetynet.alerts.dto.person.OtherPersonDto;
@@ -10,8 +12,12 @@ import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.repository.FireStationRepository;
 import org.safetynet.alerts.repository.MedicalRecordRepository;
 import org.safetynet.alerts.repository.PersonRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
 import java.util.*;
 
 @Service
@@ -19,20 +25,38 @@ import java.util.*;
 @Slf4j
 public class PersonService {
 
+    @Autowired
     private final PersonRepository personRepository;
-    private final FireStationRepository fireStationRepository;
-    private final MedicalRecordRepository medicalRecordRepository;
 
-    public Person createPerson(Person person) {
+    @Autowired
+    private final FireStationService fireStationService;
 
-        return personRepository.createPerson(person);
+    @Autowired
+    private final MedicalRecordService medicalRecordService;
+
+    @Autowired
+    private final PersonDtoMapper personDtoMapper;
+
+    public Person create(Person person) throws IllegalArgumentException, InstanceAlreadyExistsException {
+        Person savedPerson = personRepository.create(person);
+        log.debug("Person created");
+
+        return savedPerson;
     }
 
-    public Person updatePerson(Person person, Person currentPerson) {
-        return personRepository.updatePerson(person, currentPerson);
+    public Person update(Person person) throws InstanceNotFoundException {
+        Person updatedPerson = personRepository.update(person);
+        log.debug("Person updated");
+
+        return updatedPerson;
     }
 
     public List<String> getAllPhoneNumberFromAddresses(List<String> addresses) {
+        if (addresses == null || addresses.isEmpty()) {
+            log.debug("No addresses provided");
+            throw new IllegalArgumentException("addresses cannot be empty");
+        }
+
         List<String> phoneNumbers = personRepository.findPhoneNumbersFromAddresses(addresses);
         log.debug("{} phone numbers found", phoneNumbers.size());
 
@@ -40,28 +64,46 @@ public class PersonService {
     }
 
     public Integer countAdultFromPersons(List<String> fullNames) {
-        int adultNbr = medicalRecordRepository.countAdultFromFullName(fullNames);
+        if (fullNames == null) {
+            log.debug("fullNames adults cannot be null");
+
+            throw new IllegalArgumentException("fullNames adults cannot be null");
+        }
+
+        int adultNbr = medicalRecordService.countAdultFromFullName(fullNames);
         log.debug("Count {} adults", adultNbr);
 
         return adultNbr;
     }
 
     public int countChildrenFromPersons(List<String> fullNames) {
-        int childrenNbr = medicalRecordRepository.countChildrenFromFullName(fullNames);
+        if (fullNames == null) {
+            log.debug("fullNames children cannot be null");
+
+            throw new IllegalArgumentException("fullNames cannot be null");
+        }
+
+        int childrenNbr = medicalRecordService.countChildrenFromFullName(fullNames);
         log.debug("Count {} children", childrenNbr);
 
         return childrenNbr;
     }
 
     public List<Person> getAllPersonAtAddress(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            log.debug("Address cannot be empty");
+            throw new IllegalArgumentException("address cannot be empty");
+        }
+
         List<Person> persons = personRepository.findAllPersonAtAddress(address);
-        log.debug("{} persons found at address {}", persons.size(), address);
+        log.debug("{} person(s) found at address", persons.size());
 
         return persons;
     }
 
     public List<Person> getAllPersonByLastName(String lastName) {
-        if (lastName == null || lastName.isEmpty()) {
+        if (lastName == null || lastName.trim().isEmpty()) {
+            log.debug("Last name cannot be null or empty");
             throw new IllegalArgumentException("Last name cannot be null or empty");
         }
 
@@ -73,19 +115,13 @@ public class PersonService {
         return persons;
     }
 
-    public Person getPersonByFullName(String fullName) {
-        Optional<Person> person = personRepository.findOneByFullName(fullName);
-
-        if (person.isEmpty()) {
-            log.debug("Person not exists.");
-            throw new NoSuchElementException("Person not exists");
+    public List<Person> getAllPersonFromFireStation(String stationNumber) {
+        if (stationNumber == null || stationNumber.trim().isEmpty()) {
+            log.debug("stationNumber cannot be null or empty");
+            throw new IllegalArgumentException("stationNumber name cannot be null or empty");
         }
 
-        return person.get();
-    }
-
-    public List<Person> getAllPersonFromFireStation(String stationNumber) {
-        List <String> addresses = Optional.ofNullable(fireStationRepository.findAllAddressForOneStation(stationNumber))
+        List <String> addresses = Optional.ofNullable(fireStationService.getAddressesForOneFireStation(stationNumber))
                 .orElse(Collections.emptyList());
         log.debug("Found {} addresses for station {}", addresses.size(), stationNumber);
 
@@ -97,8 +133,13 @@ public class PersonService {
     }
 
     public List<Person> getAllPersonFromAddresses(List<String> addresses) {
+        if (addresses == null) {
+            log.debug("addresses cannot be null");
+            throw new IllegalArgumentException("addresses cannot be null");
+        }
+
         List<Person> persons = personRepository.findAllPersonFromAddresses(addresses);
-        log.debug("Found {} persons for addresses {}", persons.size(), addresses);
+        log.debug("Found {} persons from addresses", persons.size());
 
         return persons;
     }
@@ -119,7 +160,14 @@ public class PersonService {
     }
 
     public List<String> getFullNamesFromPersons(List<Person> persons) {
-        if (persons == null || persons.isEmpty()) {
+        if (persons == null) {
+            log.debug("Null argument is invalid");
+
+            throw new IllegalArgumentException("Null argument is invalid");
+        }
+        if (persons.isEmpty()) {
+            log.debug("No persons found");
+
             return Collections.emptyList();
         }
 
@@ -129,53 +177,29 @@ public class PersonService {
         return fullNames;
     }
 
-//    public Map<String, List<Person>> getAdultsAndChildrenAtAddress(String address, Map<String, MedicalRecord> medicalRecordMap) {
-//        List<Person> adults = new ArrayList<>();
-//        List<Person> children = new ArrayList<>();
-//
-//        List<Person> persons = personRepository.findAllPersonAtAddress(address);
-//
-//        for (Person person : persons) {
-//            MedicalRecord medicalRecord = medicalRecordMap.get(person.getFullName());
-//            if (medicalRecord == null) {
-//                continue;
-//            }
-//            if (medicalRecord.isAdult()) {
-//                adults.add(person);
-//            } else if (medicalRecord.isChild()) {
-//                children.add(person);
-//            }
-//        }
-//
-//        Map<String, List<Person>> personByAgeGroup = new HashMap<>();
-//        personByAgeGroup.put("adults", adults);
-//        personByAgeGroup.put("children", children);
-//        log.debug("Counted {} adults and {} children",
-//                personByAgeGroup.get(AgeGroupConstants.ADULTS).size(), personByAgeGroup.get(AgeGroupConstants.CHILDREN).size());
-//
-//        return personByAgeGroup;
-//    }
-
     public List<String> getAllEmailsAtCity(String city) {
-        if (city == null || city.isEmpty()) {
+        if (city == null || city.trim().isEmpty()) {
             log.debug("City name cannot be null or empty");
 
             throw new IllegalArgumentException("City name cannot be null or empty");
         }
 
-        return personRepository.findAllEmailsAtCity(city);
+        List<String> fullNames = personRepository.findAllEmailsAtCity(city);
+        log.debug("Found {} full names from city {}", fullNames.size(), city);
+
+        return fullNames;
     }
 
-    public List<Person> getChildrenAtAddress(String address, Map<String, MedicalRecord> medicalRecordMap) {
-        List<Person> persons = personRepository.findAllPersonAtAddress(address);
-        log.debug("Found {} persons at address {}", persons.size(), address);
+    public List<ChildAlertDto> attachOtherPersonToChildAlertDto(String address) {
+        Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
+        List<Person> persons = getAllPersonAtAddress(address);
+        Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, address, medicalRecordMap);
 
-        return persons;
-    }
+        if (childAlerts.isEmpty()) {
+            log.debug("No children found at this address");
 
-    public List<ChildAlertDto> attachOtherPersonToChildAlertDto(List<Person> persons, Map<String, ChildAlertDto> childAlerts, String address) {
-        Map<String, List<Person>> otherMap = new HashMap<>();
-        List<AdultPersonDto> other = new ArrayList<>();
+            return Collections.emptyList();
+        }
 
         persons.forEach(person -> {
             int otherPersonCount = 0;

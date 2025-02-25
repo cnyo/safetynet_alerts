@@ -17,7 +17,7 @@ public class ChildAlertDto {
     public ChildAlertDto(Person person, int age) {
         this.firstName = person.getFirstName();
         this.lastName = person.getLastName();
-        this.address = MessageFormat.format("{0}, {1} {2}", person.getAddress(), person.getZip(), person.getCity());
+        this.address = person.getAddress();
         this.age = age;
         this.otherPersons = new ArrayList<>();
     }

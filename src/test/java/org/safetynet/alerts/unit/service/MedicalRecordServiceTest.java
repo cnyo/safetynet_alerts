@@ -1,5 +1,5 @@
 
-package org.safetynet.alerts.unit;
+package org.safetynet.alerts.unit.service;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -10,7 +10,6 @@ import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.logging.MemoryAppender;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
-import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.repository.MedicalRecordRepository;
 import org.safetynet.alerts.repository.PersonRepository;
 import org.safetynet.alerts.service.JsonDataService;

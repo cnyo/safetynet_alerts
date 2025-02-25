@@ -2,6 +2,8 @@ package org.safetynet.alerts.model;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 public class Person {
     private String firstName;
@@ -11,6 +13,24 @@ public class Person {
     private String zip;
     private String email;
     private String phone;
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (object == null || object.getClass() != this.getClass()) {
+            return false;
+        }
+        Person other = (Person) object;
+
+        return address.equals(other.getFullName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName);
+    }
 
     public String getFullName() {
         return firstName + " " + lastName;

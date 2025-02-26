@@ -1,13 +1,11 @@
 package org.safetynet.alerts.service;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -21,25 +19,22 @@ public class JsonDataService {
     private JsonData jsonData;
 
     @Autowired
-    ObjectMapper objectMapper;
-
-    public JsonDataService() {
-        log.info("JsonDataLoader instantiated");
-    }
+    private ObjectMapper objectMapper;
 
     public void init(String jsonPath) {
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
             jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
-            log.info("Données chargées avec succès !");
-        } catch (StreamReadException e) {
-            log.error("Failed to read the JSON stream.", e);
-            throw new RuntimeException("Failed to read the JSON stream.", e);
-        } catch (DatabindException e) {
-            log.error("Failed to bind JSON data to Java objects.", e);
-            throw new RuntimeException("Failed to bind JSON data to Java objects.", e);
+            log.info("Data loaded successfully !");
+        } catch (UnrecognizedPropertyException e) {
+            log.error("Unrecognized property '{}' in JSON file '{}'. Check if your JsonData class matches the JSON structure.", e.getPropertyName(), jsonPath, e);
+            throw new RuntimeException("Invalid property found in JSON: " + e.getPropertyName(), e);
+        } catch (JsonMappingException e) {
+            log.error("JSON mapping error in file '{}'. Failed to map JSON to object '{}' at path '{}'. Possible type mismatch or missing annotation.",
+                    jsonPath, e.getPathReference(), e.getPath(), e);
+            throw new RuntimeException("JSON mapping error in file: " + jsonPath, e);
         } catch (IOException e) {
-            log.error("I/O error while loading JSON data.", e);
-            throw new RuntimeException("I/O error while loading JSON data.", e);
+            log.error("I/O error while loading JSON data", e);
+            throw new RuntimeException("I/O error while loading JSON data", e);
         }
     }
 

@@ -57,15 +57,25 @@ public class MedicalRecordService {
     }
 
     public int countAdultFromFullName(List<String> fullNames) {
+        if (fullNames == null || fullNames.isEmpty()) {
+            log.debug("No fullNames provided for count adults, returning 0.");
+            return 0;
+        }
+
         int adultNbr = medicalRecordRepository.countAdultFromFullName(fullNames);
-        log.debug("Count {} adult from fullName", adultNbr);
+        log.debug("Count {} adult from fullNames", adultNbr);
 
         return adultNbr;
     }
 
     public int countChildrenFromFullName(List<String> fullNames) {
+        if (fullNames == null || fullNames.isEmpty()) {
+            log.debug("No fullNames provided for count children, returning 0.");
+            return 0;
+        }
+
         int childrenNbr = medicalRecordRepository.countChildrenFromFullName(fullNames);
-        log.debug("Count {} children from fullName", childrenNbr);
+        log.debug("Count {} children from fullNames", childrenNbr);
 
         return childrenNbr;
     }

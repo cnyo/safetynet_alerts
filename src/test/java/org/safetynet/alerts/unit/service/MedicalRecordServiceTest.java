@@ -43,7 +43,6 @@ public class MedicalRecordServiceTest {
     @Mock
     private PersonRepository personRepository;
 
-//    @Mock
     private MedicalRecordService medicalRecordService;
 
     @Mock
@@ -179,7 +178,7 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("MedicalRecord removed: failure", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Get")
+    @Tag("GetTest")
     @DisplayName("Try to remove medical record not found")
     @Test
     public void test_getAll_success() {
@@ -198,7 +197,7 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("getAll medical records: 1", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Get")
+    @Tag("GetTest")
     @DisplayName("Try to remove medical record not found")
     @Test
     public void test_getAll_NoMedicalRecordsFound() {
@@ -217,7 +216,7 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("getAll medical records: 0", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Get")
+    @Tag("GetTest")
     @DisplayName("Try to get medical record by fullName success")
     @Test
     public void test_getAllByFullName_success() {
@@ -240,7 +239,7 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("Medical records ordered by fullName found: 1", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Get")
+    @Tag("GetTest")
     @DisplayName("Try to get none medical record by fullName")
     @Test
     public void test_getAllByFullName_NoMedicalRecordsFound() {
@@ -253,5 +252,79 @@ public class MedicalRecordServiceTest {
         assertThat(result).isEmpty();
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("Medical records ordered by fullName found: 0", Level.DEBUG)).hasSize(1);
+    }
+
+    @Tag("OtherTest")
+    @DisplayName("Try to count adult from fullNames success")
+    @Test
+    public void test_countAdultFromFullName_success() {
+        List<String> fullNames = Arrays.asList("Diane Doe", "Bob Doe", "John Doe");
+
+        when(medicalRecordRepository.countAdultFromFullName(anyList())).thenReturn(2);
+
+        int result = medicalRecordService.countAdultFromFullName(fullNames);
+
+        assertThat(result).isEqualTo(2);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("Count 2 adult from fullNames", Level.DEBUG)).hasSize(1);
+    }
+
+    @Tag("OtherTest")
+    @DisplayName("Try to count adult with empty fullNames")
+    @Test
+    public void test_countAdultFromFullName_withEmptyFullNames() {
+        int result = medicalRecordService.countAdultFromFullName(Collections.emptyList());
+
+        assertThat(result).isEqualTo(0);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("No fullNames provided for count adults, returning 0.", Level.DEBUG)).hasSize(1);
+    }
+
+    @Tag("OtherTest")
+    @DisplayName("Try to count adult with null fullNames")
+    @Test
+    public void test_countAdultFromFullName_withNullFullNames() {
+        int result = medicalRecordService.countAdultFromFullName(null);
+
+        assertThat(result).isEqualTo(0);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("No fullNames provided for count adults, returning 0.", Level.DEBUG)).hasSize(1);
+    }
+
+    @Tag("OtherTest")
+    @DisplayName("Try to count children from fullNames success")
+    @Test
+    public void test_countChildrenFromFullName_success() {
+        List<String> fullNames = Arrays.asList("Diane Doe", "Bob Doe", "John Doe");
+
+        when(medicalRecordRepository.countChildrenFromFullName(anyList())).thenReturn(1);
+
+        int result = medicalRecordService.countChildrenFromFullName(fullNames);
+
+        assertThat(result).isEqualTo(1);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("Count 1 children from fullNames", Level.DEBUG)).hasSize(1);
+    }
+
+    @Tag("OtherTest")
+    @DisplayName("Try to count adult from empty fullNames")
+    @Test
+    public void test_countChildrenFromFullName_withEmptyFullNames() {
+        int result = medicalRecordService.countChildrenFromFullName(Collections.emptyList());
+
+        assertThat(result).isEqualTo(0);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("No fullNames provided for count children, returning 0.", Level.DEBUG)).hasSize(1);
+    }
+
+    @Tag("OtherTest")
+    @DisplayName("Try to count adult from null fullNames")
+    @Test
+    public void test_countChildrenFromFullName_withNullFullNames() {
+        int result = medicalRecordService.countChildrenFromFullName(null);
+
+        assertThat(result).isEqualTo(0);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("No fullNames provided for count children, returning 0.", Level.DEBUG)).hasSize(1);
     }
 }

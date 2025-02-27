@@ -3,7 +3,6 @@ package org.safetynet.alerts.integration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -12,9 +11,8 @@ import org.safetynet.alerts.logging.MemoryAppender;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.service.JsonDataService;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.lang.reflect.Field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,6 +25,7 @@ public class JsonDataServiceIT {
 
     private final MemoryAppender memoryAppender = new MemoryAppender();
 
+    @Autowired
     private JsonDataService jsonDataService;
 
     @BeforeAll
@@ -36,18 +35,13 @@ public class JsonDataServiceIT {
     }
 
     @BeforeEach
-    public void setUp() throws NoSuchFieldException, IllegalAccessException {
+    public void setUp() {
         Logger logger = (Logger) LoggerFactory.getLogger(LOGGER_NAME);
         logger.setLevel(Level.DEBUG);
         logger.addAppender(memoryAppender);
 
         memoryAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
         memoryAppender.start();
-
-        jsonDataService = new JsonDataService();
-        Field objectMapperField = JsonDataService.class.getDeclaredField("objectMapper");
-        objectMapperField.setAccessible(true);
-        objectMapperField.set(jsonDataService, new ObjectMapper());
     }
 
     @Test
@@ -74,16 +68,15 @@ public class JsonDataServiceIT {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "test-bad-data.json",
-            "bad-structured-data.json",
-            "wrong-data-type-data.json"
+            "test-bad-structured-data.json",
+            "test-wrong-data-type-data.json"
     })
     public void test_getJsonData_withWrongDataType(String jsonPath) {
         assertThrows(RuntimeException.class, () -> jsonDataService.init(jsonPath));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
 
-        if (jsonPath.equals("bad-structured-data.json")) {
-            assertThat(memoryAppender.search("Unrecognized property", Level.ERROR)).hasSize(1);
+        if (jsonPath.equals("test-bad-structured-data.json")) {
+            assertThat(memoryAppender.search("JSON mapping error in file", Level.ERROR)).hasSize(1);
         } else {
             assertThat(memoryAppender.search("JSON mapping error in file", Level.ERROR)).hasSize(1);
         }

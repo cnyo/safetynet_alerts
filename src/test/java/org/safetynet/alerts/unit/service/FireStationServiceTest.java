@@ -40,7 +40,7 @@ public class FireStationServiceTest {
     @Mock
     FireStationRepository fireStationRepository;
 
-    @Spy
+    @Mock
     private JsonDataService jsonDataService;
 
     @Mock
@@ -55,8 +55,6 @@ public class FireStationServiceTest {
     @BeforeEach
     public void setUp() {
         doNothing().when(jsonDataService).init(anyString());
-        JsonData mockJsonData = new JsonData();
-        when(jsonDataService.getJsonData()).thenReturn(mockJsonData);
 
         Logger logger = (Logger) LoggerFactory.getLogger(LOGGER_NAME);
         logger.setLevel(Level.DEBUG);

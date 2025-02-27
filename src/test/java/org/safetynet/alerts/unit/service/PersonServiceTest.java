@@ -44,7 +44,7 @@ public class PersonServiceTest {
 
     private final MemoryAppender memoryAppender = new MemoryAppender();
 
-    @Spy
+    @Mock
     private JsonDataService jsonDataService;
 
     @Mock
@@ -60,9 +60,6 @@ public class PersonServiceTest {
     private PersonRepository personRepository;
 
     private PersonService personService;
-
-    @Mock
-    private JsonData jsonData;
 
     @BeforeAll
     public static void beforeAll() {

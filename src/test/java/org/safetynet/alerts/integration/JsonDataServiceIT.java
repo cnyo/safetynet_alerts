@@ -47,14 +47,15 @@ public class JsonDataServiceIT {
     @Test
     public void test_getJsonData_success() {
         jsonDataService.init("test-data.json");
-        JsonData result = jsonDataService.getJsonData();
+        JsonData result = JsonDataService.getJsonData();
 
         assertThat(result).isNotNull();
         assertThat(result).isInstanceOf(JsonData.class);
         assertThat(result.getMedicalrecords().size()).isEqualTo(1);
         assertThat(result.getFirestations().size()).isEqualTo(1);
         assertThat(result.getPersons().size()).isEqualTo(1);
-        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
+        assertThat(memoryAppender.search("Initializing JSON data from path", Level.INFO)).hasSize(1);
         assertThat(memoryAppender.search("Data loaded successfully !", Level.INFO)).hasSize(1);
     }
 
@@ -62,10 +63,12 @@ public class JsonDataServiceIT {
     public void test_init_withBadPath() {
         assertThrows(RuntimeException.class, () -> jsonDataService.init("bad_path"));
 
-        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
+        assertThat(memoryAppender.search("Initializing JSON data from path", Level.INFO)).hasSize(1);
         assertThat(memoryAppender.search("I/O error while loading JSON data", Level.ERROR)).hasSize(1);
     }
 
+    // todo: test à revoir
     @ParameterizedTest
     @ValueSource(strings = {
             "test-bad-structured-data.json",
@@ -73,7 +76,9 @@ public class JsonDataServiceIT {
     })
     public void test_getJsonData_withWrongDataType(String jsonPath) {
         assertThrows(RuntimeException.class, () -> jsonDataService.init(jsonPath));
-        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
+
+        assertThat(memoryAppender.search("Initializing JSON data from path", Level.INFO)).hasSize(1);
 
         if (jsonPath.equals("test-bad-structured-data.json")) {
             assertThat(memoryAppender.search("JSON mapping error in file", Level.ERROR)).hasSize(1);

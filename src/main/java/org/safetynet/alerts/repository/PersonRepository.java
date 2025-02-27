@@ -16,12 +16,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PersonRepository {
 
-    protected final JsonData jsonData;
-
-    public PersonRepository(JsonDataService jsonDataService) {
-        this.jsonData = jsonDataService.getJsonData();
-    }
-
     public Person create(Person person) throws IllegalArgumentException, InstanceAlreadyExistsException {
         if (person == null || person.getFullName() == null) {
             log.debug("Invalid person data");
@@ -33,13 +27,13 @@ public class PersonRepository {
             throw new InstanceAlreadyExistsException("Person already exists");
         }
 
-        jsonData.getPersons().add(person);
+        JsonDataService.getJsonData().getPersons().add(person);
 
         return person;
     }
 
     public Person update(Person person) throws InstanceNotFoundException {
-        Optional<Person> personToUpdate = jsonData.getPersons().stream()
+        Optional<Person> personToUpdate = JsonDataService.getJsonData().getPersons().stream()
                 .filter(curentPerson -> curentPerson.equals(person)).findFirst();
 
         if (personToUpdate.isEmpty()) {
@@ -59,19 +53,19 @@ public class PersonRepository {
 
     public boolean remove(String fullName) {
         // Delete medicalRecord corresponding to person
-        boolean medicalRecordRemoved = jsonData.getMedicalrecords()
+        boolean medicalRecordRemoved = JsonDataService.getJsonData().getMedicalrecords()
                 .removeIf(medicalRecord -> medicalRecord.getFullName().equals(fullName));
 
         if (!medicalRecordRemoved) {
             return false;
         }
 
-        return jsonData.getPersons()
+        return JsonDataService.getJsonData().getPersons()
                 .removeIf(person -> person.getFullName().equals(fullName));
     }
 
     public List<Person> findAllPersonAtAddress(String address) {
-        return jsonData
+        return JsonDataService.getJsonData()
                 .getPersons()
                 .stream()
                 .filter(person -> person.getAddress().equals(address))
@@ -79,7 +73,7 @@ public class PersonRepository {
     }
 
     public List<Person> findAllPersonByLastName(String lastName) {
-        return jsonData
+        return JsonDataService.getJsonData()
                 .getPersons()
                 .stream()
                 .filter(person -> person.getLastName().equals(lastName))
@@ -87,7 +81,7 @@ public class PersonRepository {
     }
 
     public Optional<Person> findOneByFullName(String fullName) {
-        return jsonData
+        return JsonDataService.getJsonData()
                 .getPersons()
                 .stream()
                 .filter(person -> person.getFullName().equals(fullName))
@@ -95,24 +89,24 @@ public class PersonRepository {
     }
 
     public List<Person> findAllPersonFromAddresses(List<String> addresses) {
-        return jsonData.getPersons()
+        return JsonDataService.getJsonData().getPersons()
                 .stream()
                 .filter(person -> addresses.contains(person.getAddress()))
                 .collect(Collectors.toList());
     }
 
     public List<Person> findAll() {
-        return jsonData.getPersons();
+        return JsonDataService.getJsonData().getPersons();
     }
 
     public List<String> findPhoneNumbersFromAddresses(List<String> addresses) {
-        return jsonData.getPersons().stream()
+        return JsonDataService.getJsonData().getPersons().stream()
                 .filter(person -> addresses.contains(person.getAddress()))
                 .map(Person::getPhone).toList();
     }
 
     public List<String> findAllEmailsAtCity(String city) {
-        return jsonData
+        return JsonDataService.getJsonData()
                 .getPersons()
                 .stream()
                 .filter(person -> person.getCity().equals(city))

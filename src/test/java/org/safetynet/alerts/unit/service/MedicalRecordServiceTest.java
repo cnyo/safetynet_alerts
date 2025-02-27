@@ -8,10 +8,8 @@ import org.junit.jupiter.api.*;
 import org.mockito.*;
 import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.logging.MemoryAppender;
-import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.repository.MedicalRecordRepository;
-import org.safetynet.alerts.repository.PersonRepository;
 import org.safetynet.alerts.service.JsonDataService;
 import org.safetynet.alerts.service.MedicalRecordService;
 import org.slf4j.LoggerFactory;
@@ -30,23 +28,16 @@ import static org.mockito.Mockito.*;
 public class MedicalRecordServiceTest {
 
     private final String LOGGER_NAME = "org.safetynet.alerts.service.MedicalRecordService";
-    private final String MSG = "Mon message de test";
 
     private final MemoryAppender memoryAppender = new MemoryAppender();
 
     @Mock
     MedicalRecordRepository medicalRecordRepository;
 
-    @Spy
+    @Mock
     private JsonDataService jsonDataService;
 
-    @Mock
-    private PersonRepository personRepository;
-
     private MedicalRecordService medicalRecordService;
-
-    @Mock
-    private JsonData jsonData;
 
     @BeforeAll
     public static void beforeAll() {

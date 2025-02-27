@@ -22,19 +22,12 @@ public class ApiFireStationController {
     private final FireStationService fireStationService;
 
     @GetMapping("/firestation/all")
-    public ResponseEntity<List<FireStation>> postFireStation() {
+    public ResponseEntity<List<FireStation>> getFireStation() {
         log.info("GET /firestation/all");
+        List<FireStation> fireStations = fireStationService.getAll();
+        log.info("GET /firestation/all return fire stations success");
 
-        try {
-            List<FireStation> fireStations = fireStationService.getAll();
-            log.info("GET /firestation/all return fire stations success");
-
-            return ResponseEntity.ok(fireStations);
-        } catch (Exception e) {
-            log.error("GET /firestation/all FireStation error: {}", e.getMessage(), e);
-
-            return ResponseEntity.internalServerError().build();
-        }
+        return ResponseEntity.ok(fireStations);
     }
 
     @PostMapping("/firestation")
@@ -74,7 +67,7 @@ public class ApiFireStationController {
         catch (IllegalArgumentException e) {
             log.error(e.getMessage(), e);
 
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         catch (Exception e) {
             log.error("Error updating FireStation: {}", e.getMessage(), e);
@@ -93,7 +86,7 @@ public class ApiFireStationController {
             if (!removed) {
                 log.error("DELETE /firestation fireStation not found");
 
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fire station not found.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Fire station not removed.");
             }
 
             log.info("DELETE /firestation removed success");

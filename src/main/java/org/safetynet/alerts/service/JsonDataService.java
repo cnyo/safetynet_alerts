@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +17,34 @@ import java.io.InputStream;
 
 @Service
 @Slf4j
-public class JsonDataService {
+public class JsonDataService implements ApplicationRunner {
 
-    private JsonData jsonData;
+    private static JsonData jsonData;
+
+    @Value("${json.data.path}")
+    private String jsonPath;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    public JsonDataService(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+//    public JsonDataService(ObjectMapper objectMapper) {
+//        this.objectMapper = objectMapper;
+//    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        init(jsonPath);
+    }
 
     public void init(String jsonPath) {
+        log.info("Initializing JSON data from path: {}", jsonPath);
+
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
-            jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
+            jsonData = this.objectMapper.readValue(inputStreamJson, JsonData.class);
             log.info("Data loaded successfully !");
         } catch (UnrecognizedPropertyException e) {
             log.error("Unrecognized property '{}' in JSON file '{}'. Check if your JsonData class matches the JSON structure.", e.getPropertyName(), jsonPath, e);
@@ -38,8 +59,8 @@ public class JsonDataService {
         }
     }
 
-    public JsonData getJsonData() {
-        return this.jsonData;
+    public static JsonData getJsonData() {
+        return jsonData;
     }
 }
 

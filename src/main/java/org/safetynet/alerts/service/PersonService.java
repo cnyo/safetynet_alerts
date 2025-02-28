@@ -38,6 +38,11 @@ public class PersonService {
     private final PersonDtoMapper personDtoMapper;
 
     public Person create(Person person) throws IllegalArgumentException, InstanceAlreadyExistsException {
+        if (person == null || person.getFirstName().trim().isEmpty() || person.getLastName().trim().isEmpty()) {
+            log.debug("Invalid person data");
+            throw new IllegalArgumentException("Invalid person data");
+        }
+
         Person savedPerson = personRepository.create(person);
         log.debug("Person created");
 
@@ -45,6 +50,11 @@ public class PersonService {
     }
 
     public Person update(Person person) throws InstanceNotFoundException {
+        if (person == null || person.getFirstName().trim().isEmpty() || person.getLastName().trim().isEmpty()) {
+            log.debug("Invalid person data");
+            throw new IllegalArgumentException("Invalid person data");
+        }
+
         Person updatedPerson = personRepository.update(person);
         log.debug("Person updated");
 

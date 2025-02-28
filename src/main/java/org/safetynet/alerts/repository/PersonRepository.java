@@ -17,10 +17,6 @@ import java.util.stream.Collectors;
 public class PersonRepository {
 
     public Person create(Person person) throws IllegalArgumentException, InstanceAlreadyExistsException {
-        if (person == null || person.getFullName() == null) {
-            log.debug("Invalid person data");
-            throw new IllegalArgumentException("Invalid person data");
-        }
 
         if (findOneByFullName(person.getFullName()).isPresent()) {
             log.debug("Person already exists");
@@ -52,13 +48,8 @@ public class PersonRepository {
     }
 
     public boolean remove(String fullName) {
-        // Delete medicalRecord corresponding to person
-        boolean medicalRecordRemoved = JsonDataService.getJsonData().getMedicalrecords()
+        JsonDataService.getJsonData().getMedicalrecords()
                 .removeIf(medicalRecord -> medicalRecord.getFullName().equals(fullName));
-
-        if (!medicalRecordRemoved) {
-            return false;
-        }
 
         return JsonDataService.getJsonData().getPersons()
                 .removeIf(person -> person.getFullName().equals(fullName));

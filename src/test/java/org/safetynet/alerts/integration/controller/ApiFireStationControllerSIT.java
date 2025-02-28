@@ -1,4 +1,4 @@
-package org.safetynet.alerts.integration.contoller;
+package org.safetynet.alerts.integration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

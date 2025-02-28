@@ -41,14 +41,18 @@ public class ApiMedicalRecordController {
         log.info("POST /medicalRecord");
 
         try {
-            MedicalRecord medicalRecordToSave = medicalRecordService.create(medicalRecord);
+            MedicalRecord savedMedicalRecord = medicalRecordService.create(medicalRecord);
             log.info("POST /medicalRecord MedicalRecord created success");
 
-            return ResponseEntity.ok(new MedicalRecordDto(medicalRecordToSave));
+            return ResponseEntity.ok(new MedicalRecordDto(savedMedicalRecord));
         } catch (InstanceAlreadyExistsException e) {
             log.error("POST /medicalRecord MedicalRecord already exists for person");
 
-            return ResponseEntity.badRequest().body("MedicalRecord already exists for person.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("MedicalRecord already exists for person.");
+        } catch (NoSuchElementException e) {
+            log.error("POST /medicalRecord MedicalRecord already exists for person");
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person for new medical record not exists.");
         } catch (Exception e) {
             log.error("POST /medicalRecord MedicalRecord error: {}", e.getMessage(), e);
 
@@ -68,7 +72,7 @@ public class ApiMedicalRecordController {
         } catch (NoSuchElementException e) {
             log.info("MedicalRecord to update not found");
 
-            return ResponseEntity.badRequest().body("MedicalRecord to update not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MedicalRecord to update not found.");
         } catch (Exception e) {
             log.error("PATCH /medicalRecord MedicalRecord error: {}", e.getMessage(), e);
 
@@ -84,18 +88,14 @@ public class ApiMedicalRecordController {
             boolean removed = medicalRecordService.remove(firstName, lastName);
 
             if (!removed) {
-                log.info("DELETE /medicalRecord MedicalRecord not found");
+                log.info("DELETE /medicalRecord MedicalRecord not deleted");
 
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("MedicalRecord not found.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("MedicalRecord not deleted.");
             }
 
             log.info("DELETE /medicalRecord removed.");
 
             return ResponseEntity.ok("medicalRecord removed success.");
-        } catch (NoSuchElementException e) {
-            log.info("MedicalRecord to delete not found");
-
-            return ResponseEntity.badRequest().body("MedicalRecord to delete not found.");
         } catch (Exception e) {
             log.error("DELETE /medicalRecord Error: {}", e.getMessage(), e);
 

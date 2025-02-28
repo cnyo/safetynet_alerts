@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import java.util.List;
 
@@ -36,13 +37,21 @@ public class ApiPersonController {
     }
 
     @PostMapping("/person")
-    public ResponseEntity<PersonDto> postPerson(@RequestBody Person person) {
+    public ResponseEntity<?> postPerson(@RequestBody Person person) {
         log.info("POST /person");
         try {
             Person createdPerson = personService.create(person);
             log.info("POST /person Person created success.");
 
             return ResponseEntity.ok(new PersonDto(createdPerson));
+        } catch (InstanceAlreadyExistsException e) {
+            log.error("POST /person Error: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Person already exists");
+        } catch (IllegalArgumentException e) {
+            log.error("POST /person Error: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid person data");
         } catch (Exception e) {
             log.error("POST /person Error: {}", e.getMessage(), e);
 
@@ -51,7 +60,7 @@ public class ApiPersonController {
     }
 
     @PatchMapping("/person")
-    public ResponseEntity<PersonDto> putPerson(@RequestBody Person person) {
+    public ResponseEntity<?> patchPerson(@RequestBody Person person) {
         log.info("Patch /person");
         try {
             Person updatededPerson = personService.update(person);
@@ -59,11 +68,15 @@ public class ApiPersonController {
 
             return ResponseEntity.ok(new PersonDto(updatededPerson));
         } catch (InstanceNotFoundException e) {
-            log.error("PUT /person Error: {}", e.getMessage());
+            log.error("PUT /person not found: {}", e.getMessage(), e);
 
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found");
+        } catch (IllegalArgumentException e) {
+            log.error("PUT /person Invalid person data: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid person data");
         } catch (Exception e) {
-            log.error("PUT /person Error: {}", e.getMessage());
+            log.error("PUT /person Error: {}", e.getMessage(), e);
 
             return ResponseEntity.internalServerError().build();
         }

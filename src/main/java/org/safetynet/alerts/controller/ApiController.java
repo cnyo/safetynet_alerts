@@ -2,7 +2,7 @@ package org.safetynet.alerts.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.dto.*;
+import org.safetynet.alerts.dto.fireStation.FireInfoDto;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
 import org.safetynet.alerts.dto.person.PersonMedicalInfoDto;
 import org.safetynet.alerts.model.FireStation;
@@ -29,7 +29,7 @@ public class ApiController {
     private final MedicalRecordService medicalRecordService;
 
     @GetMapping("/firestation")
-    public ResponseEntity<PersonByStationNumberDto> getPersonByStationNumber(@RequestParam String stationNumber) {
+    public ResponseEntity<?> getPersonByStationNumber(@RequestParam String stationNumber) {
         log.info("GET /firestation");
 
         try {
@@ -40,7 +40,7 @@ public class ApiController {
 
             if (persons.isEmpty()) {
                 log.info("GET /firestation No person found");
-                return ResponseEntity.noContent().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("None person found");
             }
 
             log.info("GET /firestation Get person by sation number success");
@@ -54,25 +54,18 @@ public class ApiController {
     }
 
     @GetMapping("/childAlert")
-    public ResponseEntity<List<ChildAlertDto>> getChildAlert(@RequestParam String address) {
+    public ResponseEntity<?> getChildAlert(@RequestParam String address) {
         log.info("GET /childAlert");
 
         try {
-//            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
-//            List<Person> persons = personService.getAllPersonAtAddress(address, medicalRecordMap);
-//            Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, address, medicalRecordMap);
-//
-//            if (childAlerts.isEmpty()) {
-//                log.info("GET /childAlert Children not found at address");
-//
-//                return ResponseEntity.ok(Collections.emptyList());
-//            }
-
             List<ChildAlertDto> withOtherChildAlerts = personService.attachOtherPersonToChildAlertDto(address);
             log.info("GET /childAlert Get children with other persons household at address success");
 
             return ResponseEntity.ok(withOtherChildAlerts);
-//            return ResponseEntity.ok(childAlertDto);
+        } catch (IllegalArgumentException e) {
+            log.error("GET /childAlert Error: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Address cannot be null or empty");
         } catch (Exception e) {
             log.error("GET /childAlert Error: {}", e.getMessage(), e);
 
@@ -90,6 +83,10 @@ public class ApiController {
             log.info("GET /phoneAlert Get all phone numbers by station number success");
 
             return ResponseEntity.ok(phones);
+        } catch (IllegalArgumentException e) {
+            log.error("GET /phoneAlert None addresse found: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         } catch (Exception e) {
             log.error("GET /phoneAlert Error: {}", e.getMessage(), e);
 
@@ -105,9 +102,10 @@ public class ApiController {
             Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
             FireStation fireStation = fireStationService.getFireStationAtAddress(address);
             List<Person> persons = personService.getAllPersonAtAddress(address);
+            FireInfoDto fireInfoDto = personService.tofireInfoDto(persons, fireStation, medicalRecordMap);
             log.info("GET /fire Persons Get persons at fire station address success");
 
-            return ResponseEntity.ok(personDtoMapper.toAddressPersonDto(persons, fireStation, medicalRecordMap));
+            return ResponseEntity.ok(fireInfoDto);
 
         } catch (NoSuchElementException e) {
             log.info("GET /fire Fire station not found: {}", e.getMessage(), e);
@@ -153,7 +151,7 @@ public class ApiController {
         } catch (IllegalArgumentException e) {
             log.error("GET /personInfoLastName Error: {}", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("GET /personInfoLastName Error");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Last name cannot be null or empty");
         } catch (Exception e) {
             log.error("GET /personInfoLastName Error: {}", e.getMessage(), e);
 
@@ -174,7 +172,7 @@ public class ApiController {
         } catch (IllegalArgumentException e) {
             log.error("GET /communityEmail Error: {}", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("GET /communityEmail City name cannot be null or empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("City cannot be null or empty");
         } catch (Exception e) {
             log.error("GET /communityEmail Error: {}", e.getMessage(), e);
 

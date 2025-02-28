@@ -22,14 +22,6 @@ public class PersonDtoMapper {
         return new PersonByStationNumberDto(personsDto, stationNumber, adultNbr, childrenNbr);
     }
 
-    public FireInfoDto toAddressPersonDto(List<Person> persons, FireStation fireStation, Map<String, MedicalRecord> medicalRecordMap) {
-        List<AddressPersonDto> personsDto = persons.stream()
-                .map(person -> new AddressPersonDto(person, medicalRecordMap.get(person.getFullName())))
-                .collect(Collectors.toList());
-
-        return new FireInfoDto(personsDto, fireStation);
-    }
-
     public Map<String, List<PersonMedicalInfoDto>> toFloodStationDto(List<Person> persons, Map<String, MedicalRecord> medicalRecordMap) {
         Map<String, List<PersonMedicalInfoDto>> personMedicalInfoDtoMap = new HashMap<>();
 

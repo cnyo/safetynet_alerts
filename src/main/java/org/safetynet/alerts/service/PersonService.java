@@ -1,24 +1,23 @@
 package org.safetynet.alerts.service;
 
-import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.controller.PersonDtoMapper;
-import org.safetynet.alerts.dto.person.AdultPersonDto;
+import org.safetynet.alerts.dto.fireStation.FireInfoDto;
+import org.safetynet.alerts.dto.person.AddressPersonDto;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
 import org.safetynet.alerts.dto.person.OtherPersonDto;
+import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
-import org.safetynet.alerts.repository.FireStationRepository;
-import org.safetynet.alerts.repository.MedicalRecordRepository;
 import org.safetynet.alerts.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -201,6 +200,10 @@ public class PersonService {
     }
 
     public List<ChildAlertDto> attachOtherPersonToChildAlertDto(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            log.debug("Address cannot be null or empty");
+            throw new IllegalArgumentException("Address cannot be null or empty");
+        }
         Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
         List<Person> persons = getAllPersonAtAddress(address);
         Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, address, medicalRecordMap);
@@ -225,5 +228,13 @@ public class PersonService {
         log.debug("ChildPersonDto mapped for {} children at address {}", childAlerts.size(), address);
 
         return new ArrayList<>(childAlerts.values());
+    }
+
+    public FireInfoDto tofireInfoDto(List<Person> persons, FireStation fireStation, Map<String, MedicalRecord> medicalRecordMap) {
+        List<AddressPersonDto> personsDto = persons.stream()
+                .map(person -> new AddressPersonDto(person, medicalRecordMap.get(person.getFullName())))
+                .collect(Collectors.toList());
+
+        return new FireInfoDto(personsDto, fireStation);
     }
 }

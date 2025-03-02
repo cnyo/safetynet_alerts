@@ -31,12 +31,8 @@ public class JsonDataService implements ApplicationRunner {
         this.objectMapper = objectMapper;
     }
 
-//    public JsonDataService(ObjectMapper objectMapper) {
-//        this.objectMapper = objectMapper;
-//    }
-
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         init(jsonPath);
     }
 

@@ -93,4 +93,8 @@ public class FireStationService {
 
         return addresses;
     }
+
+    public FireStation getOneFireStation(String address, String station) {
+        return fireStationRepository.findOneFireStation(address, station).orElse(null);
+    }
 }

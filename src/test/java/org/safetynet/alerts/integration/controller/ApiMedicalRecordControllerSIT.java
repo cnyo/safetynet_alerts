@@ -139,17 +139,16 @@ public class ApiMedicalRecordControllerSIT {
                 .content(mapper.writeValueAsString(params))
         )
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful()).andReturn();
+        MedicalRecord updatedMedicalRecord = medicalRecordService.getOneByName("John", "Boyd");
 
         assertThat(result.getResponse().getContentAsString())
                 .contains("\"firstName\":\"John")
                 .contains("\"lastName\":\"Boyd")
-                .contains("\"birthdate\":\"03/06/1994")
+                .contains("\"birthdate\":\"01/06/1994")
                 .contains("[\"doliprane:1000mg\"]")
                 .contains("[\"Chat\"]");
 
         // Check if post medicalRecord list is updated success
-        MedicalRecord updatedMedicalRecord = medicalRecordService.getOneByName("John", "Boyd");
-
         assertThat(updatedMedicalRecord).isNotNull();
         assertThat(updatedMedicalRecord.getBirthdate()).isEqualTo("01/06/1994");
         assertThat(updatedMedicalRecord.getAllergies().getFirst()).isEqualTo("Chat");

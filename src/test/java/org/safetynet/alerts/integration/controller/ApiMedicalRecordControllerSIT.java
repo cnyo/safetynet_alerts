@@ -156,7 +156,7 @@ public class ApiMedicalRecordControllerSIT {
     }
 
     @Test
-    public void patchMedicalRecordTest_notFound() throws Exception {
+    public void patchMedicalRecordTestNotFound() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, Object> params = new HashMap<>();

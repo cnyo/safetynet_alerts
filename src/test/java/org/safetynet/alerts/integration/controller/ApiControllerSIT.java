@@ -1,15 +1,9 @@
 package org.safetynet.alerts.integration.controller;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.safetynet.alerts.controller.PersonDtoMapper;
-import org.safetynet.alerts.repository.PersonRepository;
-import org.safetynet.alerts.service.FireStationService;
-import org.safetynet.alerts.service.MedicalRecordService;
-import org.safetynet.alerts.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,23 +23,8 @@ class ApiControllerSIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    PersonRepository personRepository;
-
-    @Autowired
-    PersonDtoMapper personDtoMapper;
-
-    @Autowired
-    PersonService personService;
-
-    @Autowired
-    FireStationService fireStationService;
-
-    @Autowired
-    MedicalRecordService medicalRecordService;
-
     @Test
-    public void getPersonByStationNumberTest_checkAdultNumber_success() throws Exception {
+    public void getPersonByStationNumberCheckAdultNumberSuccess() throws Exception {
         mockMvc.perform(get("/firestation")
                         .param("stationNumber", "3"))
                 .andExpect(status().isOk())
@@ -55,7 +34,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getPersonByStationNumberTest_checkAdultNumber_throwBadArgument() throws Exception {
+    public void getPersonByStationNumberCheckAdultNumberThrowBadArgument() throws Exception {
         mockMvc.perform(get("/firestation")
                         .param("stationNumber", "3"))
                 .andExpect(status().isOk())
@@ -65,7 +44,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void apiController_getPersonByStationNumber_stationDoesNotExist_test() throws Exception {
+    public void apiController_getPersonByStationNumberStationDoesNotExist() throws Exception {
         MvcResult result = mockMvc.perform(get("/firestation")
                         .param("stationNumber", "10"))
                 .andExpect(status().is4xxClientError())
@@ -75,7 +54,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getChildAlertTest_success() throws Exception {
+    public void getChildAlertSuccess() throws Exception {
         mockMvc.perform(get("/childAlert")
                         .param("address", "1509 Culver St"))
                 .andExpect(status().isOk())
@@ -88,7 +67,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getChildAlertTest_noResult() throws Exception {
+    public void getChildAlertNoResult() throws Exception {
         mockMvc.perform(get("/childAlert")
                         .param("address", "15 Culver St"))
                 .andExpect(status().isOk())
@@ -99,7 +78,7 @@ class ApiControllerSIT {
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @NullSource
     @ValueSource(strings = {"", " "})
-    public void getChildAlertTest_noResult(String address) throws Exception {
+    public void getChildAlertNoResult(String address) throws Exception {
         MvcResult result = mockMvc.perform(get("/childAlert")
                         .param("address", address))
                 .andExpect(status().is4xxClientError())
@@ -113,7 +92,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getAllPhoneNumberByStationTest_success() throws Exception {
+    public void getAllPhoneNumberByStationSuccess() throws Exception {
         String PHONE_PATTERN = "\\d{10}|(?:\\d{3}-){2}\\d{4}";
         mockMvc.perform(get("/phoneAlert")
                         .param("fireStation", "3"))
@@ -124,16 +103,16 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getAllPhoneNumberByStationTest_stationNotFound() throws Exception {
-        mockMvc.perform(get("/phoneAlert")
+    public void getAllPhoneNumberByStationStationNotFound() throws Exception {
+        MvcResult result = mockMvc.perform(get("/phoneAlert")
                         .param("fireStation", "10"))
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$").isEmpty())
+                .andExpect(content().string(containsStringIgnoringCase("addresses cannot be empty")))
                 .andReturn();
     }
 
     @Test
-    public void getAddressPersonsTest_success() throws Exception {
+    public void getAddressPersonsSuccess() throws Exception {
         mockMvc.perform(get("/fire")
                         .param("address", "1509 Culver St"))
                 .andExpect(status().isOk())
@@ -144,7 +123,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getAddressPersonsTest_stationNotFoundAtAddress() throws Exception {
+    public void getAddressPersonsStationNotFoundAtAddress() throws Exception {
         mockMvc.perform(get("/fire")
                         .param("address", "15 Cuver"))
                 .andExpect(status().is4xxClientError())
@@ -153,7 +132,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getFloodStationTest_success() throws Exception {
+    public void getFloodStationSuccess() throws Exception {
         mockMvc.perform(get("/flood/stations")
                         .param("stations", "2,3"))
                 .andExpect(status().isOk())
@@ -165,17 +144,27 @@ class ApiControllerSIT {
     }
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
-    @ValueSource(strings = {"", " ", "2-3", "15,110"})
-    public void getFloodStationTest_stationNotFound(String stations) throws Exception {
+    @ValueSource(strings = {"", " "})
+    public void getFloodStationWithEmptyArgument(String stations) throws Exception {
         mockMvc.perform(get("/flood/stations")
                         .param("stations", stations))
-                .andExpect(status().isOk())
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().string(containsStringIgnoringCase("Stations must not be empty")))
+                .andReturn();
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @ValueSource(strings = {"2-3", "15,110"})
+    public void getFloodStationStationNotFound(String stations) throws Exception {
+        mockMvc.perform(get("/flood/stations")
+                        .param("stations", stations))
+                .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.[*]").isEmpty())
                 .andReturn();
     }
 
     @Test
-    public void getPersonInfoLastNameTest_success() throws Exception {
+    public void getPersonInfoLastNameSuccess() throws Exception {
         mockMvc.perform(get("/personInfo")
                         .param("lastName", "Boyd"))
                 .andExpect(status().isOk())
@@ -185,10 +174,8 @@ class ApiControllerSIT {
                 .andReturn();
     }
 
-
-
     @Test
-    public void getPersonInfoLastNameTest_notFound() throws Exception {
+    public void getPersonInfoLastNameNotFound() throws Exception {
         mockMvc.perform(get("/personInfo")
                         .param("lastName", "Boryd"))
                 .andExpect(status().isOk())
@@ -198,7 +185,7 @@ class ApiControllerSIT {
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @ValueSource(strings = {"", " "})
-    public void getPersonInfoLastNameTest_badArgument(String lastname) throws Exception {
+    public void getPersonInfoLastNameBadArgument(String lastname) throws Exception {
         mockMvc.perform(get("/personInfo")
                         .param("lastName", lastname))
                 .andExpect(status().is4xxClientError())
@@ -207,7 +194,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getCommunityEmailTest_success() throws Exception {
+    public void getCommunityEmailSuccess() throws Exception {
         mockMvc.perform(get("/communityEmail")
                         .param("city", "Culver"))
                 .andExpect(status().isOk())
@@ -217,7 +204,7 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getCommunityEmailTest_notFound() throws Exception {
+    public void getCommunityEmailNotFound() throws Exception {
         mockMvc.perform(get("/communityEmail")
                         .param("city", "Culer"))
                 .andExpect(status().isOk())
@@ -227,7 +214,7 @@ class ApiControllerSIT {
 
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @ValueSource(strings = {"", " "})
-    public void getCommunityEmailTest_notFound(String city) throws Exception {
+    public void getCommunityEmailNotFound(String city) throws Exception {
         mockMvc.perform(get("/communityEmail")
                         .param("city", city))
                 .andExpect(status().is4xxClientError())

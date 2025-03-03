@@ -94,7 +94,7 @@ public class FireStationService {
     }
 
     public List<String> getAddressesForFireStations(String stations) {
-        if (stations.isEmpty()) {
+        if (stations == null || stations.trim().isEmpty()) {
             throw new IllegalArgumentException("Stations must not be empty");
         }
         String[] stationNumbers = stations.split(",");

@@ -67,7 +67,7 @@ public class FireStationServiceTest {
     @Tag("Get")
     @DisplayName("Get one fire station by address successfully")
     @Test
-    public void test_getFireStationAtAddress_successfully() {
+    public void getFireStationAtAddressTestSuccessfully() {
         FireStation mockFireStation = new FireStation();
         mockFireStation.setAddress("21 jump street");
         mockFireStation.setStation("2");
@@ -86,7 +86,7 @@ public class FireStationServiceTest {
     @Tag("Get")
     @DisplayName("Get not found fire station by address")
     @Test
-    public void test_getFireStationAtAddress_notFound() {
+    public void getFireStationAtAddressNotFound() {
         FireStation mockFireStation = new FireStation();
         mockFireStation.setAddress("21 jump street");
         mockFireStation.setStation("2");
@@ -102,14 +102,12 @@ public class FireStationServiceTest {
     @Tag("Create")
     @DisplayName("Get one fire station by address successfully")
     @Test
-    public void test_createFireStation_successfully() throws InstanceAlreadyExistsException {
-//        List<FireStation> mockFireStationList = mock(List.class);
+    public void createFireStationSuccessfully() throws InstanceAlreadyExistsException {
         FireStation mockFireStation = new FireStation();
         mockFireStation.setAddress("21 jump street");
         mockFireStation.setStation("2");
 
         when(fireStationRepository.create(any(FireStation.class))).thenReturn(mockFireStation);
-//        when(mockFireStationList.add(mockFireStation)).thenReturn(true);
 
         FireStation fireStation = fireStationService.create(mockFireStation);
 
@@ -123,7 +121,7 @@ public class FireStationServiceTest {
     @Tag("Create FireStation")
     @DisplayName("Try to create fireStation already existing")
     @Test
-    public void test_createFireStation_alreadyExists() throws InstanceAlreadyExistsException {
+    public void createFireStationAlreadyExists() throws InstanceAlreadyExistsException {
         List<FireStation> mockFireStationList = new ArrayList<>();
         FireStation mockFireStation = new FireStation() {{
             setAddress("21 jump street");
@@ -140,7 +138,7 @@ public class FireStationServiceTest {
     @Tag("Update")
     @DisplayName("Try to update fireStation success")
     @Test
-    public void test_update_success() {
+    public void updateSuccess() {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("address", "21 jump street");
         params.put("station", "2");
@@ -168,7 +166,7 @@ public class FireStationServiceTest {
     @Tag("Update")
     @DisplayName("Try to update fireStation failed")
     @Test
-    public void test_validatePatchParams_isFail() {
+    public void validatePatchParamsIsFail() {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("address", "21 jump street");
         params.put("station", "2");
@@ -182,7 +180,7 @@ public class FireStationServiceTest {
     @Tag("Remove")
     @DisplayName("Try to remove fireStation success")
     @Test
-    public void test_remove_success() {
+    public void removeSuccess() {
         FireStation mockFireStation = new FireStation() {{
             setAddress("21 jump street");
             setStation("2");
@@ -195,13 +193,12 @@ public class FireStationServiceTest {
         assertThat(result).isTrue();
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("FireStation removed: success", Level.DEBUG)).hasSize(1);
-
     }
 
     @Tag("Remove")
     @DisplayName("Try to remove fireStation success")
     @Test
-    public void test_remove_fail() {
+    public void removeFail() {
         FireStation mockFireStation = new FireStation() {{
             setAddress("21 jump street");
             setStation("2");
@@ -219,7 +216,7 @@ public class FireStationServiceTest {
     @Tag("Get")
     @DisplayName("Try get all to to return fireStations")
     @Test
-    public void test_getAll_success() {
+    public void getAllSuccess() {
         FireStation mockFireStation = new FireStation() {{
             setAddress("21 jump street");
             setStation("2");
@@ -239,7 +236,7 @@ public class FireStationServiceTest {
     @Tag("Get")
     @DisplayName("Try get all to return no fireStation")
     @Test
-    public void test_getAll_empty() {
+    public void getAllWithEmptyData() {
         List<FireStation> mockedFireStations = new ArrayList<>();
 
         when(fireStationRepository.findAll()).thenReturn(mockedFireStations);
@@ -255,7 +252,7 @@ public class FireStationServiceTest {
     @Tag("Get")
     @DisplayName("Try get all addresses for many fireStations")
     @Test
-    public void test_getAddressesForOneFireStation_withManyStationSuccess() {
+    public void getAddressesForOneFireStationWithManyStationSuccess() {
         String stations = "2,3";
         List<String> addresses = new ArrayList<>();
         addresses.add("21 jump street");
@@ -271,13 +268,12 @@ public class FireStationServiceTest {
         assertThat(result).containsExactly("21 jump street", "1 sesame street");
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("addresses found from FireStation", Level.DEBUG)).hasSize(1);
-
     }
 
     @Tag("Get")
     @DisplayName("Try get all addresses for one fireStation")
     @Test
-    public void test_getAddressesForOneFireStation_withOneStationSuccess() {
+    public void etAddressesForOneFireStationWithOneStationSuccess() {
         String station = "2";
         List<String> addresses = new ArrayList<>();
         addresses.add("21 jump street");
@@ -293,26 +289,22 @@ public class FireStationServiceTest {
         assertThat(result).containsExactly("21 jump street", "1 sesame street");
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("addresses found from FireStation", Level.DEBUG)).hasSize(1);
-
     }
 
     @Tag("Get")
     @DisplayName("Try get all addresses for fireStations with stations is null")
     @Test
-    public void test_getAddressesForFireStations_whithNullStationsIsFail() {
-        String stations = null;
-
-        assertThatThrownBy(() -> fireStationService.getAddressesForFireStations(stations))
-                .isInstanceOf(NullPointerException.class);
+    public void getAddressesForFireStationsWithNullStationsIsFail() {
+        assertThatThrownBy(() -> fireStationService.getAddressesForFireStations(null))
+                .isInstanceOf(IllegalArgumentException.class);
 
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(0);
-
     }
 
     @Tag("Get")
     @DisplayName("Try get all addresses for fireStations")
     @Test
-    public void test_getAddressesForFireStations_checkLogs() {
+    public void getAddressesForFireStationsCheckLogs() {
         String stations = "2,3";
         String[] stationNumbers = stations.split(",");
         List<String> addresses = new ArrayList<>();
@@ -322,7 +314,7 @@ public class FireStationServiceTest {
         when(fireStationRepository.findAddressesForStations(stationNumbers))
                 .thenReturn(addresses);
 
-        List<String> result = fireStationService.getAddressesForFireStations(stations);
+        fireStationService.getAddressesForFireStations(stations);
 
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("addresses found from FireStation", Level.DEBUG)).hasSize(1);

@@ -62,7 +62,7 @@ public class MedicalRecordServiceTest {
     @Tag("Create")
     @DisplayName("Try to create one medical record successfully")
     @Test
-    public void test_create_successfully() throws InstanceAlreadyExistsException {
+    public void createSuccessfully() throws InstanceAlreadyExistsException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
         mockMedicalRecord.setFirstName("John");
@@ -82,7 +82,7 @@ public class MedicalRecordServiceTest {
     @Tag("Create")
     @DisplayName("Try to create with person not exists")
     @Test
-    public void test_create_withPersonNotFound() throws InstanceAlreadyExistsException {
+    public void createWithPersonNotFound() throws InstanceAlreadyExistsException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
         mockMedicalRecord.setFirstName("John");
@@ -97,7 +97,7 @@ public class MedicalRecordServiceTest {
     @Tag("Create")
     @DisplayName("Try to create with medical record already exists")
     @Test
-    public void test_create_withMedicalRecordAlreadyExists() throws InstanceAlreadyExistsException {
+    public void createWithMedicalRecordAlreadyExists() throws InstanceAlreadyExistsException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
         mockMedicalRecord.setFirstName("John");
@@ -111,7 +111,7 @@ public class MedicalRecordServiceTest {
     @Tag("Update")
     @DisplayName("Try to update medical success")
     @Test
-    public void test_update_success() {
+    public void updateSuccess() {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
         mockMedicalRecord.setFirstName("John");
@@ -131,7 +131,7 @@ public class MedicalRecordServiceTest {
     @Tag("Update")
     @DisplayName("Try to update with medical record not exists")
     @Test
-    public void test_update_withMedicalRecordNotExists() throws NoSuchElementException {
+    public void updateWithMedicalRecordNotExists() throws NoSuchElementException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
         mockMedicalRecord.setFirstName("John");
@@ -146,7 +146,7 @@ public class MedicalRecordServiceTest {
     @Tag("Remove")
     @DisplayName("Try to remove medical record success")
     @Test
-    public void test_remove_success() {
+    public void removeSuccess() {
         when(medicalRecordRepository.remove(anyString(), anyString())).thenReturn(true);
 
         boolean result = medicalRecordService.remove(anyString(), anyString());
@@ -159,7 +159,7 @@ public class MedicalRecordServiceTest {
     @Tag("Remove")
     @DisplayName("Try to remove medical record not found")
     @Test
-    public void test_remove_noMedicalRecordFound() {
+    public void removeWithNoMedicalRecordFound() {
         when(medicalRecordRepository.remove(anyString(), anyString())).thenReturn(false);
 
         boolean result = medicalRecordService.remove(anyString(), anyString());
@@ -172,7 +172,7 @@ public class MedicalRecordServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to remove medical record not found")
     @Test
-    public void test_getAll_success() {
+    public void getAllSuccess() {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
         mockMedicalRecord.setFirstName("John");
@@ -191,7 +191,7 @@ public class MedicalRecordServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to remove medical record not found")
     @Test
-    public void test_getAll_NoMedicalRecordsFound() {
+    public void getAllNoMedicalRecordsFound() {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
         mockMedicalRecord.setFirstName("John");
@@ -210,7 +210,7 @@ public class MedicalRecordServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get medical record by fullName success")
     @Test
-    public void test_getAllByFullName_success() {
+    public void getAllByFullNameSuccess() {
         Map<String, MedicalRecord> medicalRecordByFullName = new HashMap<>();
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
@@ -233,7 +233,7 @@ public class MedicalRecordServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get none medical record by fullName")
     @Test
-    public void test_getAllByFullName_NoMedicalRecordsFound() {
+    public void getAllByFullNameNoMedicalRecordsFound() {
         Map<String, MedicalRecord> medicalRecordByFullName = new HashMap<>();
 
         when(medicalRecordRepository.getAllByFullName()).thenReturn(medicalRecordByFullName);
@@ -248,7 +248,7 @@ public class MedicalRecordServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count adult from fullNames success")
     @Test
-    public void test_countAdultFromFullName_success() {
+    public void countAdultFromFullNameSuccess() {
         List<String> fullNames = Arrays.asList("Diane Doe", "Bob Doe", "John Doe");
 
         when(medicalRecordRepository.countAdultFromFullName(anyList())).thenReturn(2);
@@ -263,7 +263,7 @@ public class MedicalRecordServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count adult with empty fullNames")
     @Test
-    public void test_countAdultFromFullName_withEmptyFullNames() {
+    public void countAdultFromFullNameWithEmptyFullNames() {
         int result = medicalRecordService.countAdultFromFullName(Collections.emptyList());
 
         assertThat(result).isEqualTo(0);
@@ -274,7 +274,7 @@ public class MedicalRecordServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count adult with null fullNames")
     @Test
-    public void test_countAdultFromFullName_withNullFullNames() {
+    public void countAdultFromFullNameWithNullFullNames() {
         int result = medicalRecordService.countAdultFromFullName(null);
 
         assertThat(result).isEqualTo(0);
@@ -285,7 +285,7 @@ public class MedicalRecordServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count children from fullNames success")
     @Test
-    public void test_countChildrenFromFullName_success() {
+    public void countChildrenFromFullNameSuccess() {
         List<String> fullNames = Arrays.asList("Diane Doe", "Bob Doe", "John Doe");
 
         when(medicalRecordRepository.countChildrenFromFullName(anyList())).thenReturn(1);
@@ -300,7 +300,7 @@ public class MedicalRecordServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count adult from empty fullNames")
     @Test
-    public void test_countChildrenFromFullName_withEmptyFullNames() {
+    public void countChildrenFromFullNameWithEmptyFullNames() {
         int result = medicalRecordService.countChildrenFromFullName(Collections.emptyList());
 
         assertThat(result).isEqualTo(0);
@@ -311,7 +311,7 @@ public class MedicalRecordServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count adult from null fullNames")
     @Test
-    public void test_countChildrenFromFullName_withNullFullNames() {
+    public void countChildrenFromFullNameWithNullFullNames() {
         int result = medicalRecordService.countChildrenFromFullName(null);
 
         assertThat(result).isEqualTo(0);

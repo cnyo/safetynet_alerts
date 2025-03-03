@@ -45,7 +45,7 @@ public class JsonDataServiceIT {
     }
 
     @Test
-    public void test_getJsonData_success() {
+    public void getJsonDataSuccess() {
         jsonDataService.init("test-data.json");
         JsonData result = JsonDataService.getJsonData();
 
@@ -60,7 +60,7 @@ public class JsonDataServiceIT {
     }
 
     @Test
-    public void test_init_withBadPath() {
+    public void initWithBadPath() {
         assertThrows(RuntimeException.class, () -> jsonDataService.init("bad_path"));
 
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
@@ -74,7 +74,7 @@ public class JsonDataServiceIT {
             "test-bad-structured-data.json",
             "test-wrong-data-type-data.json"
     })
-    public void test_getJsonData_withWrongDataType(String jsonPath) {
+    public void getJsonDataWithWrongDataType(String jsonPath) {
         assertThrows(RuntimeException.class, () -> jsonDataService.init(jsonPath));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
 

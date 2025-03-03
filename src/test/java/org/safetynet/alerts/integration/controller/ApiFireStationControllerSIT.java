@@ -28,7 +28,7 @@ public class ApiFireStationControllerSIT {
     FireStationService fireStationService;
 
     @Test
-    public void getFireStationTest_success() throws Exception {
+    public void getFireStationSuccess() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/firestation/all"))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful()).andReturn();
 
@@ -38,7 +38,7 @@ public class ApiFireStationControllerSIT {
     }
 
     @Test
-    public void postFireStationTest_success() throws Exception {
+    public void postFireStationSuccess() throws Exception {
         FireStation mockFireStation = new FireStation();
         mockFireStation.setStation("10");
         mockFireStation.setAddress("21 jump street");
@@ -59,7 +59,7 @@ public class ApiFireStationControllerSIT {
     }
 
     @Test
-    public void postFireStationTest_alreadyExists() throws Exception {
+    public void postFireStationAlreadyExists() throws Exception {
         FireStation mockFireStation = new FireStation();
         mockFireStation.setStation("2");
         mockFireStation.setAddress("29 15th St");
@@ -76,7 +76,7 @@ public class ApiFireStationControllerSIT {
     }
 
     @Test
-    public void patchFireStationTest_success() throws Exception {
+    public void patchFireStationSuccess() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, String> params = new HashMap<>();
@@ -101,7 +101,7 @@ public class ApiFireStationControllerSIT {
     }
 
     @Test
-    public void patchFireStationTest_notExists() throws Exception {
+    public void patchFireStationNotExists() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, String> params = new HashMap<>();
@@ -120,7 +120,7 @@ public class ApiFireStationControllerSIT {
     }
 
     @Test
-    public void patchFireStationTest_badArgument() throws Exception {
+    public void patchFireStationBadArgument() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, String> params = new HashMap<>();
@@ -139,7 +139,7 @@ public class ApiFireStationControllerSIT {
     }
 
     @Test
-    public void deleteFireStationTest_success() throws Exception {
+    public void deleteFireStationSuccess() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         FireStation mockFireStation = new FireStation();
@@ -159,7 +159,7 @@ public class ApiFireStationControllerSIT {
     }
 
     @Test
-    public void deleteFireStationTest_error() throws Exception {
+    public void deleteFireStationError() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         FireStation mockFireStation = new FireStation();

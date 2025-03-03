@@ -9,12 +9,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.controller.PersonDtoMapper;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
 import org.safetynet.alerts.logging.MemoryAppender;
-import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.repository.PersonRepository;
@@ -84,7 +82,7 @@ public class PersonServiceTest {
     @Tag("Create")
     @DisplayName("Try to create one person success")
     @Test
-    public void test_create_success() throws IllegalArgumentException, InstanceAlreadyExistsException {
+    public void createSuccess() throws IllegalArgumentException, InstanceAlreadyExistsException {
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
         mockPerson.setLastName("Doe");
@@ -102,7 +100,7 @@ public class PersonServiceTest {
     @Tag("Create")
     @DisplayName("Try to create one person successfully")
     @Test
-    public void test_create_illegalArgumentException() throws IllegalArgumentException, InstanceAlreadyExistsException {
+    public void createReturnIllegalArgumentException() throws IllegalArgumentException, InstanceAlreadyExistsException {
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
         mockPerson.setLastName("Doe");
@@ -115,7 +113,7 @@ public class PersonServiceTest {
     @Tag("Create")
     @DisplayName("Try to create one person successfully")
     @Test
-    public void test_create_instanceAlreadyExistsException() throws InstanceAlreadyExistsException {
+    public void createInstanceAlreadyExistsException() throws InstanceAlreadyExistsException {
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
         mockPerson.setLastName("Doe");
@@ -128,7 +126,7 @@ public class PersonServiceTest {
     @Tag("Update")
     @DisplayName("Try to update one person success")
     @Test
-    public void test_update_success() throws InstanceNotFoundException {
+    public void updateSuccess() throws InstanceNotFoundException {
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
         mockPerson.setLastName("Doe");
@@ -146,7 +144,7 @@ public class PersonServiceTest {
     @Tag("Update")
     @DisplayName("Try to update one person no exists")
     @Test
-    public void test_update_personNotFound() throws InstanceNotFoundException {
+    public void updatePersonNotFound() throws InstanceNotFoundException {
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
         mockPerson.setLastName("Doe");
@@ -159,7 +157,7 @@ public class PersonServiceTest {
     @Tag("Remove")
     @DisplayName("Try to update one person success")
     @Test
-    public void test_remove_success() {
+    public void removeSuccess() {
         when(personRepository.remove(anyString())).thenReturn(true);
 
         boolean result = personService.remove("John", "Doe");
@@ -172,7 +170,7 @@ public class PersonServiceTest {
     @Tag("Remove")
     @DisplayName("Try to update one person success")
     @Test
-    public void test_remove_personNotFound() {
+    public void removePersonNotFound() {
         when(personRepository.remove(anyString())).thenReturn(false);
 
         boolean result = personService.remove("John", "Doe");
@@ -185,7 +183,7 @@ public class PersonServiceTest {
     @Tag("Get")
     @DisplayName("Try to get all phone number at address")
     @Test
-    public void test_getAllPhoneNumberFromAddresses_success() {
+    public void getAllPhoneNumberFromAddressesSuccess() {
         List<String> phones = Arrays.asList("101-854-7794", "842-574-7754");
         List<String> addresses = Arrays.asList("1 rue sesame", "21 jump street");
         String phonePattern = "\\d{10}|(?:\\d{3}-){2}\\d{4}";
@@ -205,7 +203,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get all phone number with null address")
     @Test
-    public void test_getAllPhoneNumberFromAddresses_withNullAddress() {
+    public void getAllPhoneNumberFromAddressesWithNullAddress() {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPhoneNumberFromAddresses(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("No addresses provided", Level.DEBUG)).hasSize(1);
@@ -214,7 +212,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get all phone number with empty address")
     @Test
-    public void test_getAllPhoneNumberFromAddresses_withEmptyAddress() {
+    public void getAllPhoneNumberFromAddressesWithEmptyAddress() {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPhoneNumberFromAddresses(Collections.emptyList()));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("No addresses provided", Level.DEBUG)).hasSize(1);
@@ -224,7 +222,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get person with lastName success")
     @Test
-    public void test_getAllPersonByLastName_success() {
+    public void getAllPersonByLastNameSuccess() {
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
         mockPerson.setLastName("Doe");
@@ -245,7 +243,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try not found person with lastName success")
     @Test
-    public void test_getAllPersonByLastName_notFoundSuccess() {
+    public void getAllPersonByLastNameNotFoundSuccess() {
         when(personRepository.findAllPersonByLastName(anyString())).thenReturn(new ArrayList<>());
 
         List<Person> result = personService.getAllPersonByLastName("21 jump street");
@@ -260,7 +258,7 @@ public class PersonServiceTest {
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @NullSource
     @ValueSource(strings = {"", " "})
-    public void test_getAllPersonByLastName_withNullFullNamesFail(String fullName) {
+    public void getAllPersonByLastNameWithNullFullNamesFail(String fullName) {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPersonByLastName(fullName));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("Last name cannot be null or empty", Level.DEBUG)).hasSize(1);
@@ -269,7 +267,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get all persons at address success")
     @Test
-    public void test_getAllPersonAtAddress_success() {
+    public void getAllPersonAtAddressSuccess() {
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
         mockPerson.setLastName("Doe");
@@ -292,7 +290,7 @@ public class PersonServiceTest {
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @NullSource
     @ValueSource(strings = {"", " "})
-    public void test_getAllPersonAtAddress_withEmptyAddressFail(String address) {
+    public void getAllPersonAtAddressWithEmptyAddressFail(String address) {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPersonAtAddress(address));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("Address cannot be empty", Level.DEBUG)).hasSize(1);
@@ -301,7 +299,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get all persons from fire station success")
     @Test
-    public void test_getAllPersonFromFireStation_success() {
+    public void getAllPersonFromFireStationSuccess() {
         List<String> addresses = new ArrayList<>();
         addresses.add("21 jump street");
         addresses.add("1 sesame street");
@@ -328,7 +326,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get all persons with station not found")
     @Test
-    public void test_getAllPersonFromFireStation_withStationNotFound() {
+    public void getAllPersonFromFireStationWithStationNotFound() {
         when(fireStationService.getAddressesForOneFireStation(anyString())).thenReturn(Collections.emptyList());
         when(personRepository.findAllPersonFromAddresses(any())).thenReturn(Collections.emptyList());
 
@@ -345,7 +343,7 @@ public class PersonServiceTest {
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @NullSource
     @ValueSource(strings = {"", " "})
-    public void test_getAllPersonFromFireStation_withEmptyStation(String stationNumber) {
+    public void getAllPersonFromFireStationWithEmptyStation(String stationNumber) {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPersonFromFireStation(stationNumber));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("stationNumber cannot be null or empty", Level.DEBUG)).hasSize(1);
@@ -354,7 +352,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get all persons from address success")
     @Test
-    public void test_getAllPersonFromAddresses_success() {
+    public void getAllPersonFromAddressesSuccess() {
         List<String> addresses = Arrays.asList("1 rue sesame", "21 jump street");
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
@@ -376,7 +374,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get all persons from empty address fail")
     @Test
-    public void test_getAllPersonFromAddresses_withNullAddresses() {
+    public void getAllPersonFromAddressesWithNullAddresses() {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPersonFromAddresses(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("addresses cannot be null", Level.DEBUG)).hasSize(1);
@@ -385,7 +383,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to get all persons success")
     @Test
-    public void test_getAll_success() {
+    public void getAllSuccess() {
         List<Person> mockPersons = Arrays.asList(new Person(), new Person());
 
         when(personRepository.findAll()).thenReturn(mockPersons);
@@ -401,7 +399,7 @@ public class PersonServiceTest {
     @Tag("GetTest")
     @DisplayName("Try to find none persons success")
     @Test
-    public void test_getAllPersonFromAddresses_nobodyFoundSuccess() {
+    public void getAllPersonFromAddressesNobodyFoundSuccess() {
         when(personRepository.findAll()).thenReturn(Collections.emptyList());
 
         List<Person> result = personService.getAll();
@@ -414,7 +412,7 @@ public class PersonServiceTest {
     @Tag("Other")
     @DisplayName("Try to attach person to ChildAlertDto success")
     @Test
-    public void test_attachOtherPersonToChildAlertDto_success() {
+    public void attachOtherPersonToChildAlertDtoSuccess() {
         String address = "1 rue sesame";
         int age = 15;
         Person mockPerson = new Person();
@@ -464,7 +462,7 @@ public class PersonServiceTest {
     @Tag("Other")
     @DisplayName("Try to attach with no children found at this address")
     @Test
-    public void test_attachOtherPersonToChildAlertDto_noChildrenFoundAtAddress() {
+    public void attachOtherPersonToChildAlertDtoNoChildrenFoundAtAddress() {
         String address = "1 rue sesame";
         Map<String, MedicalRecord> medicalRecordMap = new HashMap<>();
         List<Person> mockPersons = new ArrayList<>();
@@ -488,7 +486,7 @@ public class PersonServiceTest {
     @Tag("Other")
     @DisplayName("Try to get all emails at city success")
     @Test
-    public void test_getAllEmailsAtCity_success() {
+    public void getAllEmailsAtCitySuccess() {
         List<String> fullNames = Arrays.asList("John Doe", "Leonard Doe");
 
         when(personRepository.findAllEmailsAtCity(anyString())).thenReturn(fullNames);
@@ -507,7 +505,7 @@ public class PersonServiceTest {
     @ParameterizedTest(name = "#{index} - Run test with args={0}")
     @NullSource
     @ValueSource(strings = {"", " "})
-    public void test_getAllEmailsAtCity_withEmptyCityFail(String city) {
+    public void getAllEmailsAtCityWithEmptyCityFail(String city) {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllEmailsAtCity(city));
 
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
@@ -517,7 +515,7 @@ public class PersonServiceTest {
     @Tag("Other")
     @DisplayName("Try to get all fullNames from persons success")
     @Test
-    public void test_getFullNamesFromPersons_success() {
+    public void getFullNamesFromPersonsSuccess() {
         Person mockPerson = new Person();
         mockPerson.setFirstName("John");
         mockPerson.setLastName("Doe");
@@ -536,7 +534,7 @@ public class PersonServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to get all fullNames with empty persons fail")
     @Test
-    public void test_getFullNamesFromPersons_withEmptyPersonsFail() {
+    public void getFullNamesFromPersonsWithEmptyPersonsFail() {
         List<String> result = personService.getFullNamesFromPersons(new ArrayList<>());
 
         assertThat(result).isEmpty();
@@ -547,7 +545,7 @@ public class PersonServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to get all fullNames with null persons fail")
     @Test
-    public void test_getFullNamesFromPersons_withNullPersonsFail() {
+    public void getFullNamesFromPersonsWithNullPersonsFail() {
         assertThrows(IllegalArgumentException.class, () -> personService.getFullNamesFromPersons(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("Null argument is invalid", Level.DEBUG)).hasSize(1);
@@ -556,7 +554,7 @@ public class PersonServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count adult from fullNames success")
     @Test
-    public void test_countAdultFromPersons_success() {
+    public void countAdultFromPersonsSuccess() {
         when(medicalRecordService.countAdultFromFullName(anyList())).thenReturn(5);
 
         int result = personService.countAdultFromPersons(anyList());
@@ -569,7 +567,7 @@ public class PersonServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count adult with null fullNames fail")
     @Test
-    public void test_countAdultFromPersons_withNullFullNamesFail() {
+    public void countAdultFromPersonsWithNullFullNamesFail() {
         assertThrows(IllegalArgumentException.class, () -> personService.countAdultFromPersons(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("fullNames adults cannot be null", Level.DEBUG)).hasSize(1);
@@ -578,7 +576,7 @@ public class PersonServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count children from fullNames success")
     @Test
-    public void test_countChildrenFromPersons_success() {
+    public void countChildrenFromPersonsSuccess() {
         when(medicalRecordService.countChildrenFromFullName(anyList())).thenReturn(5);
 
         int result = personService.countChildrenFromPersons(anyList());
@@ -591,7 +589,7 @@ public class PersonServiceTest {
     @Tag("OtherTest")
     @DisplayName("Try to count children with null fullNames fail")
     @Test
-    public void test_countChildrenFromPersons_withNullFullNamesFail() {
+    public void countChildrenFromPersonsWithNullFullNamesFail() {
         assertThrows(IllegalArgumentException.class, () -> personService.countChildrenFromPersons(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("fullNames children cannot be null", Level.DEBUG)).hasSize(1);

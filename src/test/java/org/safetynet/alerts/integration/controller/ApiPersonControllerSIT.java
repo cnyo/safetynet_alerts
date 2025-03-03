@@ -3,11 +3,7 @@ package org.safetynet.alerts.integration.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.safetynet.alerts.controller.PersonDtoMapper;
 import org.safetynet.alerts.model.Person;
-import org.safetynet.alerts.repository.PersonRepository;
-import org.safetynet.alerts.service.FireStationService;
-import org.safetynet.alerts.service.MedicalRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,18 +21,6 @@ public class ApiPersonControllerSIT {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
-    private FireStationService fireStationService;
-
-    @Autowired
-    private MedicalRecordService medicalRecordService;
-
-    @Autowired
-    private PersonDtoMapper personDtoMapper;
 
     private Person mockNonExistentPerson;
     private Person mockExistingPerson;
@@ -63,7 +47,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void getAllPersonsTest_success() throws Exception {
+    public void getAllPersonsSuccess() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/person/all"))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful()).andReturn();
 
@@ -74,7 +58,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void postPersonTest_success() throws Exception {
+    public void postPersonSuccess() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/person")
@@ -90,7 +74,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void postPersonTest_alreadyExists() throws Exception {
+    public void postPersonAlreadyExists() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/person")
@@ -105,7 +89,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void postPersonTest_badArgumentException() throws Exception {
+    public void postPersonBadArgumentException() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mockNonExistentPerson.setFirstName("");
         mockNonExistentPerson.setLastName("");
@@ -122,7 +106,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void patchPersonTest_success() throws Exception {
+    public void patchPersonSuccess() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mockExistingPerson.setPhone("841-500-6512");
 
@@ -140,7 +124,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void patchPersonTest_notFound() throws Exception {
+    public void patchPersonNotFound() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch("/person")
@@ -155,7 +139,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void patchPersonTest_invalidArgumentError() throws Exception {
+    public void patchPersonInvalidArgumentError() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mockNonExistentPerson.setLastName("");
 
@@ -171,7 +155,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void deletePersonTest_success() throws Exception {
+    public void deletePersonSuccess() throws Exception {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/person")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -186,7 +170,7 @@ public class ApiPersonControllerSIT {
     }
 
     @Test
-    public void deletePersonTest_failed() throws Exception {
+    public void deletePersonFailed() throws Exception {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/person")
                         .contentType(MediaType.APPLICATION_JSON)

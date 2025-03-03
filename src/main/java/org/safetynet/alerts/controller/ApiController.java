@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.dto.fireStation.FireInfoDto;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
-import org.safetynet.alerts.dto.person.PersonMedicalInfoDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -46,6 +44,10 @@ public class ApiController {
             log.info("GET /firestation Get person by sation number success");
 
             return ResponseEntity.ok(personDtoMapper.toPersonByStationNumberDto(persons, stationNumber, adultNbr, childrenNbr));
+        } catch (IllegalArgumentException e) {
+            log.error("GET /firestation Error: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             log.error("GET /firestation Error: {}", e.getMessage(), e);
 
@@ -74,7 +76,7 @@ public class ApiController {
     }
 
     @GetMapping("/phoneAlert")
-    public ResponseEntity<List<String>> getAllPhoneNumberByStation(@RequestParam String fireStation) {
+    public ResponseEntity<?> getAllPhoneNumberByStation(@RequestParam String fireStation) {
         log.info("GET /phoneAlert");
 
         try {
@@ -86,7 +88,7 @@ public class ApiController {
         } catch (IllegalArgumentException e) {
             log.error("GET /phoneAlert None addresse found: {}", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             log.error("GET /phoneAlert Error: {}", e.getMessage(), e);
 
@@ -99,9 +101,9 @@ public class ApiController {
         log.info("GET /fire");
 
         try {
-            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
             FireStation fireStation = fireStationService.getFireStationAtAddress(address);
             List<Person> persons = personService.getAllPersonAtAddress(address);
+            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
             FireInfoDto fireInfoDto = personService.tofireInfoDto(persons, fireStation, medicalRecordMap);
             log.info("GET /fire Persons Get persons at fire station address success");
 
@@ -111,6 +113,10 @@ public class ApiController {
             log.info("GET /fire Fire station not found: {}", e.getMessage(), e);
 
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fire station not found.");
+        } catch (IllegalArgumentException e) {
+            log.info("GET /fire Fire station not found: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             log.error("GET /fire Error: {}", e.getMessage(), e);
 
@@ -119,17 +125,21 @@ public class ApiController {
     }
 
     @GetMapping("/flood/stations")
-    public ResponseEntity<Map<String, List<PersonMedicalInfoDto>>> getFloodStation(@RequestParam String stations) {
+    public ResponseEntity<?> getFloodStation(@RequestParam String stations) {
         log.info("GET /flood/stations");
 
         try {
-            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
             List<String> addresses = fireStationService.getAddressesForFireStations(stations);
             List<Person> persons = personService.getAllPersonFromAddresses(addresses);
+            Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
             log.info("GET /flood/stations Persons found for fire stations");
 
             return ResponseEntity.ok(personDtoMapper.toFloodStationDto(persons, medicalRecordMap));
 
+        } catch (IllegalArgumentException e) {
+            log.error("GET /flood/stations Error: {}", e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             log.error("GET /flood/stations Error: {}", e.getMessage(), e);
 

@@ -45,8 +45,17 @@ class ApiControllerSIT {
     MedicalRecordService medicalRecordService;
 
     @Test
-    @DisplayName("Check adult number")
-    public void apiController_getPersonByStationNumber_checkAdultNumber_test() throws Exception {
+    public void getPersonByStationNumberTest_checkAdultNumber_success() throws Exception {
+        mockMvc.perform(get("/firestation")
+                        .param("stationNumber", "3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.adultNumber").value(8))
+                .andExpect(jsonPath("$.persons[0].firstName").value("John"))
+                .andReturn();
+    }
+
+    @Test
+    public void getPersonByStationNumberTest_checkAdultNumber_throwBadArgument() throws Exception {
         mockMvc.perform(get("/firestation")
                         .param("stationNumber", "3"))
                 .andExpect(status().isOk())

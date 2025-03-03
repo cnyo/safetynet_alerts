@@ -21,6 +21,9 @@ public class FireStationService {
     private FireStationRepository fireStationRepository;
 
     public FireStation getFireStationAtAddress(String address) {
+        if (address == null || address.isEmpty()) {
+            throw new IllegalArgumentException("address is null or empty");
+        }
         FireStation fireStation = fireStationRepository.findFireStationAtAddress(address)
                 .orElseThrow(() -> new NoSuchElementException("No fire station found"));
         log.debug("Get fire station at address {} success", fireStation.getAddress());
@@ -80,6 +83,10 @@ public class FireStationService {
     }
 
     public List<String> getAddressesForOneFireStation(String stationNumber) {
+        if (stationNumber.isEmpty()) {
+            throw new IllegalArgumentException("Station must not be empty");
+        }
+
         List<String> addresses = fireStationRepository.findAllAddressForOneStation(stationNumber);
         log.debug("{} addresses found from FireStation {}", addresses.size(), stationNumber);
 
@@ -87,6 +94,9 @@ public class FireStationService {
     }
 
     public List<String> getAddressesForFireStations(String stations) {
+        if (stations.isEmpty()) {
+            throw new IllegalArgumentException("Stations must not be empty");
+        }
         String[] stationNumbers = stations.split(",");
         List<String> addresses = fireStationRepository.findAddressesForStations(stationNumbers);
         log.debug("{} addresses found from FireStations {}", addresses.size(), stations);

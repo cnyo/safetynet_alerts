@@ -79,4 +79,8 @@ public class MedicalRecordService {
 
         return childrenNbr;
     }
+
+    public MedicalRecord getOneByName(String firstName, String lastName) {
+        return medicalRecordRepository.findOneByFullName(String.format("%s %s", firstName, lastName)).orElse(null);
+    }
 }

@@ -2,67 +2,58 @@ package org.safetynet.alerts.integration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.safetynet.alerts.controller.ApiMedicalRecordController;
 import org.safetynet.alerts.model.MedicalRecord;
-import org.safetynet.alerts.repository.MedicalRecordRepository;
 import org.safetynet.alerts.service.MedicalRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.management.InstanceAlreadyExistsException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(controllers = { ApiMedicalRecordController.class, MedicalRecordService.class })
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class ApiMedicalRecordControllerSIT {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
-    private MedicalRecordRepository medicalRecordRepository;
+    @Autowired
+    private MedicalRecordService medicalRecordService;
 
     @Test
     public void getAllMedicalRecordsTest_success() throws Exception {
-        MedicalRecord mockMedicalRecord = new MedicalRecord();
-        mockMedicalRecord.setFirstName("John");
-        mockMedicalRecord.setLastName("Doe");
-        mockMedicalRecord.setBirthdate("03/06/1994");
-        List<MedicalRecord> mockMedicalRecords = List.of(mockMedicalRecord);
-
-        when(medicalRecordRepository.findAll()).thenReturn(mockMedicalRecords);
-
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/medicalRecord/all"))
-                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful()).andReturn();
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andExpect(jsonPath("$.size()").value(23))
+                .andReturn();
 
         assertThat(result.getResponse().getContentAsString())
-                .contains("\"firstName\":\"John")
-                .contains("\"lastName\":\"Doe")
-                .contains("\"birthdate\":\"03/06/1994");
+                .contains("\"firstName\":\"Warren")
+                .contains("\"lastName\":\"Zemicks")
+                .contains("\"birthdate\":\"03/06/1985");
+
     }
 
     @Test
     public void postMedicalRecordTest_success() throws Exception {
+        // Deletes medical record to be able to create an existing person
+        medicalRecordService.remove("Eric", "Cadigan");
+
         ObjectMapper mapper = new ObjectMapper();
         MedicalRecord mockMedicalRecord = new MedicalRecord();
-        mockMedicalRecord.setFirstName("John");
-        mockMedicalRecord.setLastName("Doe");
-        mockMedicalRecord.setBirthdate("03/06/1994");
-
-        when(medicalRecordRepository.create(any(MedicalRecord.class))).thenReturn(mockMedicalRecord);
+        mockMedicalRecord.setFirstName("Eric");
+        mockMedicalRecord.setLastName("Cadigan");
+        mockMedicalRecord.setBirthdate("08/05/1950");
+        mockMedicalRecord.setMedications(Collections.emptyList());
+        mockMedicalRecord.setAllergies(Collections.emptyList());
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/medicalRecord")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -72,20 +63,30 @@ public class ApiMedicalRecordControllerSIT {
                 .andReturn();
 
         assertThat(result.getResponse().getContentAsString())
-                .contains("\"firstName\":\"John")
-                .contains("\"lastName\":\"Doe")
-                .contains("\"birthdate\":\"03/06/1994");
+                .contains("\"firstName\":\"Eric")
+                .contains("\"lastName\":\"Cadigan")
+                .contains("\"birthdate\":\"08/05/1950");
+
+        // Check if post medicalRecord list is updated success
+        MvcResult getResult = mockMvc.perform(MockMvcRequestBuilders.get("/medicalRecord/all"))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andReturn();
+
+        assertThat(getResult.getResponse().getContentAsString())
+                .contains("\"firstName\":\"Eric")
+                .contains("\"lastName\":\"Cadigan")
+                .contains("\"birthdate\":\"08/05/1950");
     }
 
     @Test
     public void postMedicalRecordTest_alreadyExists() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         MedicalRecord mockMedicalRecord = new MedicalRecord();
-        mockMedicalRecord.setFirstName("John");
-        mockMedicalRecord.setLastName("Doe");
+        mockMedicalRecord.setFirstName("Clive");
+        mockMedicalRecord.setLastName("Ferguson");
         mockMedicalRecord.setBirthdate("03/06/1994");
-
-        when(medicalRecordRepository.create(any(MedicalRecord.class))).thenThrow(new InstanceAlreadyExistsException());
+        mockMedicalRecord.setMedications(Collections.emptyList());
+        mockMedicalRecord.setAllergies(Collections.emptyList());
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -102,11 +103,11 @@ public class ApiMedicalRecordControllerSIT {
     public void postMedicalRecordTest_personNotExists() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         MedicalRecord mockMedicalRecord = new MedicalRecord();
-        mockMedicalRecord.setFirstName("John");
+        mockMedicalRecord.setFirstName("Jane");
         mockMedicalRecord.setLastName("Doe");
-        mockMedicalRecord.setBirthdate("03/06/1994");
-
-        when(medicalRecordRepository.create(any(MedicalRecord.class))).thenThrow(new NoSuchElementException());
+        mockMedicalRecord.setBirthdate("09/05/1980");
+        mockMedicalRecord.setMedications(Collections.emptyList());
+        mockMedicalRecord.setAllergies(Collections.emptyList());
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -128,19 +129,10 @@ public class ApiMedicalRecordControllerSIT {
         List<String> allergies = List.of("Chat");
 
         params.put("firstName", "John");
-        params.put("lastName", "Doe");
-        params.put("birthdate", "03/06/1994");
+        params.put("lastName", "Boyd");
+        params.put("birthdate", "01/06/1994");
         params.put("medications", medications);
         params.put("allergies", allergies);
-
-        MedicalRecord mockMedicalRecord = new MedicalRecord();
-        mockMedicalRecord.setFirstName("John");
-        mockMedicalRecord.setLastName("Doe");
-        mockMedicalRecord.setBirthdate("03/06/1994");
-        mockMedicalRecord.setMedications(medications);
-        mockMedicalRecord.setAllergies(allergies);
-
-        when(medicalRecordRepository.update(any(MedicalRecord.class))).thenReturn(mockMedicalRecord);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch("/medicalRecord")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -150,10 +142,18 @@ public class ApiMedicalRecordControllerSIT {
 
         assertThat(result.getResponse().getContentAsString())
                 .contains("\"firstName\":\"John")
-                .contains("\"lastName\":\"Doe")
+                .contains("\"lastName\":\"Boyd")
                 .contains("\"birthdate\":\"03/06/1994")
                 .contains("[\"doliprane:1000mg\"]")
                 .contains("[\"Chat\"]");
+
+        // Check if post medicalRecord list is updated success
+        MedicalRecord updatedMedicalRecord = medicalRecordService.getOneByName("John", "Boyd");
+
+        assertThat(updatedMedicalRecord).isNotNull();
+        assertThat(updatedMedicalRecord.getBirthdate()).isEqualTo("01/06/1994");
+        assertThat(updatedMedicalRecord.getAllergies().getFirst()).isEqualTo("Chat");
+        assertThat(updatedMedicalRecord.getMedications().getFirst()).isEqualTo("doliprane:1000mg");
     }
 
     @Test
@@ -170,8 +170,6 @@ public class ApiMedicalRecordControllerSIT {
         params.put("medications", medications);
         params.put("allergies", allergies);
 
-        when(medicalRecordRepository.update(any(MedicalRecord.class))).thenThrow(new NoSuchElementException());
-
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.patch("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(params))
@@ -184,23 +182,28 @@ public class ApiMedicalRecordControllerSIT {
 
     @Test
     public void deleteMedicalRecordTest_success() throws Exception {
-        when(medicalRecordRepository.remove(anyString(), anyString())).thenReturn(true);
-
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
+                        .param("firstName", "Kendrik")
+                        .param("lastName", "Stelzer")
                 )
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful()).andReturn();
 
         assertThat(result.getResponse().getContentAsString())
                 .contains("medicalRecord removed success");
+
+        // Check that medicalRecord not existing
+        MvcResult getResult = mockMvc.perform(MockMvcRequestBuilders.get("/medicalRecord/all"))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andReturn();
+
+        assertThat(getResult.getResponse().getContentAsString())
+                .doesNotContain("\"firstName\":\"Kendrik\",\"lastName\":\"Stelzer")
+                .contains("\"firstName\":\"Brian\",\"lastName\":\"Stelzer");
     }
 
     @Test
     public void deleteMedicalRecordTest_notDeletedError() throws Exception {
-        when(medicalRecordRepository.remove(anyString(), anyString())).thenReturn(false);
-
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("firstName", "John")

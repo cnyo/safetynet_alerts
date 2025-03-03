@@ -9,7 +9,7 @@ import java.util.List;
 
 @Component
 public class MedicalRecord {
-    public int MAJORITY_AGE = 18;
+    private final int MAJORITY_AGE = 18;
 
     private String firstName;
     private String lastName;

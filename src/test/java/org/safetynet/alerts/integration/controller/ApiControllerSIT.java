@@ -26,8 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ApiControllerSIT {
 
-    private final String PHONE_PATTERN = "\\d{10}|(?:\\d{3}-){2}\\d{4}";
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -107,6 +105,7 @@ class ApiControllerSIT {
 
     @Test
     public void getAllPhoneNumberByStationTest_success() throws Exception {
+        String PHONE_PATTERN = "\\d{10}|(?:\\d{3}-){2}\\d{4}";
         mockMvc.perform(get("/phoneAlert")
                         .param("fireStation", "3"))
                 .andExpect(status().isOk())

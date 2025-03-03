@@ -24,7 +24,7 @@ public class Person {
         }
         Person other = (Person) object;
 
-        return address.equals(other.getFullName());
+        return getFullName().equals(other.getFullName());
     }
 
     @Override

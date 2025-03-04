@@ -72,7 +72,8 @@ public class JsonDataServiceIT {
     @ParameterizedTest
     @ValueSource(strings = {
             "test-bad-structured-data.json",
-            "test-wrong-data-type-data.json"
+            "test-wrong-data-type-data.json",
+            "empty-data.json"
     })
     public void getJsonDataWithWrongDataType(String jsonPath) {
         assertThrows(RuntimeException.class, () -> jsonDataService.init(jsonPath));

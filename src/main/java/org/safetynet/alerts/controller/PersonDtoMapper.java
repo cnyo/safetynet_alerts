@@ -1,16 +1,13 @@
 package org.safetynet.alerts.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.dto.fireStation.FireInfoDto;
 import org.safetynet.alerts.dto.person.*;
 import org.safetynet.alerts.dto.PersonByStationNumberDto;
-import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -41,7 +38,7 @@ public class PersonDtoMapper {
                 .toList();
     }
 
-    public Map<String, ChildAlertDto> toChildAlertDto(List<Person> persons, String address, Map<String, MedicalRecord> medicalRecordMap) {
+    public Map<String, ChildAlertDto> toChildAlertDto(List<Person> persons, Map<String, MedicalRecord> medicalRecordMap) {
         Map<String, ChildAlertDto> childAlerts = new HashMap<>();
 
         persons.forEach(person -> {
@@ -51,7 +48,7 @@ public class PersonDtoMapper {
             }
         });
 
-        log.debug("{} person(s) converted to ChildAlertDto at address {}", childAlerts.size(), address);
+        log.debug("{} person(s) converted to ChildAlertDto at address", childAlerts.size());
 
         return childAlerts;
     }

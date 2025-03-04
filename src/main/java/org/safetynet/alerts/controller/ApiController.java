@@ -60,14 +60,14 @@ public class ApiController {
         log.info("GET /childAlert");
 
         try {
-            List<ChildAlertDto> withOtherChildAlerts = personService.attachOtherPersonToChildAlertDto(address);
+            List<ChildAlertDto> childAlerts = personService.getChildAlerts(address);
             log.info("GET /childAlert Get children with other persons household at address success");
 
-            return ResponseEntity.ok(withOtherChildAlerts);
+            return ResponseEntity.ok(childAlerts);
         } catch (IllegalArgumentException e) {
             log.error("GET /childAlert Error: {}", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Address cannot be null or empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             log.error("GET /childAlert Error: {}", e.getMessage(), e);
 
@@ -104,7 +104,7 @@ public class ApiController {
             FireStation fireStation = fireStationService.getFireStationAtAddress(address);
             List<Person> persons = personService.getAllPersonAtAddress(address);
             Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
-            FireInfoDto fireInfoDto = personService.tofireInfoDto(persons, fireStation, medicalRecordMap);
+            FireInfoDto fireInfoDto = personService.toFireInfoDto(persons, fireStation, medicalRecordMap);
             log.info("GET /fire Persons Get persons at fire station address success");
 
             return ResponseEntity.ok(fireInfoDto);

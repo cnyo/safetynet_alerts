@@ -2,11 +2,10 @@ package org.safetynet.alerts.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.safetynet.alerts.controller.PersonDtoMapper;
 import org.safetynet.alerts.dto.fireStation.FireInfoDto;
-import org.safetynet.alerts.dto.person.AddressPersonDto;
-import org.safetynet.alerts.dto.person.ChildAlertDto;
-import org.safetynet.alerts.dto.person.OtherPersonDto;
+import org.safetynet.alerts.dto.person.*;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +35,7 @@ public class PersonService {
     private final PersonDtoMapper personDtoMapper;
 
     public Person create(Person person) throws IllegalArgumentException, InstanceAlreadyExistsException {
-        if (person == null || person.getFirstName().trim().isEmpty() || person.getLastName().trim().isEmpty()) {
+        if (Objects.isNull(person) || Strings.isBlank(person.getFirstName()) || Strings.isBlank(person.getLastName())) {
             log.debug("Invalid person data");
             throw new IllegalArgumentException("Invalid person data");
         }
@@ -49,7 +47,7 @@ public class PersonService {
     }
 
     public Person update(Person person) throws InstanceNotFoundException {
-        if (person == null || person.getFirstName().trim().isEmpty() || person.getLastName().trim().isEmpty()) {
+        if (Objects.isNull(person) || Strings.isBlank(person.getFirstName()) || Strings.isBlank(person.getLastName())) {
             log.debug("Invalid person data");
             throw new IllegalArgumentException("Invalid person data");
         }
@@ -98,8 +96,21 @@ public class PersonService {
         return childrenNbr;
     }
 
+    public List<ChildAlertDto> getChildAlerts(String address) {
+        if (Strings.isBlank(address)) {
+            log.debug("Address cannot be null or empty");
+            throw new IllegalArgumentException("Address cannot be null or empty");
+        }
+
+        Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
+        List<Person> persons = getAllPersonAtAddress(address);
+        Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, medicalRecordMap);
+
+        return attachOtherPersonToChildAlertDto(childAlerts, persons);
+    }
+
     public List<Person> getAllPersonAtAddress(String address) {
-        if (address == null || address.trim().isEmpty()) {
+        if (Strings.isBlank(address)) {
             log.debug("Address cannot be empty");
             throw new IllegalArgumentException("address cannot be empty");
         }
@@ -199,42 +210,33 @@ public class PersonService {
         return fullNames;
     }
 
-    public List<ChildAlertDto> attachOtherPersonToChildAlertDto(String address) {
-        if (address == null || address.trim().isEmpty()) {
-            log.debug("Address cannot be null or empty");
-            throw new IllegalArgumentException("Address cannot be null or empty");
-        }
-        Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
-        List<Person> persons = getAllPersonAtAddress(address);
-        Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, address, medicalRecordMap);
-
-        if (childAlerts.isEmpty()) {
-            log.debug("No children found at this address");
-
-            return Collections.emptyList();
-        }
-
+    public List<ChildAlertDto> attachOtherPersonToChildAlertDto(Map<String, ChildAlertDto> childAlerts, List<Person> persons) {
         persons.forEach(person -> {
             int otherPersonCount = 0;
 
             for (Map.Entry<String, ChildAlertDto> entry : childAlerts.entrySet()) {
                 if (!entry.getKey().equals(person.getFullName())) {
-                    entry.getValue().otherPersons.add(new OtherPersonDto(person));
+                    entry.getValue().otherPersons.add(new OtherPersonDto(person.getFirstName(), person.getLastName()));
                     otherPersonCount++;
                 }
             }
-            log.debug("{} other person(s) household added for ChildAlertDto at address {}", otherPersonCount, address);
+            log.debug("{} other person(s) household added for ChildAlertDto", otherPersonCount);
         });
-        log.debug("ChildPersonDto mapped for {} children at address {}", childAlerts.size(), address);
+        log.debug("ChildPersonDto mapped for {} children at address", childAlerts.size());
 
         return new ArrayList<>(childAlerts.values());
     }
 
-    public FireInfoDto tofireInfoDto(List<Person> persons, FireStation fireStation, Map<String, MedicalRecord> medicalRecordMap) {
-        List<AddressPersonDto> personsDto = persons.stream()
-                .map(person -> new AddressPersonDto(person, medicalRecordMap.get(person.getFullName())))
-                .collect(Collectors.toList());
+    public FireInfoDto toFireInfoDto(List<Person> persons, FireStation fireStation, Map<String, MedicalRecord> medicalRecordMap) {
+        List<AddressPersonDto> addressPersons = new ArrayList<>();
 
-        return new FireInfoDto(personsDto, fireStation);
+        for (Person person : persons) {
+            AddressPersonDto addressPersonDto = new AddressPersonDto(person, medicalRecordMap.get(person.getFullName()));
+            addressPersons.add(addressPersonDto);
+            log.debug("person transformed to AddressPersonDto");
+        }
+        log.debug("{} person(s) transformed to AddressPersonDto", addressPersons.size());
+
+        return new FireInfoDto(addressPersons, fireStation);
     }
 }

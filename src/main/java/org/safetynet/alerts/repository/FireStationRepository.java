@@ -14,12 +14,6 @@ import java.util.Optional;
 @Slf4j
 public class FireStationRepository {
 
-    public Optional<FireStation> findFireStationAtAddress(String address) {
-        return JsonDataService.getJsonData().getFirestations().stream()
-                .filter(f -> f.getAddress().equals(address))
-                .findFirst();
-    }
-
     public FireStation create(FireStation fireStation) throws InstanceAlreadyExistsException {
         if (findOneFireStation(fireStation.getAddress(), fireStation.getStation()).isPresent()) {
             throw new InstanceAlreadyExistsException("FireStation already exists at address");
@@ -30,15 +24,7 @@ public class FireStationRepository {
         return fireStation;
     }
 
-    public Optional<FireStation> findOneFireStation(String address, String station) {
-        return JsonDataService.getJsonData()
-                .getFirestations()
-                .stream()
-                .filter(fireStation -> fireStation.getAddress().equals(address) && fireStation.getStation().equals(station))
-                .findFirst();
-    }
-
-    public FireStation update(String address, String station, String newStation) {
+    public FireStation update(String address, String station, String newStation) throws NoSuchElementException {
         FireStation fireStationToUpdate = findOneFireStation(address, station)
                 .orElseThrow(() -> new NoSuchElementException("No fire station to update found"));
 
@@ -50,6 +36,20 @@ public class FireStationRepository {
     public boolean remove(FireStation fireStationToDelete) {
         return JsonDataService.getJsonData().getFirestations()
                 .removeIf(fireStation -> fireStation.equals(fireStationToDelete));
+    }
+
+    public Optional<FireStation> findFireStationAtAddress(String address) {
+        return JsonDataService.getJsonData().getFirestations().stream()
+                .filter(f -> f.getAddress().equals(address))
+                .findFirst();
+    }
+
+    public Optional<FireStation> findOneFireStation(String address, String station) {
+        return JsonDataService.getJsonData()
+                .getFirestations()
+                .stream()
+                .filter(fireStation -> fireStation.getAddress().equals(address) && fireStation.getStation().equals(station))
+                .findFirst();
     }
 
     public List<FireStation> findAll() {

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.JsonData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -24,11 +23,10 @@ public class JsonDataService implements ApplicationRunner {
     @Value("${json.data.path}")
     private String jsonPath;
 
-    @Autowired
-    private final ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper = null;
 
     public JsonDataService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+        JsonDataService.objectMapper = objectMapper;
     }
 
     @Override
@@ -36,11 +34,11 @@ public class JsonDataService implements ApplicationRunner {
         init(jsonPath);
     }
 
-    public void init(String jsonPath) {
+    public static void init(String jsonPath) {
         log.info("Initializing JSON data from path: {}", jsonPath);
 
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
-            jsonData = this.objectMapper.readValue(inputStreamJson, JsonData.class);
+            jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
             log.info("Data loaded successfully !");
         } catch (UnrecognizedPropertyException e) {
             log.error("Unrecognized property '{}' in JSON file '{}'. Check if your JsonData class matches the JSON structure.", e.getPropertyName(), jsonPath, e);

@@ -67,14 +67,6 @@
             <version>0.8.12</version>
             <type>maven-plugin</type>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-failsafe-plugin -->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.plugins</groupId>-->
-<!--            <artifactId>maven-failsafe-plugin</artifactId>-->
-<!--            <version>3.5.2</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-
     </dependencies>
 
     <build>

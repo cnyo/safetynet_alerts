@@ -2,15 +2,15 @@ package org.safetynet.alerts.unit.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.repository.FireStationRepository;
 import org.safetynet.alerts.service.JsonDataService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.management.InstanceAlreadyExistsException;
 import java.io.InputStream;
@@ -21,45 +21,42 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
 @Tag("FireStationRepositoryTest")
 public class FireStationRepositoryTest {
 
-    @Autowired
     FireStationRepository fireStationRepository;
 
     private static final String jsonPath = "data.json";
 
-    private static JsonData jsonData;
+    private JsonData jsonData;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    MockedStatic<JsonDataService> jsonDataServiceMock;
 
     @BeforeEach
     void setUp() {
+        fireStationRepository = new FireStationRepository();
+        ObjectMapper objectMapper = new ObjectMapper();
+
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
             jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
 
-        JsonDataService.init(jsonPath);
-
-        try (MockedStatic<JsonDataService> mockedStatic = Mockito.mockStatic(JsonDataService.class)) {
-            mockedStatic.when(JsonDataService::getJsonData).thenReturn(jsonData);
-        }
+        jsonDataServiceMock = Mockito.mockStatic(JsonDataService.class);
+        jsonDataServiceMock.when(JsonDataService::getJsonData).thenReturn(jsonData);
     }
 
     @AfterEach
-    void tearDown() {
-        try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
-            jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+    public void tearDown() {
+        jsonDataServiceMock.close();
     }
 
     @Test
     public void createShouldReturnFireStationCreated() throws InstanceAlreadyExistsException {
+        assertThat(jsonData.getFirestations().size()).isEqualTo(13);
+
         String address = "1509 Culver St";
         String station = "19";
         FireStation fireStation = new FireStation();
@@ -71,15 +68,14 @@ public class FireStationRepositoryTest {
         assertThat(result.isPresent()).isTrue();
         assertThat(result.get().getAddress()).isEqualTo(address);
         assertThat(result.get().getStation()).isEqualTo(station);
+        assertThat(jsonData.getFirestations().size()).isEqualTo(14);
     }
 
     @Test
     public void createFireStationAlreadyExistsShouldReturnException() {
-        String address = "1509 Culver St";
-        String station = "3";
         FireStation fireStation = new FireStation();
-        fireStation.setAddress(address);
-        fireStation.setStation(station);
+        fireStation.setAddress("1509 Culver St");
+        fireStation.setStation("3");
 
         assertThrows(InstanceAlreadyExistsException.class, () -> fireStationRepository.create(fireStation));
     }

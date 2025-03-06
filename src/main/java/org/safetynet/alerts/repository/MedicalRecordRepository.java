@@ -1,7 +1,6 @@
 package org.safetynet.alerts.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataService;
@@ -38,14 +37,6 @@ public class MedicalRecordRepository {
         return medicalRecord;
     }
 
-    public Optional<MedicalRecord> findOneByFullName(String fullName) {
-        return JsonDataService.getJsonData()
-                .getMedicalrecords()
-                .stream()
-                .filter(medicalRecord -> medicalRecord.getFullName().equals(fullName))
-                .findFirst();
-    }
-
     public MedicalRecord update(MedicalRecord medicalRecord) {
         MedicalRecord medicalRecordToUpdate = findOneByFullName(medicalRecord.getFullName())
                 .orElseThrow(() -> new NoSuchElementException("Medical record not found"));
@@ -66,6 +57,14 @@ public class MedicalRecordRepository {
                 .removeIf(medicalRecord -> medicalRecord.getFullName().equals(fullName));
 
         return removed;
+    }
+
+    public Optional<MedicalRecord> findOneByFullName(String fullName) {
+        return JsonDataService.getJsonData()
+                .getMedicalrecords()
+                .stream()
+                .filter(medicalRecord -> medicalRecord.getFullName().equals(fullName))
+                .findFirst();
     }
 
     public List<MedicalRecord> findAll() {

@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-@Tag("FireStationRepositoryTest")
+@Tag("MedicalRecordRepositoryTest")
 public class MedicalRecordRepositoryTest {
 
     private static MedicalRecordRepository medicalRecordRepository;
@@ -37,8 +37,6 @@ public class MedicalRecordRepositoryTest {
 
     private static final String jsonPath = "data.json";
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     private JsonData jsonData;
 
     MockedStatic<JsonDataService> jsonDataServiceMock;
@@ -46,6 +44,7 @@ public class MedicalRecordRepositoryTest {
     @BeforeEach
     public void init() {
         medicalRecordRepository = new MedicalRecordRepository(personRepository);
+        ObjectMapper objectMapper = new ObjectMapper();
 
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
             jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
@@ -64,7 +63,7 @@ public class MedicalRecordRepositoryTest {
     }
 
     @Test
-    public void createForExistingPersonShouldReturnMedicalRecordCreated() throws InstanceAlreadyExistsException {
+    public void createForExistingPersonShouldReturnCreatedMedicalRecord() throws InstanceAlreadyExistsException {
         String firstname = "John";
         String lastname = "Doe";
         String birthdate = LocalDate.now().minusYears(25).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));

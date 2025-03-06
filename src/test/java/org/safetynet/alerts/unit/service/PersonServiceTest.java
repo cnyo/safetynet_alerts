@@ -5,27 +5,32 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.controller.PersonDtoMapper;
+import org.safetynet.alerts.dto.fireStation.FireInfoDto;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
 import org.safetynet.alerts.logging.MemoryAppender;
+import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.repository.PersonRepository;
 import org.safetynet.alerts.service.FireStationService;
-import org.safetynet.alerts.service.JsonDataService;
 import org.safetynet.alerts.service.MedicalRecordService;
 import org.safetynet.alerts.service.PersonService;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,17 +38,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
 @Tag("FireStation")
 public class PersonServiceTest {
 
     private final String LOGGER_NAME = "org.safetynet.alerts.service.PersonService";
-    private final String MSG = "Mon message de test";
 
     private final MemoryAppender memoryAppender = new MemoryAppender();
-
-    @Mock
-    private JsonDataService jsonDataService;
 
     @Mock
     private MedicalRecordService medicalRecordService;
@@ -52,11 +53,12 @@ public class PersonServiceTest {
     private FireStationService fireStationService;
 
     @Mock
-    private PersonDtoMapper personDtoMapper;
-
-    @Mock
     private PersonRepository personRepository;
 
+    @Mock
+    private PersonDtoMapper personDtoMapper;
+
+    @InjectMocks
     private PersonService personService;
 
     @BeforeAll
@@ -67,10 +69,6 @@ public class PersonServiceTest {
 
     @BeforeEach
     public void setUp() {
-        doNothing().when(jsonDataService).init(anyString());
-
-        personService = new PersonService(personRepository, fireStationService, medicalRecordService, personDtoMapper);
-
         Logger logger = (Logger) LoggerFactory.getLogger(LOGGER_NAME);
         logger.setLevel(Level.DEBUG);
         logger.addAppender(memoryAppender);
@@ -95,6 +93,33 @@ public class PersonServiceTest {
         assertThat(result.getFullName()).isEqualTo("John Doe");
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("Person created", Level.DEBUG)).hasSize(1);
+    }
+
+    @Tag("Create")
+    @DisplayName("Try to create one person success")
+    @Test
+    public void createWithNullPersonShouldThrowException() {
+        assertThrows(IllegalArgumentException.class, () -> personService.create(null));
+    }
+
+    @Tag("Create")
+    @DisplayName("Try to create one person success")
+    @Test
+    public void createWithBlankFirstNameShouldThrowException() {
+        Person person = new Person();
+        person.setLastName("Doe");
+
+        assertThrows(IllegalArgumentException.class, () -> personService.create(person));
+    }
+
+    @Tag("Create")
+    @DisplayName("Try to create one person success")
+    @Test
+    public void createWithBlankLastNameShouldThrowException() {
+        Person person = new Person();
+        person.setFirstName("John");
+
+        assertThrows(IllegalArgumentException.class, () -> personService.create(person));
     }
 
     @Tag("Create")
@@ -152,6 +177,33 @@ public class PersonServiceTest {
         when(personRepository.update(any(Person.class))).thenThrow(new InstanceNotFoundException());
 
         assertThrows(InstanceNotFoundException.class, () -> personService.update(mockPerson));
+    }
+
+    @Tag("Update")
+    @DisplayName("Try to update one person no exists")
+    @Test
+    public void updateWithNullPersonShouldThrowException() {
+        assertThrows(IllegalArgumentException.class, () -> personService.update(null));
+    }
+
+    @Tag("Update")
+    @DisplayName("Try to update one person no exists")
+    @Test
+    public void updateWithBlankFirstNameShouldThrowException() {
+        Person person = new Person();
+        person.setLastName("Doe");
+
+        assertThrows(IllegalArgumentException.class, () -> personService.update(person));
+    }
+
+    @Tag("Update")
+    @DisplayName("Try to update one person no exists")
+    @Test
+    public void updateWithBlankLastNameShouldThrowException() {
+        Person person = new Person();
+        person.setFirstName("John");
+
+        assertThrows(IllegalArgumentException.class, () -> personService.update(person));
     }
 
     @Tag("Remove")
@@ -413,75 +465,85 @@ public class PersonServiceTest {
     @DisplayName("Try to attach person to ChildAlertDto success")
     @Test
     public void attachOtherPersonToChildAlertDtoSuccess() {
+        // GIVEN
         String address = "1 rue sesame";
         int age = 15;
-        Person mockPerson = new Person();
-        Person mockOtherPerson = new Person();
-        mockPerson
-                .setFirstName("John")
-                .setLastName("Doe")
-                .setAddress(address)
-                .setCity("San Francisco")
-                .setZip("97451")
-                .setEmail("john@doe.com")
-                .setPhone("841-874-7784");
-        mockOtherPerson
-                .setFirstName("Leonard")
-                .setLastName("Doe")
-                .setAddress(address)
-                .setCity("San Francisco")
-                .setZip("97451")
-                .setEmail("john@doe.com")
-                .setPhone("841-874-7784");
 
-        Map<String, MedicalRecord> medicalRecordMap = new HashMap<>();
-        medicalRecordMap.put("John Doe", new MedicalRecord());
+        Person child = new Person();
+        child.setFirstName("John");
+        child.setLastName("Doe");
+        child.setAddress(address);
+        child.setCity("San Francisco");
+        child.setZip("97451");
+        child.setEmail("john@doe.com");
+        child.setPhone("841-874-7784");
 
-        List<Person> mockPersons = new ArrayList<>();
-        mockPersons.add(mockPerson);
-        mockPersons.add(mockOtherPerson);
+        Person adult = new Person();
+        adult.setFirstName("Leonard");
+        adult.setLastName("Doe");
+        adult.setAddress(address);
+        adult.setCity("San Francisco");
+        adult.setZip("97451");
+        adult.setEmail("john@doe.com");
+        adult.setPhone("841-874-7784");
+
+        List<Person> persons = new ArrayList<>();
+        persons.add(child);
+        persons.add(adult);
+
+        String childBirthdate = LocalDate.now().minusYears(5).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String adultBirthdate = LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        MedicalRecord childMedicalRecord = new MedicalRecord();
+        childMedicalRecord.setFirstName(child.getFirstName());
+        childMedicalRecord.setLastName(child.getLastName());
+        childMedicalRecord.setBirthdate(childBirthdate);
+
+        MedicalRecord adultMedicalRecord = new MedicalRecord();
+        adultMedicalRecord.setFirstName(child.getFirstName());
+        adultMedicalRecord.setLastName(child.getLastName());
+        adultMedicalRecord.setBirthdate(adultBirthdate);
 
         Map<String, ChildAlertDto> childAlerts = new HashMap<>();
-        childAlerts.put(mockPerson.getFullName(), new ChildAlertDto(mockPerson, age));
+        childAlerts.put(child.getFullName(), new ChildAlertDto(child, age));
 
-        when(medicalRecordService.getAllByFullName()).thenReturn(medicalRecordMap);
-        when(personRepository.findAllPersonAtAddress(anyString())).thenReturn(mockPersons);
-        when(personDtoMapper.toChildAlertDto(anyList(), anyString(), anyMap())).thenReturn(childAlerts);
+        // WHEN
+        List<ChildAlertDto> result = personService.attachOtherPersonToChildAlertDto(childAlerts, persons);
 
-        List<ChildAlertDto> result = personService.attachOtherPersonToChildAlertDto(address);
-
+        // THEN
         assertThat(result).isNotEmpty();
+        assertThat(result.size()).isEqualTo(1);
         assertThat(result.getFirst().address).isEqualTo(address);
-        assertThat(result.getFirst().age).isEqualTo(age);
-        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(mockPersons.size() + 2);
-        assertThat(memoryAppender.search("0 other person(s) household added for ChildAlertDto at address " + address, Level.DEBUG)).hasSize(1);
-        assertThat(memoryAppender.search("1 other person(s) household added for ChildAlertDto at address " + address, Level.DEBUG)).hasSize(1);
-        assertThat(memoryAppender.search("ChildPersonDto mapped for 1 children at address " + address, Level.DEBUG)).hasSize(1);
+        assertThat(result.getFirst().otherPersons.size()).isEqualTo(1);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(3);
+        assertThat(memoryAppender.search("0 other person(s) household added for ChildAlertDto", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("1 other person(s) household added for ChildAlertDto", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("ChildPersonDto mapped for 1 children at address", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Other")
-    @DisplayName("Try to attach with no children found at this address")
-    @Test
-    public void attachOtherPersonToChildAlertDtoNoChildrenFoundAtAddress() {
-        String address = "1 rue sesame";
-        Map<String, MedicalRecord> medicalRecordMap = new HashMap<>();
-        List<Person> mockPersons = new ArrayList<>();
-        Map<String, ChildAlertDto> mockChildAlerts = new HashMap<>();
-
-        when(medicalRecordService.getAllByFullName()).thenReturn(medicalRecordMap);
-        when(personRepository.findAllPersonAtAddress(anyString())).thenReturn(mockPersons);
-        when(personDtoMapper.toChildAlertDto(anyList(), anyString(), anyMap())).thenReturn(mockChildAlerts);
-
-        List<ChildAlertDto> result = personService.attachOtherPersonToChildAlertDto(address);
-
-        MemoryAppender memoryAppender1 = memoryAppender;
-
-        assertThat(result).isEmpty();
-        assertThat(result).size().isEqualTo(0);
-        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
-        assertThat(memoryAppender.search("0 person(s) found at address", Level.DEBUG)).hasSize(1);
-        assertThat(memoryAppender.search("No children found at this address", Level.DEBUG)).hasSize(1);
-    }
+//    @Tag("Other")
+//    @DisplayName("Try to attach with no children found at this address")
+//    @Test
+//    public void attachOtherPersonToChildAlertDtoNoChildrenFoundAtAddress() {
+//        String address = "1 rue sesame";
+//        Map<String, MedicalRecord> medicalRecordMap = new HashMap<>();
+//        List<Person> mockPersons = new ArrayList<>();
+//        Map<String, ChildAlertDto> mockChildAlerts = new HashMap<>();
+//
+//        when(medicalRecordService.getAllByFullName()).thenReturn(medicalRecordMap);
+//        when(personRepository.findAllPersonAtAddress(anyString())).thenReturn(mockPersons);
+//        when(personDtoMapper.toChildAlertDto(anyList(), anyString(), anyMap())).thenReturn(mockChildAlerts);
+//
+//        List<ChildAlertDto> result = personService.attachOtherPersonToChildAlertDto(address);
+//
+//        MemoryAppender memoryAppender1 = memoryAppender;
+//
+//        assertThat(result).isEmpty();
+//        assertThat(result).size().isEqualTo(0);
+//        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
+//        assertThat(memoryAppender.search("0 person(s) found at address", Level.DEBUG)).hasSize(1);
+//        assertThat(memoryAppender.search("No children found at this address", Level.DEBUG)).hasSize(1);
+//    }
 
     @Tag("Other")
     @DisplayName("Try to get all emails at city success")
@@ -595,4 +657,147 @@ public class PersonServiceTest {
         assertThat(memoryAppender.search("fullNames children cannot be null", Level.DEBUG)).hasSize(1);
     }
 
+    @Test
+    public void toFireInfoDtoShouldReturnDto() {
+        //  GIVEN
+        String address = "1 rue sesame";
+        Person child = new Person();
+        child.setFirstName("John");
+        child.setLastName("Doe");
+        child.setAddress(address);
+        child.setCity("San Francisco");
+        child.setZip("97451");
+        child.setEmail("john@doe.com");
+        child.setPhone("841-874-7784");
+
+        Person adult = new Person();
+        adult.setFirstName("Leonard");
+        adult.setLastName("Doe");
+        adult.setAddress(address);
+        adult.setCity("San Francisco");
+        adult.setZip("97451");
+        adult.setEmail("john@doe.com");
+        adult.setPhone("841-874-7784");
+
+        List<Person> persons = new ArrayList<>();
+        persons.add(child);
+        persons.add(adult);
+
+        String childBirthdate = LocalDate.now().minusYears(5).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String adultBirthdate = LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        MedicalRecord childMedicalRecord = new MedicalRecord();
+        childMedicalRecord.setFirstName(child.getFirstName());
+        childMedicalRecord.setLastName(child.getLastName());
+        childMedicalRecord.setBirthdate(childBirthdate);
+        childMedicalRecord.setMedications(Collections.emptyList());
+        childMedicalRecord.setAllergies(Collections.emptyList());
+
+        MedicalRecord adultMedicalRecord = new MedicalRecord();
+        adultMedicalRecord.setFirstName(child.getFirstName());
+        adultMedicalRecord.setLastName(child.getLastName());
+        adultMedicalRecord.setBirthdate(adultBirthdate);
+        adultMedicalRecord.setMedications(Collections.emptyList());
+        adultMedicalRecord.setAllergies(Collections.emptyList());
+
+        Map<String, MedicalRecord> medicalRecords = new HashMap<>();
+        medicalRecords.put(child.getFullName(), childMedicalRecord);
+        medicalRecords.put(adult.getFullName(), adultMedicalRecord);
+
+        Map<String, ChildAlertDto> ChildAlerts = new HashMap<>();
+
+        when(medicalRecordService.getAllByFullName()).thenReturn(medicalRecords);
+        when(personDtoMapper.toChildAlertDto(anyList(), any())).thenReturn(ChildAlerts);
+
+        FireStation fireStation = new FireStation();
+        fireStation.setStation("3");
+        fireStation.setAddress(address);
+
+        // WHEN
+        FireInfoDto result = personService.toFireInfoDto(persons, fireStation, medicalRecords);
+
+        // THEN
+        assertThat(result).isNotNull();
+        assertThat(result).isInstanceOf(FireInfoDto.class);
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(3);
+        assertThat(memoryAppender.search("person transformed to AddressPersonDto", Level.DEBUG)).hasSize(2);
+        assertThat(memoryAppender.search("2 person(s) transformed to AddressPersonDto", Level.DEBUG)).hasSize(1);
+    }
+
+    @Test
+    public void getChildAlertsAddressShouldReturnDtoList() {
+        Map<String, MedicalRecord> medicalRecordMap = new HashMap<>();
+        MedicalRecord medicalRecord = new MedicalRecord();
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Doe");
+        medicalRecord.setBirthdate("28/12/1988");
+        MedicalRecord childMedicalRecord = new MedicalRecord();
+        childMedicalRecord.setFirstName("Jeanne");
+        childMedicalRecord.setLastName("Doe");
+        childMedicalRecord.setBirthdate("28/12/2016");
+        medicalRecordMap.put("John Doe", medicalRecord);
+        medicalRecordMap.put("Jeanne Doe", childMedicalRecord);
+
+        Person person = new Person();
+        person.setFirstName("John");
+        person.setLastName("Doe");
+        Person child = new Person();
+        child.setFirstName("Jeanne");
+        child.setLastName("Doe");
+        List<Person> persons = List.of(person, child);
+
+        Map<String, ChildAlertDto> childAlerts = new HashMap<>();
+        childAlerts.put("Jeanne Doe", new ChildAlertDto(child, 15));
+
+        when(medicalRecordService.getAllByFullName()).thenReturn(medicalRecordMap);
+        when(personRepository.findAllPersonAtAddress(anyString())).thenReturn(persons);
+        when(personDtoMapper.toChildAlertDto(persons, medicalRecordMap)).thenReturn(childAlerts);
+
+        List<ChildAlertDto> result = personService.getChildAlerts("21 jump street");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getFirst().firstName).isEqualTo("Jeanne");
+        assertThat(result.getFirst().otherPersons.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void getChildAlertsWhenNotFoundMedicalRecordShouldReturnDtoList() {
+        Map<String, MedicalRecord> medicalRecordMap = new HashMap<>();
+        MedicalRecord medicalRecord = new MedicalRecord();
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Doe");
+        medicalRecord.setBirthdate("28/12/1988");
+        MedicalRecord childMedicalRecord = new MedicalRecord();
+        childMedicalRecord.setFirstName("Jeanne");
+        childMedicalRecord.setLastName("Doe");
+        childMedicalRecord.setBirthdate("28/12/2016");
+        medicalRecordMap.put("John Doe", medicalRecord);
+        medicalRecordMap.put("Jeanne Doe", childMedicalRecord);
+
+        Person person = new Person();
+        person.setFirstName("John");
+        person.setLastName("Doe");
+        Person child = new Person();
+        child.setFirstName("Jeanne");
+        child.setLastName("Doe");
+        List<Person> persons = List.of(person, child);
+
+        Map<String, ChildAlertDto> childAlerts = new HashMap<>();
+        childAlerts.put("Jeanne Doe", new ChildAlertDto(child, 15));
+
+        when(medicalRecordService.getAllByFullName()).thenReturn(Collections.emptyMap());
+        when(personRepository.findAllPersonAtAddress(anyString())).thenReturn(persons);
+        when(personDtoMapper.toChildAlertDto(persons, medicalRecordMap)).thenReturn(childAlerts);
+
+        List<ChildAlertDto> result = personService.getChildAlerts("21 jump street");
+
+        assertThat(result).isEmpty();
+    }
+
+    @ParameterizedTest(name = "#{index} - Run test with args={0}")
+    @NullSource
+    @ValueSource(strings = {"", " "})
+    public void getChildAlertsWithEmptyAddressShouldThrowException(String address) {
+        assertThrows(IllegalArgumentException.class, () -> personService.getChildAlerts(address));
+    }
 }

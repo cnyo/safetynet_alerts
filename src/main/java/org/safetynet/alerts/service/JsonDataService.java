@@ -11,6 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -40,13 +41,9 @@ public class JsonDataService implements ApplicationRunner {
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
             jsonData = objectMapper.readValue(inputStreamJson, JsonData.class);
             log.info("Data loaded successfully !");
-        } catch (UnrecognizedPropertyException e) {
-            log.error("Unrecognized property '{}' in JSON file '{}'. Check if your JsonData class matches the JSON structure.", e.getPropertyName(), jsonPath, e);
-            throw new RuntimeException("Invalid property found in JSON: " + e.getPropertyName(), e);
-        } catch (JsonMappingException e) {
-            log.error("JSON mapping error in file '{}'. Failed to map JSON to object '{}' at path '{}'. Possible type mismatch or missing annotation.",
-                    jsonPath, e.getPathReference(), e.getPath(), e);
-            throw new RuntimeException("JSON mapping error in file: " + jsonPath, e);
+        } catch (FileNotFoundException e) {
+            log.error("JSON file not found at path '{}'.", jsonPath, e);
+            throw new RuntimeException("JSON file not found", e);
         } catch (IOException e) {
             log.error("I/O error while loading JSON data", e);
             throw new RuntimeException("I/O error while loading JSON data", e);

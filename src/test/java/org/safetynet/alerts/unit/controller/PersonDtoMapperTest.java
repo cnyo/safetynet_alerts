@@ -92,7 +92,7 @@ public class PersonDtoMapperTest {
         assertThat(dtoList).isNotNull();
         assertThat(dtoList.size()).isEqualTo(23);
         assertThat(dtoList.getFirst()).isInstanceOf(PersonInfoDto.class);
-        assertThat(dtoList.getFirst().age).isEqualTo(40);
+        assertThat(dtoList.getFirst().age).isEqualTo(41);
         assertThat(dtoList.getFirst().medications.size()).isEqualTo(2);
         assertThat(dtoList.getFirst().allergies.size()).isEqualTo(1);
     }

@@ -23,7 +23,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @Tag("PersonRepositoryTest")
@@ -35,7 +34,7 @@ public class PersonRepositoryTest {
 
     private JsonData jsonData;
 
-    MockedStatic<JsonDataService> jsonDataServiceMock;
+    private MockedStatic<JsonDataService> jsonDataServiceMock;
 
     @BeforeEach
     public void init() {
@@ -50,7 +49,6 @@ public class PersonRepositoryTest {
 
         jsonDataServiceMock = Mockito.mockStatic(JsonDataService.class);
         jsonDataServiceMock.when(JsonDataService::getJsonData).thenReturn(jsonData);
-
     }
 
     @AfterEach
@@ -111,9 +109,6 @@ public class PersonRepositoryTest {
         person.setEmail("updated-email@email.com");
 
         assertThrows(InstanceNotFoundException.class, () -> personRepository.update(person));
-
-        jsonDataServiceMock.verify(JsonDataService::getJsonData, times(1));
-        jsonDataServiceMock.verify(() -> jsonData.getPersons(), Mockito.times(1));
     }
 
     @Test

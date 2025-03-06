@@ -1,6 +1,7 @@
 package org.safetynet.alerts.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.repository.FireStationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,8 @@ public class FireStationService {
     private FireStationRepository fireStationRepository;
 
     public FireStation getFireStationAtAddress(String address) {
-        if (address == null || address.isEmpty()) {
+        if (Strings.isBlank(address)) {
+            log.debug("Address is blank");
             throw new IllegalArgumentException("address is null or empty");
         }
         FireStation fireStation = fireStationRepository.findFireStationAtAddress(address)
@@ -83,7 +85,8 @@ public class FireStationService {
     }
 
     public List<String> getAddressesForOneFireStation(String stationNumber) {
-        if (stationNumber.isEmpty()) {
+        if (Strings.isBlank(stationNumber)) {
+            log.debug("Station is blank");
             throw new IllegalArgumentException("Station must not be empty");
         }
 
@@ -94,9 +97,11 @@ public class FireStationService {
     }
 
     public List<String> getAddressesForFireStations(String stations) {
-        if (stations == null || stations.trim().isEmpty()) {
+        if (Strings.isBlank(stations)) {
+            log.debug("Stations is blank");
             throw new IllegalArgumentException("Stations must not be empty");
         }
+
         String[] stationNumbers = stations.split(",");
         List<String> addresses = fireStationRepository.findAddressesForStations(stationNumbers);
         log.debug("{} addresses found from FireStations {}", addresses.size(), stations);
@@ -105,6 +110,9 @@ public class FireStationService {
     }
 
     public FireStation getOneFireStation(String address, String station) {
-        return fireStationRepository.findOneFireStation(address, station).orElse(null);
+        FireStation fireStation = fireStationRepository.findOneFireStation(address, station).orElse(null);
+        log.debug("FireStation found by one name: {}", fireStation != null);
+
+        return fireStation;
     }
 }

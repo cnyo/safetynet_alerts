@@ -81,6 +81,9 @@ public class MedicalRecordService {
     }
 
     public MedicalRecord getOneByName(String firstName, String lastName) {
-        return medicalRecordRepository.findOneByFullName(String.format("%s %s", firstName, lastName)).orElse(null);
+        MedicalRecord medicalRecord = medicalRecordRepository.findOneByFullName(String.format("%s %s", firstName, lastName)).orElse(null);
+        log.debug("MedicalRecord found by one name: {}", medicalRecord != null);
+
+        return medicalRecord;
     }
 }

@@ -5,15 +5,15 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.logging.MemoryAppender;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.repository.MedicalRecordRepository;
-import org.safetynet.alerts.service.JsonDataService;
 import org.safetynet.alerts.service.MedicalRecordService;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.management.InstanceAlreadyExistsException;
 import java.util.*;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
 @Tag("FireStation")
 public class MedicalRecordServiceTest {
 
@@ -33,9 +33,6 @@ public class MedicalRecordServiceTest {
 
     @Mock
     MedicalRecordRepository medicalRecordRepository;
-
-    @Mock
-    private JsonDataService jsonDataService;
 
     private MedicalRecordService medicalRecordService;
 
@@ -47,8 +44,6 @@ public class MedicalRecordServiceTest {
 
     @BeforeEach
     public void setUp() {
-        doNothing().when(jsonDataService).init(anyString());
-
         medicalRecordService = new MedicalRecordService(medicalRecordRepository);
 
         Logger logger = (Logger) LoggerFactory.getLogger(LOGGER_NAME);
@@ -59,8 +54,6 @@ public class MedicalRecordServiceTest {
         memoryAppender.start();
     }
 
-    @Tag("Create")
-    @DisplayName("Try to create one medical record successfully")
     @Test
     public void createSuccessfully() throws InstanceAlreadyExistsException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
@@ -79,8 +72,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("MedicalRecord created successfully", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Create")
-    @DisplayName("Try to create with person not exists")
     @Test
     public void createWithPersonNotFound() throws InstanceAlreadyExistsException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
@@ -93,9 +84,6 @@ public class MedicalRecordServiceTest {
         assertThrows(NoSuchElementException.class, () -> medicalRecordService.create(mockMedicalRecord));
     }
 
-
-    @Tag("Create")
-    @DisplayName("Try to create with medical record already exists")
     @Test
     public void createWithMedicalRecordAlreadyExists() throws InstanceAlreadyExistsException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
@@ -108,8 +96,6 @@ public class MedicalRecordServiceTest {
         assertThrows(InstanceAlreadyExistsException.class, () -> medicalRecordService.create(mockMedicalRecord));
     }
 
-    @Tag("Update")
-    @DisplayName("Try to update medical success")
     @Test
     public void updateSuccess() {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
@@ -128,8 +114,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("MedicalRecord updated successfully", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Update")
-    @DisplayName("Try to update with medical record not exists")
     @Test
     public void updateWithMedicalRecordNotExists() throws NoSuchElementException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
@@ -143,8 +127,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(0);
     }
 
-    @Tag("Remove")
-    @DisplayName("Try to remove medical record success")
     @Test
     public void removeSuccess() {
         when(medicalRecordRepository.remove(anyString(), anyString())).thenReturn(true);
@@ -156,8 +138,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("MedicalRecord removed: success", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("Remove")
-    @DisplayName("Try to remove medical record not found")
     @Test
     public void removeWithNoMedicalRecordFound() {
         when(medicalRecordRepository.remove(anyString(), anyString())).thenReturn(false);
@@ -169,8 +149,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("MedicalRecord removed: failure", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("GetTest")
-    @DisplayName("Try to remove medical record not found")
     @Test
     public void getAllSuccess() {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
@@ -188,8 +166,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("getAll medical records: 1", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("GetTest")
-    @DisplayName("Try to remove medical record not found")
     @Test
     public void getAllNoMedicalRecordsFound() {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
@@ -207,8 +183,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("getAll medical records: 0", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("GetTest")
-    @DisplayName("Try to get medical record by fullName success")
     @Test
     public void getAllByFullNameSuccess() {
         Map<String, MedicalRecord> medicalRecordByFullName = new HashMap<>();
@@ -230,8 +204,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("Medical records ordered by fullName found: 1", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("GetTest")
-    @DisplayName("Try to get none medical record by fullName")
     @Test
     public void getAllByFullNameNoMedicalRecordsFound() {
         Map<String, MedicalRecord> medicalRecordByFullName = new HashMap<>();
@@ -245,8 +217,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("Medical records ordered by fullName found: 0", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("OtherTest")
-    @DisplayName("Try to count adult from fullNames success")
     @Test
     public void countAdultFromFullNameSuccess() {
         List<String> fullNames = Arrays.asList("Diane Doe", "Bob Doe", "John Doe");
@@ -260,8 +230,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("Count 2 adult from fullNames", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("OtherTest")
-    @DisplayName("Try to count adult with empty fullNames")
     @Test
     public void countAdultFromFullNameWithEmptyFullNames() {
         int result = medicalRecordService.countAdultFromFullName(Collections.emptyList());
@@ -271,8 +239,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("No fullNames provided for count adults, returning 0.", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("OtherTest")
-    @DisplayName("Try to count adult with null fullNames")
     @Test
     public void countAdultFromFullNameWithNullFullNames() {
         int result = medicalRecordService.countAdultFromFullName(null);
@@ -282,8 +248,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("No fullNames provided for count adults, returning 0.", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("OtherTest")
-    @DisplayName("Try to count children from fullNames success")
     @Test
     public void countChildrenFromFullNameSuccess() {
         List<String> fullNames = Arrays.asList("Diane Doe", "Bob Doe", "John Doe");
@@ -297,8 +261,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("Count 1 children from fullNames", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("OtherTest")
-    @DisplayName("Try to count adult from empty fullNames")
     @Test
     public void countChildrenFromFullNameWithEmptyFullNames() {
         int result = medicalRecordService.countChildrenFromFullName(Collections.emptyList());
@@ -308,8 +270,6 @@ public class MedicalRecordServiceTest {
         assertThat(memoryAppender.search("No fullNames provided for count children, returning 0.", Level.DEBUG)).hasSize(1);
     }
 
-    @Tag("OtherTest")
-    @DisplayName("Try to count adult from null fullNames")
     @Test
     public void countChildrenFromFullNameWithNullFullNames() {
         int result = medicalRecordService.countChildrenFromFullName(null);
@@ -317,5 +277,37 @@ public class MedicalRecordServiceTest {
         assertThat(result).isEqualTo(0);
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("No fullNames provided for count children, returning 0.", Level.DEBUG)).hasSize(1);
+    }
+
+    @Test
+    public void getOneByNameShouldReturnMedicalRecord() {
+        MedicalRecord medicalRecord = new MedicalRecord();
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Doe");
+
+        when(medicalRecordRepository.findOneByFullName(anyString())).thenReturn(Optional.of(medicalRecord));
+
+        MedicalRecord result = medicalRecordService.getOneByName("John", "Doe");
+
+        assertThat(result).isNotNull();
+        assertThat(result).isInstanceOf(MedicalRecord.class);
+        assertThat(result.getFullName()).isEqualTo("John Doe");
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("MedicalRecord found by one name: true", Level.DEBUG)).hasSize(1);
+    }
+
+    @Test
+    public void getOneByNameShouldReturnNull() {
+        MedicalRecord medicalRecord = new MedicalRecord();
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Doe");
+
+        when(medicalRecordRepository.findOneByFullName(anyString())).thenReturn(Optional.ofNullable(null));
+
+        MedicalRecord result = medicalRecordService.getOneByName("John", "Doe");
+
+        assertThat(result).isNull();
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("MedicalRecord found by one name: false", Level.DEBUG)).hasSize(1);
     }
 }

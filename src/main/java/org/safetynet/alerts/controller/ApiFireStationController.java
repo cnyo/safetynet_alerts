@@ -67,7 +67,7 @@ public class ApiFireStationController {
         catch (IllegalArgumentException e) {
             log.error(e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid parameters");
         }
         catch (Exception e) {
             log.error("Error updating FireStation: {}", e.getMessage(), e);
@@ -92,11 +92,7 @@ public class ApiFireStationController {
             log.info("DELETE /firestation removed success");
 
             return ResponseEntity.ok("FireStation removed successfully.");
-        } catch (NoSuchElementException e) {
-            log.info("FireStation to delete not found.");
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Firestation to delete not found.");
-        }  catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error deleting FireStation: {}", e.getMessage(), e);
 
             return ResponseEntity.internalServerError().build();

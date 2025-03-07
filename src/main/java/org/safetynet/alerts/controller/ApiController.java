@@ -32,14 +32,15 @@ public class ApiController {
 
         try {
             List<Person> persons = personService.getAllPersonFromFireStation(stationNumber);
-            List<String> fullNames = personService.getFullNamesFromPersons(persons);
-            int adultNbr = personService.countAdultFromPersons(fullNames);
-            int childrenNbr = personService.countChildrenFromPersons(fullNames);
 
             if (persons.isEmpty()) {
                 log.info("GET /firestation No person found");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("None person found");
             }
+
+            List<String> fullNames = personService.getFullNamesFromPersons(persons);
+            int adultNbr = personService.countAdultFromPersons(fullNames);
+            int childrenNbr = personService.countChildrenFromPersons(fullNames);
 
             log.info("GET /firestation Get person by sation number success");
 
@@ -47,7 +48,7 @@ public class ApiController {
         } catch (IllegalArgumentException e) {
             log.error("GET /firestation Error: {}", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
         } catch (Exception e) {
             log.error("GET /firestation Error: {}", e.getMessage(), e);
 
@@ -67,7 +68,7 @@ public class ApiController {
         } catch (IllegalArgumentException e) {
             log.error("GET /childAlert Error: {}", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Address cannot be null or empty");
         } catch (Exception e) {
             log.error("GET /childAlert Error: {}", e.getMessage(), e);
 
@@ -116,7 +117,7 @@ public class ApiController {
         } catch (IllegalArgumentException e) {
             log.info("GET /fire Fire station not found: {}", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             log.error("GET /fire Error: {}", e.getMessage(), e);
 

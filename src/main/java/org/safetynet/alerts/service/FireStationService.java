@@ -74,7 +74,6 @@ public class FireStationService {
     public boolean validatePatchParams(Map<String, Object> params) {
         for (String param : PATCH_PARAMS) {
             if (params.get(param) == null) {
-                String message = String.format("Parameter '%s' is missing.", param);
                 log.debug("Parameter {} is missing.", param);
 
                 return false;

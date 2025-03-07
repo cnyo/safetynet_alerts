@@ -62,6 +62,7 @@ public class ApiPersonController {
     @PatchMapping("/person")
     public ResponseEntity<?> patchPerson(@RequestBody Person person) {
         log.info("Patch /person");
+
         try {
             Person updatededPerson = personService.update(person);
             log.info("PUT /person Person updated success.");
@@ -74,7 +75,7 @@ public class ApiPersonController {
         } catch (IllegalArgumentException e) {
             log.error("PUT /person Invalid person data: {}", e.getMessage(), e);
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid person data");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid person data");
         } catch (Exception e) {
             log.error("PUT /person Error: {}", e.getMessage(), e);
 

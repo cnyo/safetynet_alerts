@@ -1,7 +1,9 @@
 package org.safetynet.alerts.integration.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
+import org.safetynet.alerts.service.JsonDataService;
 import org.safetynet.alerts.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,6 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PersonServiceTestIT {
     @Autowired
     private PersonService personService;
+
+    @BeforeEach
+    void setUp() {
+        JsonDataService.init("data.json");
+    }
 
     @Test
     public void getChildAlertsShouldReturnChildrenAlerts() {

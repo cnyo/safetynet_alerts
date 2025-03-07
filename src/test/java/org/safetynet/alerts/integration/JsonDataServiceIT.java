@@ -25,9 +25,6 @@ public class JsonDataServiceIT {
 
     private final MemoryAppender memoryAppender = new MemoryAppender();
 
-    @Autowired
-    private JsonDataService jsonDataService;
-
     @BeforeAll
     public static void beforeAll() {
         LogWorker worker = new LogWorker();
@@ -46,7 +43,7 @@ public class JsonDataServiceIT {
 
     @Test
     public void getJsonDataSuccess() {
-        jsonDataService.init("test-data.json");
+        JsonDataService.init("test-data.json");
         JsonData result = JsonDataService.getJsonData();
 
         assertThat(result).isNotNull();
@@ -61,11 +58,11 @@ public class JsonDataServiceIT {
 
     @Test
     public void initWithBadPath() {
-        assertThrows(RuntimeException.class, () -> jsonDataService.init("bad_path"));
+        assertThrows(RuntimeException.class, () -> JsonDataService.init("bad_path"));
 
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
         assertThat(memoryAppender.search("Initializing JSON data from path", Level.INFO)).hasSize(1);
-        assertThat(memoryAppender.search("I/O error while loading JSON data", Level.ERROR)).hasSize(1);
+        assertThat(memoryAppender.search("JSON file not found at path", Level.ERROR)).hasSize(1);
     }
 
     // todo: test à revoir
@@ -73,19 +70,21 @@ public class JsonDataServiceIT {
     @ValueSource(strings = {
             "test-bad-structured-data.json",
             "test-wrong-data-type-data.json",
-            "empty-data.json"
+            "empty-data.json",
+            "bla-bla-data.json",
     })
     public void getJsonDataWithWrongDataType(String jsonPath) {
-        assertThrows(RuntimeException.class, () -> jsonDataService.init(jsonPath));
+        assertThrows(RuntimeException.class, () -> JsonDataService.init(jsonPath));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
 
         assertThat(memoryAppender.search("Initializing JSON data from path", Level.INFO)).hasSize(1);
 
-        if (jsonPath.equals("test-bad-structured-data.json")) {
-            assertThat(memoryAppender.search("JSON mapping error in file", Level.ERROR)).hasSize(1);
+        if (jsonPath.equals("bla-bla-data.json")) {
+            assertThat(memoryAppender.search("JSON file not found at path", Level.ERROR)).hasSize(1);
         } else {
-            assertThat(memoryAppender.search("JSON mapping error in file", Level.ERROR)).hasSize(1);
+            assertThat(memoryAppender.search("I/O error while loading JSON data", Level.ERROR)).hasSize(1);
         }
+
     }
 
 }

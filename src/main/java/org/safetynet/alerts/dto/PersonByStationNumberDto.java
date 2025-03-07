@@ -4,7 +4,6 @@ import org.safetynet.alerts.dto.person.PersonBasicInfoDto;
 
 import java.util.List;
 
-//@Getter
 public class PersonByStationNumberDto {
 
     public List<PersonBasicInfoDto> persons;
@@ -25,31 +24,7 @@ public class PersonByStationNumberDto {
         return persons;
     }
 
-    public void setPersons(List<PersonBasicInfoDto> persons) {
-        this.persons = persons;
-    }
-
     public String getStation() {
         return station;
-    }
-
-    public void setStation(String station) {
-        this.station = station;
-    }
-
-    public int getAdultNumber() {
-        return adultNumber;
-    }
-
-    public void setAdultNumber(int adultNumber) {
-        this.adultNumber = adultNumber;
-    }
-
-    public int getChildrenNumber() {
-        return childrenNumber;
-    }
-
-    public void setChildrenNumber(int childrenNumber) {
-        this.childrenNumber = childrenNumber;
     }
 }

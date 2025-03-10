@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.controller.PersonDtoMapper;
-import org.safetynet.alerts.dto.fireStation.FireInfoDto;
+import org.safetynet.alerts.dto.FireInfoDto;
 import org.safetynet.alerts.dto.person.ChildAlertDto;
 import org.safetynet.alerts.logging.MemoryAppender;
 import org.safetynet.alerts.model.FireStation;

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.safetynet.alerts.controller.ApiController;
 import org.safetynet.alerts.controller.PersonDtoMapper;
 import org.safetynet.alerts.dto.PersonByStationNumberDto;
-import org.safetynet.alerts.dto.fireStation.FireInfoDto;
+import org.safetynet.alerts.dto.FireInfoDto;
 import org.safetynet.alerts.dto.person.*;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.MedicalRecord;

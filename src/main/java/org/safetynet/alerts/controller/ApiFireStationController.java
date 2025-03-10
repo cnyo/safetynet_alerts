@@ -2,7 +2,7 @@ package org.safetynet.alerts.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.dto.fireStation.FireStationDto;
+import org.safetynet.alerts.dto.FireStationDto;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.service.FireStationService;
 import org.springframework.http.HttpStatus;

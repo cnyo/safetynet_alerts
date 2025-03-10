@@ -2,7 +2,7 @@ package org.safetynet.alerts.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.dto.medicalRecord.MedicalRecordDto;
+import org.safetynet.alerts.dto.MedicalRecordDto;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.service.MedicalRecordService;
 import org.springframework.http.HttpStatus;

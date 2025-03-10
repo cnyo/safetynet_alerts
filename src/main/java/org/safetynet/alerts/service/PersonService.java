@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.safetynet.alerts.controller.PersonDtoMapper;
-import org.safetynet.alerts.dto.fireStation.FireInfoDto;
+import org.safetynet.alerts.dto.FireInfoDto;
 import org.safetynet.alerts.dto.person.*;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.MedicalRecord;

@@ -83,7 +83,7 @@ public class MedicalRecordRepositoryTest {
         assertThat(result.isPresent()).isTrue();
         assertThat(result.get().getFirstName()).isEqualTo(firstname);
         assertThat(result.get().getLastName()).isEqualTo(lastname);
-        assertThat(result.get().getBirthdate()).isEqualTo(birthdate);
+        assertThat(result.get().getBirthdate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).isEqualTo(birthdate);
         assertThat(result.get().getAge()).isEqualTo(24);
     }
 
@@ -131,7 +131,7 @@ public class MedicalRecordRepositoryTest {
         assertThat(result).isNotNull();
         assertThat(result.getFirstName()).isEqualTo(firstname);
         assertThat(result.getLastName()).isEqualTo(lastname);
-        assertThat(result.getBirthdate()).isEqualTo(birthdate);
+        assertThat(result.getBirthdate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).isEqualTo(birthdate);
         assertThat(result.getAge()).isEqualTo(24);
     }
 

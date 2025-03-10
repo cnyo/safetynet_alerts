@@ -10,6 +10,7 @@ import org.safetynet.alerts.service.MedicalRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,8 +18,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import javax.management.InstanceAlreadyExistsException;
+import java.time.DateTimeException;
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -132,6 +135,21 @@ public class ApiMedicalRecordControllerTest {
     }
 
     @Test
+    public void postMedicalRecordInFutureShouldReturnDateTimeException() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        given(medicalRecordService.create(any(MedicalRecord.class))).willThrow(new DateTimeException("Invalid birthdate: future date provided"));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/medicalRecord")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(medicalRecord))
+                )
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(content().string(containsString("Invalid birthdate: future date provided")))
+                .andReturn();
+    }
+
+    @Test
     public void patchMedicalRecordTestShouldReturnPatchedMedicalRecord() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -203,6 +221,28 @@ public class ApiMedicalRecordControllerTest {
     }
 
     @Test
+    public void patchInErrorMedicalRecordInFutureTestShouldReturnDateTimeException() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("firstName", "John");
+        params.put("lastName", "Boyd");
+        params.put("birthdate", "01/06/2030");
+        params.put("medications", List.of("doliprane:1000mg"));
+        params.put("allergies", List.of("Chat"));
+
+        given(medicalRecordService.update(any(MedicalRecord.class))).willThrow(new DateTimeException("Invalid birthdate: future date provided"));
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/medicalRecord")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(params))
+                )
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(content().string(containsString("Invalid birthdate: future date provided")))
+                .andReturn();
+    }
+
+    @Test
     public void deleteMedicalRecordTestShouldReturnSuccess() throws Exception {
         given(medicalRecordService.remove(anyString(), anyString())).willReturn(true);
 
@@ -241,5 +281,25 @@ public class ApiMedicalRecordControllerTest {
                 )
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError())
                 .andReturn();
+    }
+
+    @Test
+    public void handleExceptionShouldHandleDateTimeException() throws RuntimeException {
+        ApiMedicalRecordController controller = new ApiMedicalRecordController(medicalRecordService);
+        HttpMessageNotReadableException exception = new HttpMessageNotReadableException("invalid date", new DateTimeException("invalid date"));
+
+        String result = controller.handleException(exception);
+
+        assertThat(result).isEqualTo("Invalid date format. Please use MM/dd/yyyy.");
+    }
+
+    @Test
+    public void handleExceptionShouldHandleOtherException() throws RuntimeException {
+        ApiMedicalRecordController controller = new ApiMedicalRecordController(medicalRecordService);
+        HttpMessageNotReadableException exception = new HttpMessageNotReadableException("invalid date", new Exception());
+
+        String result = controller.handleException(exception);
+
+        assertThat(result).isEqualTo("Bad request formated");
     }
 }

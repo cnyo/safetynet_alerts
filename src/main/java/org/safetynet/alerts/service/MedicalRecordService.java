@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -21,14 +24,16 @@ public class MedicalRecordService {
         this.medicalRecordRepository = medicalRecordRepository;
     }
 
-    public MedicalRecord create(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException, NoSuchElementException {
+    public MedicalRecord create(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException, NoSuchElementException, DateTimeException {
+        validateBirthdate(medicalRecord.getBirthdate());
         MedicalRecord savedMedicalRecord = medicalRecordRepository.create(medicalRecord);
         log.debug("MedicalRecord created successfully");
 
         return savedMedicalRecord;
     }
 
-    public MedicalRecord update(MedicalRecord medicalRecord) {
+    public MedicalRecord update(MedicalRecord medicalRecord) throws InstanceNotFoundException, NoSuchElementException, DateTimeException {
+        validateBirthdate(medicalRecord.getBirthdate());
         MedicalRecord updatedMedicalRecord = medicalRecordRepository.update(medicalRecord);
         log.debug("MedicalRecord updated successfully");
 
@@ -85,5 +90,13 @@ public class MedicalRecordService {
         log.debug("MedicalRecord found by one name: {}", medicalRecord != null);
 
         return medicalRecord;
+    }
+
+    public boolean validateBirthdate(LocalDate birthdate) throws DateTimeException {
+        if (birthdate.isAfter(LocalDate.now())) {
+            throw new DateTimeException("Invalid birthdate: future date provided");
+        }
+
+        return true;
     }
 }

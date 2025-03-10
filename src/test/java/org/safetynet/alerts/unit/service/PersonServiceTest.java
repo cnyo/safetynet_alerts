@@ -521,30 +521,6 @@ public class PersonServiceTest {
         assertThat(memoryAppender.search("ChildPersonDto mapped for 1 children at address", Level.DEBUG)).hasSize(1);
     }
 
-//    @Tag("Other")
-//    @DisplayName("Try to attach with no children found at this address")
-//    @Test
-//    public void attachOtherPersonToChildAlertDtoNoChildrenFoundAtAddress() {
-//        String address = "1 rue sesame";
-//        Map<String, MedicalRecord> medicalRecordMap = new HashMap<>();
-//        List<Person> mockPersons = new ArrayList<>();
-//        Map<String, ChildAlertDto> mockChildAlerts = new HashMap<>();
-//
-//        when(medicalRecordService.getAllByFullName()).thenReturn(medicalRecordMap);
-//        when(personRepository.findAllPersonAtAddress(anyString())).thenReturn(mockPersons);
-//        when(personDtoMapper.toChildAlertDto(anyList(), anyString(), anyMap())).thenReturn(mockChildAlerts);
-//
-//        List<ChildAlertDto> result = personService.attachOtherPersonToChildAlertDto(address);
-//
-//        MemoryAppender memoryAppender1 = memoryAppender;
-//
-//        assertThat(result).isEmpty();
-//        assertThat(result).size().isEqualTo(0);
-//        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
-//        assertThat(memoryAppender.search("0 person(s) found at address", Level.DEBUG)).hasSize(1);
-//        assertThat(memoryAppender.search("No children found at this address", Level.DEBUG)).hasSize(1);
-//    }
-
     @Tag("Other")
     @DisplayName("Try to get all emails at city success")
     @Test
@@ -730,11 +706,11 @@ public class PersonServiceTest {
         MedicalRecord medicalRecord = new MedicalRecord();
         medicalRecord.setFirstName("John");
         medicalRecord.setLastName("Doe");
-        medicalRecord.setBirthdate("28/12/1988");
+        medicalRecord.setBirthdate("12/28/1988");
         MedicalRecord childMedicalRecord = new MedicalRecord();
         childMedicalRecord.setFirstName("Jeanne");
         childMedicalRecord.setLastName("Doe");
-        childMedicalRecord.setBirthdate("28/12/2016");
+        childMedicalRecord.setBirthdate("12/28/2016");
         medicalRecordMap.put("John Doe", medicalRecord);
         medicalRecordMap.put("Jeanne Doe", childMedicalRecord);
 
@@ -766,11 +742,11 @@ public class PersonServiceTest {
         MedicalRecord medicalRecord = new MedicalRecord();
         medicalRecord.setFirstName("John");
         medicalRecord.setLastName("Doe");
-        medicalRecord.setBirthdate("28/12/1988");
+        medicalRecord.setBirthdate("12/28/1988");
         MedicalRecord childMedicalRecord = new MedicalRecord();
         childMedicalRecord.setFirstName("Jeanne");
         childMedicalRecord.setLastName("Doe");
-        childMedicalRecord.setBirthdate("28/12/2016");
+        childMedicalRecord.setBirthdate("12/28/2016");
         medicalRecordMap.put("John Doe", medicalRecord);
         medicalRecordMap.put("Jeanne Doe", childMedicalRecord);
 

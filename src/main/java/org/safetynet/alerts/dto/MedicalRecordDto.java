@@ -2,12 +2,13 @@ package org.safetynet.alerts.dto;
 
 import org.safetynet.alerts.model.MedicalRecord;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class MedicalRecordDto {
     public String firstName;
     public String lastName;
-    public String birthdate;
+    public LocalDate birthdate;
     public List<String> medications;
     public List<String> allergies;
 

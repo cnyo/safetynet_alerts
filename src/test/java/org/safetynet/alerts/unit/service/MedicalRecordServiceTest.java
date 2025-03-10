@@ -16,6 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +71,7 @@ public class MedicalRecordServiceTest {
 
         assertThat(medicalRecord).isNotNull();
         assertThat(medicalRecord.getFullName()).isEqualTo("John Doe");
-        assertThat(medicalRecord.getBirthdate()).isEqualTo("08/08/1988");
+        assertThat(medicalRecord.getBirthdate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).isEqualTo("08/08/1988");
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("MedicalRecord created successfully", Level.DEBUG)).hasSize(1);
     }
@@ -97,9 +101,9 @@ public class MedicalRecordServiceTest {
     }
 
     @Test
-    public void updateSuccess() {
+    public void updateSuccess() throws InstanceNotFoundException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
-        mockMedicalRecord.setBirthdate("08/08/1988");
+        mockMedicalRecord.setBirthdate("12/08/1988");
         mockMedicalRecord.setFirstName("John");
         mockMedicalRecord.setLastName("Doe");
 
@@ -109,7 +113,7 @@ public class MedicalRecordServiceTest {
 
         assertThat(medicalRecord).isNotNull();
         assertThat(medicalRecord.getFullName()).isEqualTo("John Doe");
-        assertThat(medicalRecord.getBirthdate()).isEqualTo("08/08/1988");
+        assertThat(medicalRecord.getBirthdate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).isEqualTo("12/08/1988");
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("MedicalRecord updated successfully", Level.DEBUG)).hasSize(1);
     }
@@ -309,5 +313,19 @@ public class MedicalRecordServiceTest {
         assertThat(result).isNull();
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("MedicalRecord found by one name: false", Level.DEBUG)).hasSize(1);
+    }
+
+    @Test
+    public void validateBirthdateShouldBeValid() {
+        LocalDate birthdate = LocalDate.parse("02/18/2001", DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        boolean result = medicalRecordService.validateBirthdate(birthdate);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void validateBirthdateInFutureShouldDateTimeParseException() {
+        LocalDate birthdate = LocalDate.parse("02/12/2030", DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        assertThrows(DateTimeException.class, () -> medicalRecordService.validateBirthdate(birthdate));
     }
 }

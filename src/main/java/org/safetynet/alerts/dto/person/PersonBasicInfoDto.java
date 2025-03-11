@@ -2,9 +2,6 @@ package org.safetynet.alerts.dto.person;
 
 import org.safetynet.alerts.model.Person;
 
-import java.text.MessageFormat;
-
-//@Data
 public class PersonBasicInfoDto {
 
     public String firstName;

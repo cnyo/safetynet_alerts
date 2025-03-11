@@ -11,7 +11,6 @@ import org.safetynet.alerts.logging.MemoryAppender;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.service.JsonDataService;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,7 +83,6 @@ public class JsonDataServiceIT {
         } else {
             assertThat(memoryAppender.search("I/O error while loading JSON data", Level.ERROR)).hasSize(1);
         }
-
     }
 
 }

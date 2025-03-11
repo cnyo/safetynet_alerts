@@ -2,7 +2,6 @@ package org.safetynet.alerts.dto.person;
 
 import org.safetynet.alerts.model.Person;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 

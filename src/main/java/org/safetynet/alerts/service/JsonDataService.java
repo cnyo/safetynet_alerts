@@ -1,8 +1,6 @@
 package org.safetynet.alerts.service;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.extern.slf4j.Slf4j;
 import org.safetynet.alerts.model.JsonData;
 import org.springframework.beans.factory.annotation.Value;

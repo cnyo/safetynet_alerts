@@ -1,7 +1,5 @@
 package org.safetynet.alerts.dto.person;
 
-import org.safetynet.alerts.model.Person;
-
 public class OtherPersonDto {
     public String firstName;
     public String lastName;

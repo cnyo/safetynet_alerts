@@ -1,7 +1,6 @@
 package org.safetynet.alerts.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.Person;
 import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.stereotype.Component;

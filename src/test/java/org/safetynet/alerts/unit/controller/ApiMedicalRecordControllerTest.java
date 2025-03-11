@@ -14,6 +14,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -37,6 +38,9 @@ public class ApiMedicalRecordControllerTest {
 
     @MockitoBean
     private MedicalRecordService medicalRecordService;
+
+    @MockitoBean
+    private HttpMessageNotReadableException httpMessageNotReadableException;
 
     private MedicalRecord medicalRecord;
 
@@ -79,15 +83,17 @@ public class ApiMedicalRecordControllerTest {
 
         given(medicalRecordService.create(any(MedicalRecord.class))).willReturn(medicalRecord);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/medicalRecord")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(mapper.writeValueAsString(medicalRecord))
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/medicalRecord")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(medicalRecord))
                 )
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andExpect(content().string(containsString("\"firstName\":\"Warren")))
                 .andExpect(content().string(containsString("\"lastName\":\"Zemicks")))
                 .andExpect(content().string(containsString("\"birthdate\":\"03/06/1985")))
                 .andReturn();
+
+        result.getResponse();
     }
 
     @Test

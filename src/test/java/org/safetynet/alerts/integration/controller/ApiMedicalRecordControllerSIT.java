@@ -14,10 +14,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -157,7 +157,7 @@ public class ApiMedicalRecordControllerSIT {
 
         // Check if post medicalRecord list is updated success
         assertThat(updatedMedicalRecord).isNotNull();
-        assertThat(updatedMedicalRecord.getBirthdate()).isEqualTo("01/06/1995");
+        assertThat(updatedMedicalRecord.getBirthdate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).isEqualTo("01/06/1995");
         assertThat(updatedMedicalRecord.getAllergies().getFirst()).isEqualTo("Chat");
         assertThat(updatedMedicalRecord.getMedications().getFirst()).isEqualTo("doliprane:1000mg");
     }
@@ -203,7 +203,7 @@ public class ApiMedicalRecordControllerSIT {
 
     @Test
     public void deleteMedicalRecordTest_notDeletedError() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/medicalRecord")
+        mockMvc.perform(MockMvcRequestBuilders.delete("/medicalRecord")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("firstName", "John")
                         .param("lastName", "Doe")

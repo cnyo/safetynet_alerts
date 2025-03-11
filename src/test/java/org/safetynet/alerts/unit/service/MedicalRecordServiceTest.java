@@ -77,6 +77,16 @@ public class MedicalRecordServiceTest {
     }
 
     @Test
+    public void createWithBirthdateInFutureShouldThrowException() throws InstanceAlreadyExistsException {
+        MedicalRecord mockMedicalRecord = new MedicalRecord();
+        mockMedicalRecord.setBirthdate("08/08/2030");
+        mockMedicalRecord.setFirstName("John");
+        mockMedicalRecord.setLastName("Doe");
+
+        assertThrows(DateTimeException.class, () -> medicalRecordService.create(mockMedicalRecord));
+    }
+
+    @Test
     public void createWithPersonNotFound() throws InstanceAlreadyExistsException {
         MedicalRecord mockMedicalRecord = new MedicalRecord();
         mockMedicalRecord.setBirthdate("08/08/1988");
@@ -129,6 +139,18 @@ public class MedicalRecordServiceTest {
 
         assertThrows(NoSuchElementException.class, () -> medicalRecordService.update(mockMedicalRecord));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(0);
+    }
+
+    @Test
+    public void updateMedicalRecordWithBirthdateInFutureShouldThrowException() throws NoSuchElementException {
+        MedicalRecord mockMedicalRecord = new MedicalRecord();
+        mockMedicalRecord.setBirthdate("08/08/2030");
+        mockMedicalRecord.setFirstName("John");
+        mockMedicalRecord.setLastName("Doe");
+
+        when(medicalRecordRepository.update(any(MedicalRecord.class))).thenReturn(mockMedicalRecord);
+
+        assertThrows(DateTimeException.class, () -> medicalRecordService.update(mockMedicalRecord));
     }
 
     @Test
@@ -326,6 +348,9 @@ public class MedicalRecordServiceTest {
     @Test
     public void validateBirthdateInFutureShouldDateTimeParseException() {
         LocalDate birthdate = LocalDate.parse("02/12/2030", DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-        assertThrows(DateTimeException.class, () -> medicalRecordService.validateBirthdate(birthdate));
+
+        boolean result = medicalRecordService.validateBirthdate(birthdate);
+
+        assertThat(result).isFalse();
     }
 }

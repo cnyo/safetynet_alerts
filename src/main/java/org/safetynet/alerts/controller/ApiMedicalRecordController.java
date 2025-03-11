@@ -61,6 +61,7 @@ public class ApiMedicalRecordController {
         while (cause.getCause() != null && cause.getCause() != cause) {
             cause = cause.getCause();
         }
+
         return cause;
     }
 

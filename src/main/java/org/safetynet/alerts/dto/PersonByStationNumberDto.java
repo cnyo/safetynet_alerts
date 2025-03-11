@@ -19,12 +19,4 @@ public class PersonByStationNumberDto {
         this.adultNumber = adultNumber;
         this.childrenNumber = childrenNumber;
     }
-
-    public List<PersonBasicInfoDto> getPersons() {
-        return persons;
-    }
-
-    public String getStation() {
-        return station;
-    }
 }

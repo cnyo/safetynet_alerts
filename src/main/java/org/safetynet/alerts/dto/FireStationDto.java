@@ -10,5 +10,4 @@ public class FireStationDto {
         this.address = fireStation.getAddress();
         this.station = fireStation.getStation();
     }
-
 }

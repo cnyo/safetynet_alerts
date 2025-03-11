@@ -15,6 +15,14 @@ import java.time.DateTimeException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * REST controller for managing medical record operations. This controller
+ * provides endpoints for CRUD operations on medical records, including
+ * functionalities for creating, reading, updating, and deleting records.
+ *
+ * Exception handling is included for specific scenarios such as invalid
+ * data inputs, conflicts, and processing errors.
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -22,6 +30,13 @@ public class ApiMedicalRecordController {
 
     private final MedicalRecordService medicalRecordService;
 
+    /**
+     * Handles exceptions related to HTTP message parsing errors, particularly focusing on date format issues.
+     * Logs the root cause of the exception and returns an appropriate error message based on the type of the cause.
+     *
+     * @param e the exception thrown when an HTTP message is not readable, such as due to invalid input formats
+     * @return a string message describing the specific error, with guidance for resolution if applicable
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(Exception.class)
     public String handleException(HttpMessageNotReadableException e) {
@@ -35,6 +50,12 @@ public class ApiMedicalRecordController {
         return "Bad request formated";
     }
 
+    /**
+     * Determines the root cause of the given throwable by traversing the exception chain.
+     *
+     * @param throwable the initial throwable whose root cause is to be located
+     * @return the root cause throwable or the original throwable if no deeper cause exists
+     */
     private Throwable findRootCause(Throwable throwable) {
         Throwable cause = throwable;
         while (cause.getCause() != null && cause.getCause() != cause) {
@@ -43,6 +64,12 @@ public class ApiMedicalRecordController {
         return cause;
     }
 
+    /**
+     * Retrieves all medical records from the database.
+     *
+     * @return ResponseEntity containing a list of all MedicalRecord objects if successful,
+     * or an error response with a 500 status code if an internal error occurs.
+     */
     @GetMapping("/medicalRecord/all")
     public ResponseEntity<List<MedicalRecord>> getAllMedicalRecords() {
         log.info("GET /medicalRecord/all");
@@ -59,6 +86,13 @@ public class ApiMedicalRecordController {
         }
     }
 
+    /**
+     * Handles the HTTP POST request to create a new medical record.
+     *
+     * @param medicalRecord the request body containing the medical record data to be created
+     * @return ResponseEntity containing the created medical record in DTO format on success,
+     *         or an error message with the appropriate HTTP status code on failure
+     */
     @PostMapping("/medicalRecord")
     public ResponseEntity<?> postMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
         log.info("POST /medicalRecord");
@@ -87,6 +121,15 @@ public class ApiMedicalRecordController {
         }
     }
 
+    /**
+     * Updates an existing medical record with new data. The method handles the provided
+     * medical record update request, verifies the data, and updates the respective record.
+     *
+     * @param medicalRecord the object containing updated medical record information
+     * @return a {@code ResponseEntity} containing the updated medical record data wrapped
+     *         in a DTO if the operation is successful, or an appropriate error response
+     *         if the update fails due to invalid data, record not being found, or other errors
+     */
     @PatchMapping("/medicalRecord")
     public ResponseEntity<?> patchMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
         log.info("PATCH /medicalRecord");
@@ -111,6 +154,13 @@ public class ApiMedicalRecordController {
         }
     }
 
+    /**
+     * Deletes a medical record based on the provided first name and last name.
+     *
+     * @param firstName the first name of the individual whose medical record is to be deleted
+     * @param lastName the last name of the individual whose medical record is to be deleted
+     * @return a ResponseEntity containing a success or error message, with the appropriate HTTP status code
+     */
     @DeleteMapping("/medicalRecord")
     public ResponseEntity<String> deleteMedicalRecord(@RequestParam String firstName, @RequestParam String lastName) {
         log.info("DELETE /medicalRecord");

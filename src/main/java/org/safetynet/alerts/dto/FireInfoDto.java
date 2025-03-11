@@ -5,7 +5,6 @@ import org.safetynet.alerts.model.FireStation;
 
 import java.util.List;
 
-//@Data
 public class FireInfoDto {
 
     public List<AddressPersonDto> persons;

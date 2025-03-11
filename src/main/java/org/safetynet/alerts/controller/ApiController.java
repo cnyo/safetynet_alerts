@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * ApiController is a REST controller that provides various endpoints
+ * to handle requests related to persons, fire stations, medical records,
+ * and emergency-related features.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +31,15 @@ public class ApiController {
     private final FireStationService fireStationService;
     private final MedicalRecordService medicalRecordService;
 
+    /**
+     * Retrieves information about persons associated with a specific fire station number.
+     *
+     * @param stationNumber the fire station number to filter persons by
+     * @return a ResponseEntity containing the data of persons associated with the fire station,
+     *         including their full names, the count of adults, and the count of children,
+     *         or an appropriate error message or status if no persons are found,
+     *         invalid input is given, or an internal server error occurs
+     */
     @GetMapping("/firestation")
     public ResponseEntity<?> getPersonByStationNumber(@RequestParam String stationNumber) {
         log.info("GET /firestation");
@@ -56,6 +70,13 @@ public class ApiController {
         }
     }
 
+    /**
+     * Retrieves a list of children living at a given address, along with other household members.
+     *
+     * @param address the address to retrieve child alerts for; must not be null or empty
+     * @return a ResponseEntity containing a list of ChildAlertDto objects if successful,
+     * or an error message with an appropriate HTTP status code if an error occurs
+     */
     @GetMapping("/childAlert")
     public ResponseEntity<?> getChildAlert(@RequestParam String address) {
         log.info("GET /childAlert");
@@ -76,6 +97,14 @@ public class ApiController {
         }
     }
 
+    /**
+     * Retrieves all phone numbers associated with addresses covered by a specific fire station.
+     *
+     * @param fireStation the identifier for the fire station to retrieve phone numbers for
+     * @return a ResponseEntity containing a list of phone numbers if successful,
+     *         a BAD_REQUEST status if no addresses are associated with the provided station,
+     *         or an INTERNAL_SERVER_ERROR status if an unexpected error occurs
+     */
     @GetMapping("/phoneAlert")
     public ResponseEntity<?> getAllPhoneNumberByStation(@RequestParam String fireStation) {
         log.info("GET /phoneAlert");
@@ -97,6 +126,13 @@ public class ApiController {
         }
     }
 
+    /**
+     * Retrieves a list of persons located at the specified address along with associated fire station and medical record information.
+     *
+     * @param address The address for which to retrieve person information, fire station information, and medical records.
+     * @return A ResponseEntity containing the FireInfoDto object if the operation is successful,
+     *         or an appropriate HTTP status message in case of errors such as not found, bad request, or server error.
+     */
     @GetMapping("/fire")
     public ResponseEntity<?> getAddressPersons(@RequestParam String address) {
         log.info("GET /fire");
@@ -125,6 +161,14 @@ public class ApiController {
         }
     }
 
+    /**
+     * Handles the GET request for retrieving information about persons linked to specific fire stations.
+     *
+     * @param stations a string representing the fire station numbers, separated by commas.
+     * @return a {@link ResponseEntity} containing the result of the operation.
+     *         If successful, it returns a list of persons with their medical records in a flood station DTO format.
+     *         If an error occurs, it returns an appropriate HTTP status with an error message.
+     */
     @GetMapping("/flood/stations")
     public ResponseEntity<?> getFloodStation(@RequestParam String stations) {
         log.info("GET /flood/stations");
@@ -148,6 +192,16 @@ public class ApiController {
         }
     }
 
+    /**
+     * Retrieves information about a person or persons based on the provided last name.
+     * This method fetches a list of persons whose last name matches the given input
+     * and maps their data along with associated medical records into a DTO for the response.
+     *
+     * @param lastName the last name of the person(s) to retrieve information for; must not be null or empty
+     * @return a {@code ResponseEntity} containing the processed data if successful,
+     *         a BAD_REQUEST response if the input is invalid,
+     *         or an INTERNAL_SERVER_ERROR response in case of an unexpected error
+     */
     @GetMapping("/personInfo")
     public ResponseEntity<?> getPersonInfoLastName(@RequestParam String lastName) {
         log.info("GET /personInfoLastName");
@@ -170,6 +224,14 @@ public class ApiController {
         }
     }
 
+    /**
+     * Handles GET requests for retrieving all email addresses of individuals residing in a specified city.
+     *
+     * @param city the name of the city to retrieve email addresses for; must not be null or empty
+     * @return ResponseEntity containing a list of email addresses if the city is valid and the retrieval is successful;
+     *         BAD_REQUEST status with an error message if the city parameter is invalid;
+     *         INTERNAL_SERVER_ERROR status if an unexpected error occurs during processing
+     */
     @GetMapping("/communityEmail")
     public ResponseEntity<?> getCommunityEmail(@RequestParam String city) {
         log.info("GET /communityEmail");

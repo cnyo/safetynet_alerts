@@ -1,5 +1,8 @@
 package org.safetynet.alerts.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -14,7 +17,12 @@ public class MedicalRecord {
 
     private String firstName;
     private String lastName;
-    private String birthdate;
+
+    @NotBlank
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
+    @JsonSerialize(using = com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer.class)
+    private LocalDate birthdate;
+
     private List<String> medications;
     private List<String> allergies;
 
@@ -38,7 +46,7 @@ public class MedicalRecord {
 
     public int getAge() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        LocalDate birthdayDate = LocalDate.parse(birthdate, formatter);;
+        LocalDate birthdayDate = birthdate;
         LocalDate now = LocalDate.now();
         Period period = Period.between(birthdayDate, now);
 
@@ -69,12 +77,18 @@ public class MedicalRecord {
         return this;
     }
 
-    public String getBirthdate() {
+    public LocalDate getBirthdate() {
         return birthdate;
     }
 
-    public MedicalRecord setBirthdate(String birthdate) {
+    public MedicalRecord setBirthdate(LocalDate birthdate) {
         this.birthdate = birthdate;
+
+        return this;
+    }
+
+    public MedicalRecord setBirthdate(String birthdateStr) {
+        this.birthdate = LocalDate.parse(birthdateStr, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
         return this;
     }

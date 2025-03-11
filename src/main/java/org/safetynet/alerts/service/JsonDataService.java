@@ -15,6 +15,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Service class responsible for loading and providing access to JSON data.
+ * The JSON data is initialized from a file path specified in the application configuration
+ * and mapped to a Java object using Jackson's ObjectMapper.
+ *
+ * This class implements the {@link ApplicationRunner} interface,
+ * ensuring that the data is loaded during the application startup phase.
+ */
 @Service
 @Slf4j
 public class JsonDataService implements ApplicationRunner {
@@ -30,11 +38,24 @@ public class JsonDataService implements ApplicationRunner {
         JsonDataService.objectMapper = objectMapper;
     }
 
+    /**
+     * Executes the initialization process for loading JSON data during the application startup.
+     *
+     * @param args the arguments passed to the application at startup, provided by the Spring framework
+     */
     @Override
     public void run(ApplicationArguments args) {
         init(jsonPath);
     }
 
+    /**
+     * Initializes the JSON data by loading it from the provided file path.
+     * The method reads the JSON file, maps its content to a JsonData object,
+     * and logs the success or failure of the operation.
+     *
+     * @param jsonPath the path to the JSON file to be loaded
+     * @throws RuntimeException if the JSON file is not found or an I/O error occurs
+     */
     public static void init(String jsonPath) {
         log.info("Initializing JSON data from path: {}", jsonPath);
 
@@ -50,6 +71,12 @@ public class JsonDataService implements ApplicationRunner {
         }
     }
 
+    /**
+     * Retrieves the loaded JSON data as a JsonData object.
+     * This method provides access to the data initialized during the application startup phase.
+     *
+     * @return an instance of {@code JsonData} containing the loaded JSON data, or {@code null} if the data has not been initialized.
+     */
     public static JsonData getJsonData() {
         return jsonData;
     }

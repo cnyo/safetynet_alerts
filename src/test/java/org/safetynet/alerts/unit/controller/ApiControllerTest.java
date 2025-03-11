@@ -160,7 +160,7 @@ class ApiControllerTest {
         List<String> addresses = List.of("1509 Culver St");
         List<String> phones = List.of("841-874-7458");
 
-        given(fireStationService.getAddressesForOneFireStation(anyString())).willReturn(addresses);
+        given(fireStationService.getAddressesForFireStation(anyString())).willReturn(addresses);
         given(personService.getAllPhoneNumberFromAddresses(anyList())).willReturn(phones);
 
         mockMvc.perform(get("/phoneAlert")
@@ -172,7 +172,7 @@ class ApiControllerTest {
 
     @Test
     public void getAllPhoneNumberByStationWithBadArgumentShouldReturnException() throws Exception {
-        given(fireStationService.getAddressesForOneFireStation(anyString())).willThrow(new IllegalArgumentException("Bad argument"));
+        given(fireStationService.getAddressesForFireStation(anyString())).willThrow(new IllegalArgumentException("Bad argument"));
 
         mockMvc.perform(get("/phoneAlert")
                         .param("fireStation", "3"))
@@ -183,7 +183,7 @@ class ApiControllerTest {
 
     @Test
     public void getAllPhoneNumberByStationInErrorShouldReturnException() throws Exception {
-        given(fireStationService.getAddressesForOneFireStation(anyString())).willThrow(new RuntimeException());
+        given(fireStationService.getAddressesForFireStation(anyString())).willThrow(new RuntimeException());
 
         mockMvc.perform(get("/phoneAlert")
                         .param("fireStation", "3"))

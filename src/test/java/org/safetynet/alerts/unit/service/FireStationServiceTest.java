@@ -234,7 +234,7 @@ public class FireStationServiceTest {
     @NullSource
     @ValueSource(strings = {"", " "})
     public void getAddressesForOneFireStationWithBlankStationsShouldReturnException(String stations) {
-        assertThrows(IllegalArgumentException.class, () -> fireStationService.getAddressesForOneFireStation(stations));
+        assertThrows(IllegalArgumentException.class, () -> fireStationService.getAddressesForFireStation(stations));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
         assertThat(memoryAppender.search("Station is blank", Level.DEBUG)).hasSize(1);
     }
@@ -249,7 +249,7 @@ public class FireStationServiceTest {
         when(fireStationRepository.findAllAddressForOneStation(any(String.class)))
                 .thenReturn(addresses);
 
-        List<String> result = fireStationService.getAddressesForOneFireStation(station);
+        List<String> result = fireStationService.getAddressesForFireStation(station);
 
         assertThat(result).isNotNull();
         assertThat(result).isNotEmpty();

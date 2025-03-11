@@ -81,7 +81,7 @@ public class ApiController {
         log.info("GET /phoneAlert");
 
         try {
-            List<String> addresses = fireStationService.getAddressesForOneFireStation(fireStation);
+            List<String> addresses = fireStationService.getAddressesForFireStation(fireStation);
             List<String> phones = personService.getAllPhoneNumberFromAddresses(addresses);
             log.info("GET /phoneAlert Get all phone numbers by station number success");
 

@@ -362,7 +362,7 @@ public class PersonServiceTest {
         List<Person> mockPersons = new ArrayList<>();
         mockPersons.add(mockPerson);
 
-        when(fireStationService.getAddressesForOneFireStation(anyString())).thenReturn(addresses);
+        when(fireStationService.getAddressesForFireStation(anyString())).thenReturn(addresses);
         when(personRepository.findAllPersonFromAddresses(any())).thenReturn(mockPersons);
 
         List<Person> result = personService.getAllPersonFromFireStation("2");
@@ -379,7 +379,7 @@ public class PersonServiceTest {
     @DisplayName("Try to get all persons with station not found")
     @Test
     public void getAllPersonFromFireStationWithStationNotFound() {
-        when(fireStationService.getAddressesForOneFireStation(anyString())).thenReturn(Collections.emptyList());
+        when(fireStationService.getAddressesForFireStation(anyString())).thenReturn(Collections.emptyList());
         when(personRepository.findAllPersonFromAddresses(any())).thenReturn(Collections.emptyList());
 
         List<Person> result = personService.getAllPersonFromFireStation("2");

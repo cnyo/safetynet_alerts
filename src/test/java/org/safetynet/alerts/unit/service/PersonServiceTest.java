@@ -491,8 +491,8 @@ public class PersonServiceTest {
         persons.add(child);
         persons.add(adult);
 
-        String childBirthdate = LocalDate.now().minusYears(5).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        String adultBirthdate = LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String childBirthdate = LocalDate.now().minusYears(5).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        String adultBirthdate = LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
         MedicalRecord childMedicalRecord = new MedicalRecord();
         childMedicalRecord.setFirstName(child.getFirstName());
@@ -659,8 +659,8 @@ public class PersonServiceTest {
         persons.add(child);
         persons.add(adult);
 
-        String childBirthdate = LocalDate.now().minusYears(5).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        String adultBirthdate = LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String childBirthdate = LocalDate.now().minusYears(5).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        String adultBirthdate = LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
         MedicalRecord childMedicalRecord = new MedicalRecord();
         childMedicalRecord.setFirstName(child.getFirstName());

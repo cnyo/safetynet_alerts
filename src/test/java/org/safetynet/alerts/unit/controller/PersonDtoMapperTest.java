@@ -125,14 +125,14 @@ public class PersonDtoMapperTest {
         child.setZip("75019");
         child.setPhone("841-874-9888");
 
-        MedicalRecord medicalRecord1 = new MedicalRecord();
-        String birthdate = LocalDate.now().minusYears(5).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        medicalRecord1.setFirstName(child.getFirstName());
-        medicalRecord1.setLastName(child.getLastName());
-        medicalRecord1.setBirthdate(birthdate);
+        MedicalRecord medicalRecord = new MedicalRecord();
+        String birthdate = LocalDate.now().minusYears(5).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        medicalRecord.setFirstName(child.getFirstName());
+        medicalRecord.setLastName(child.getLastName());
+        medicalRecord.setBirthdate(birthdate);
 
         List<Person> persons = List.of(child, child);
-        Map<String, MedicalRecord> medicalRecords = Map.of(child.getFullName(), medicalRecord1);
+        Map<String, MedicalRecord> medicalRecords = Map.of(child.getFullName(), medicalRecord);
 
         Map<String, ChildAlertDto> childAlerts = personDtoMapper.toChildAlertDto(persons, medicalRecords);
 

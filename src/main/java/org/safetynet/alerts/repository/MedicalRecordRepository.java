@@ -70,8 +70,6 @@ public class MedicalRecordRepository {
                 .orElseThrow(() -> new NoSuchElementException("Medical record not found"));
 
         medicalRecordToUpdate
-                .setFirstName(medicalRecord.getFirstName())
-                .setLastName(medicalRecord.getLastName())
                 .setBirthdate(medicalRecord.getBirthdate())
                 .setMedications(medicalRecord.getMedications())
                 .setAllergies(medicalRecord.getAllergies());

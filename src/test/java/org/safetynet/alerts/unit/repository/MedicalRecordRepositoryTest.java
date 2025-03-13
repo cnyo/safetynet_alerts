@@ -66,7 +66,7 @@ public class MedicalRecordRepositoryTest {
     public void createForExistingPersonShouldReturnCreatedMedicalRecord() throws InstanceAlreadyExistsException {
         String firstname = "John";
         String lastname = "Doe";
-        String birthdate = LocalDate.now().minusYears(25).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String birthdate = LocalDate.now().minusYears(25).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
         MedicalRecord medicalRecord = new MedicalRecord();
         medicalRecord.setFirstName(firstname);
         medicalRecord.setLastName(lastname);
@@ -84,7 +84,7 @@ public class MedicalRecordRepositoryTest {
         assertThat(result.get().getFirstName()).isEqualTo(firstname);
         assertThat(result.get().getLastName()).isEqualTo(lastname);
         assertThat(result.get().getBirthdate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).isEqualTo(birthdate);
-        assertThat(result.get().getAge()).isEqualTo(24);
+        assertThat(result.get().getAge()).isEqualTo(25);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class MedicalRecordRepositoryTest {
     public void updateMedicalRecordShouldReturnMedicalRecordUpdated() {
         String firstname = "John";
         String lastname = "Boyd";
-        String birthdate = LocalDate.now().minusYears(25).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String birthdate = LocalDate.now().minusYears(25).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
         MedicalRecord medicalRecord = new MedicalRecord();
         medicalRecord.setFirstName(firstname);
         medicalRecord.setLastName(lastname);
@@ -132,7 +132,7 @@ public class MedicalRecordRepositoryTest {
         assertThat(result.getFirstName()).isEqualTo(firstname);
         assertThat(result.getLastName()).isEqualTo(lastname);
         assertThat(result.getBirthdate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))).isEqualTo(birthdate);
-        assertThat(result.getAge()).isEqualTo(24);
+        assertThat(result.getAge()).isEqualTo(25);
     }
 
     @Test

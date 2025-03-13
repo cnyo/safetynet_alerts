@@ -63,8 +63,6 @@ public class PersonRepository {
         }
 
         return personToUpdate.get()
-                .setFirstName(person.getFirstName())
-                .setLastName(person.getLastName())
                 .setAddress(person.getAddress())
                 .setCity(person.getCity())
                 .setZip(person.getZip())

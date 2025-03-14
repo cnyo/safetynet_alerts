@@ -258,7 +258,7 @@ public class PersonServiceTest {
     public void getAllPhoneNumberFromAddressesWithNullAddress() {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPhoneNumberFromAddresses(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("No addresses provided", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("No addresses provided", Level.ERROR)).hasSize(1);
     }
 
     @Tag("GetTest")
@@ -267,7 +267,7 @@ public class PersonServiceTest {
     public void getAllPhoneNumberFromAddressesWithEmptyAddress() {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPhoneNumberFromAddresses(Collections.emptyList()));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("No addresses provided", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("No addresses provided", Level.ERROR)).hasSize(1);
     }
 
 
@@ -313,7 +313,7 @@ public class PersonServiceTest {
     public void getAllPersonByLastNameWithNullFullNamesFail(String fullName) {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPersonByLastName(fullName));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("Last name cannot be null or empty", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("Last name cannot be null or empty", Level.ERROR)).hasSize(1);
     }
 
     @Tag("GetTest")
@@ -345,7 +345,7 @@ public class PersonServiceTest {
     public void getAllPersonAtAddressWithEmptyAddressFail(String address) {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPersonAtAddress(address));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("Address cannot be empty", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("Address cannot be empty", Level.ERROR)).hasSize(1);
     }
 
     @Tag("GetTest")
@@ -398,7 +398,7 @@ public class PersonServiceTest {
     public void getAllPersonFromFireStationWithEmptyStation(String stationNumber) {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPersonFromFireStation(stationNumber));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("stationNumber cannot be null or empty", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("stationNumber cannot be null or empty", Level.ERROR)).hasSize(1);
     }
 
     @Tag("GetTest")
@@ -429,7 +429,7 @@ public class PersonServiceTest {
     public void getAllPersonFromAddressesWithNullAddresses() {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllPersonFromAddresses(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("addresses cannot be null", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("addresses cannot be null", Level.ERROR)).hasSize(1);
     }
 
     @Tag("GetTest")
@@ -547,7 +547,7 @@ public class PersonServiceTest {
         assertThrows(IllegalArgumentException.class, () -> personService.getAllEmailsAtCity(city));
 
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("City name cannot be null or empty", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("City name cannot be null or empty", Level.ERROR)).hasSize(1);
     }
 
     @Tag("Other")
@@ -586,7 +586,7 @@ public class PersonServiceTest {
     public void getFullNamesFromPersonsWithNullPersonsFail() {
         assertThrows(IllegalArgumentException.class, () -> personService.getFullNamesFromPersons(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("Null argument is invalid", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("Null argument is invalid", Level.ERROR)).hasSize(1);
     }
 
     @Tag("OtherTest")
@@ -608,7 +608,7 @@ public class PersonServiceTest {
     public void countAdultFromPersonsWithNullFullNamesFail() {
         assertThrows(IllegalArgumentException.class, () -> personService.countAdultFromPersons(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("fullNames adults cannot be null", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("fullNames adults cannot be null", Level.ERROR)).hasSize(1);
     }
 
     @Tag("OtherTest")
@@ -630,7 +630,7 @@ public class PersonServiceTest {
     public void countChildrenFromPersonsWithNullFullNamesFail() {
         assertThrows(IllegalArgumentException.class, () -> personService.countChildrenFromPersons(null));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("fullNames children cannot be null", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("fullNames children cannot be null", Level.ERROR)).hasSize(1);
     }
 
     @Test

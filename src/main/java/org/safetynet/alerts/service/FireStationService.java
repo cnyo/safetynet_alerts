@@ -35,7 +35,7 @@ public class FireStationService {
      */
     public FireStation getFireStationAtAddress(String address) {
         if (Strings.isBlank(address)) {
-            log.debug("Address is blank");
+            log.error("Address is blank");
             throw new IllegalArgumentException("address is null or empty");
         }
 
@@ -68,7 +68,7 @@ public class FireStationService {
      */
     public FireStation update(Map<String, Object> params) {
         if (!validatePatchParams(params)) {
-            log.debug("Update fire station patch failed with invalid parameters.");
+            log.error("Update fire station patch failed with invalid parameters.");
 
             throw new IllegalArgumentException("Invalid parameters");
         }
@@ -136,7 +136,7 @@ public class FireStationService {
      */
     public List<String> getAddressesForFireStation(String stationNumber) {
         if (Strings.isBlank(stationNumber)) {
-            log.debug("Station is blank");
+            log.error("Station is blank");
             throw new IllegalArgumentException("Station must not be empty");
         }
 
@@ -155,7 +155,7 @@ public class FireStationService {
      */
     public List<String> getAddressesForFireStations(String stations) {
         if (Strings.isBlank(stations)) {
-            log.debug("Stations is blank");
+            log.error("Stations is blank");
             throw new IllegalArgumentException("Stations must not be empty");
         }
 

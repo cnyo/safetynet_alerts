@@ -50,7 +50,7 @@ public class PersonService {
      */
     public Person create(Person person) throws IllegalArgumentException, InstanceAlreadyExistsException {
         if (Objects.isNull(person) || Strings.isBlank(person.getFirstName()) || Strings.isBlank(person.getLastName())) {
-            log.debug("Invalid person data");
+            log.error("Invalid person data");
             throw new IllegalArgumentException("Invalid person data");
         }
 
@@ -69,7 +69,7 @@ public class PersonService {
      */
     public Person update(Person person) throws InstanceNotFoundException {
         if (Objects.isNull(person) || Strings.isBlank(person.getFirstName()) || Strings.isBlank(person.getLastName())) {
-            log.debug("Invalid person data");
+            log.error("Invalid person data");
             throw new IllegalArgumentException("Invalid person data");
         }
 
@@ -116,7 +116,7 @@ public class PersonService {
      */
     public List<String> getAllPhoneNumberFromAddresses(List<String> addresses) {
         if (addresses == null || addresses.isEmpty()) {
-            log.debug("No addresses provided");
+            log.error("No addresses provided");
             throw new IllegalArgumentException("addresses cannot be empty");
         }
 
@@ -135,8 +135,7 @@ public class PersonService {
      */
     public Integer countAdultFromPersons(List<String> fullNames) {
         if (fullNames == null) {
-            log.debug("fullNames adults cannot be null");
-
+            log.error("fullNames adults cannot be null");
             throw new IllegalArgumentException("fullNames adults cannot be null");
         }
 
@@ -156,8 +155,7 @@ public class PersonService {
      */
     public int countChildrenFromPersons(List<String> fullNames) {
         if (fullNames == null) {
-            log.debug("fullNames children cannot be null");
-
+            log.error("fullNames children cannot be null");
             throw new IllegalArgumentException("fullNames cannot be null");
         }
 
@@ -178,7 +176,7 @@ public class PersonService {
      */
     public List<ChildAlertDto> getChildAlerts(String address) {
         if (Strings.isBlank(address)) {
-            log.debug("Address cannot be null or empty");
+            log.error("Address cannot be null or empty");
             throw new IllegalArgumentException("Address cannot be null or empty");
         }
 
@@ -198,7 +196,7 @@ public class PersonService {
      */
     public List<Person> getAllPersonAtAddress(String address) {
         if (Strings.isBlank(address)) {
-            log.debug("Address cannot be empty");
+            log.error("Address cannot be empty");
             throw new IllegalArgumentException("address cannot be empty");
         }
 
@@ -218,7 +216,7 @@ public class PersonService {
      */
     public List<Person> getAllPersonByLastName(String lastName) {
         if (lastName == null || lastName.trim().isEmpty()) {
-            log.debug("Last name cannot be null or empty");
+            log.error("Last name cannot be null or empty");
             throw new IllegalArgumentException("Last name cannot be null or empty");
         }
 
@@ -240,7 +238,7 @@ public class PersonService {
      */
     public List<Person> getAllPersonFromFireStation(String stationNumber) {
         if (stationNumber == null || stationNumber.trim().isEmpty()) {
-            log.debug("stationNumber cannot be null or empty");
+            log.error("stationNumber cannot be null or empty");
             throw new IllegalArgumentException("stationNumber name cannot be null or empty");
         }
 
@@ -265,7 +263,7 @@ public class PersonService {
      */
     public List<Person> getAllPersonFromAddresses(List<String> addresses) {
         if (addresses == null) {
-            log.debug("addresses cannot be null");
+            log.error("addresses cannot be null");
             throw new IllegalArgumentException("addresses cannot be null");
         }
 
@@ -287,8 +285,7 @@ public class PersonService {
      */
     public List<String> getFullNamesFromPersons(List<Person> persons) {
         if (persons == null) {
-            log.debug("Null argument is invalid");
-
+            log.error("Null argument is invalid");
             throw new IllegalArgumentException("Null argument is invalid");
         }
         if (persons.isEmpty()) {
@@ -313,8 +310,7 @@ public class PersonService {
      */
     public List<String> getAllEmailsAtCity(String city) {
         if (city == null || city.trim().isEmpty()) {
-            log.debug("City name cannot be null or empty");
-
+            log.error("City name cannot be null or empty");
             throw new IllegalArgumentException("City name cannot be null or empty");
         }
 

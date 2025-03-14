@@ -80,7 +80,7 @@ public class FireStationServiceTest {
     public void getFireStationWithBlankAddressShouldReturnException(String address) {
         assertThrows(IllegalArgumentException.class, () -> fireStationService.getFireStationAtAddress(address));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("Address is blank", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("Address is blank", Level.ERROR)).hasSize(1);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class FireStationServiceTest {
 
         assertThrows(IllegalArgumentException.class, () -> fireStationService.update(params));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(2);
-        assertThat(memoryAppender.search("Update fire station patch failed with invalid parameters.", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("Update fire station patch failed with invalid parameters.", Level.ERROR)).hasSize(1);
         assertThat(memoryAppender.search("is missing", Level.DEBUG)).hasSize(1);
     }
 
@@ -238,7 +238,7 @@ public class FireStationServiceTest {
     public void getAddressesForOneFireStationWithBlankStationsShouldReturnException(String stations) {
         assertThrows(IllegalArgumentException.class, () -> fireStationService.getAddressesForFireStation(stations));
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("Station is blank", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("Station is blank", Level.ERROR)).hasSize(1);
     }
 
     @Test
@@ -268,7 +268,7 @@ public class FireStationServiceTest {
                 .isInstanceOf(IllegalArgumentException.class);
 
         assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
-        assertThat(memoryAppender.search("Stations is blank", Level.DEBUG)).hasSize(1);
+        assertThat(memoryAppender.search("Stations is blank", Level.ERROR)).hasSize(1);
     }
 
     @Test

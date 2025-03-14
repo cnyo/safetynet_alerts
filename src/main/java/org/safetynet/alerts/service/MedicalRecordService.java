@@ -36,7 +36,7 @@ public class MedicalRecordService {
      */
     public MedicalRecord create(MedicalRecord medicalRecord) throws InstanceAlreadyExistsException, NoSuchElementException, DateTimeException {
         if (!validateBirthdate(medicalRecord.getBirthdate())) {
-            log.debug("Invalid birthdate {} for create MedicalRecord", medicalRecord.getBirthdate());
+            log.error("Invalid birthdate {} for create MedicalRecord", medicalRecord.getBirthdate());
             throw new DateTimeException("Invalid birthdate: future date provided");
         }
 
@@ -56,7 +56,7 @@ public class MedicalRecordService {
      */
     public MedicalRecord update(MedicalRecord medicalRecord) throws NoSuchElementException, DateTimeException {
         if (!validateBirthdate(medicalRecord.getBirthdate())) {
-            log.debug("Invalid birthdate {} for update MedicalRecord", medicalRecord.getBirthdate());
+            log.error("Invalid birthdate {} for update MedicalRecord", medicalRecord.getBirthdate());
             throw new DateTimeException("Invalid birthdate: future date provided");
         }
 

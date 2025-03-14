@@ -92,9 +92,11 @@ public class FireStationServiceTest {
         when(fireStationRepository.findFireStationAtAddress(any(String.class)))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> fireStationService.getFireStationAtAddress("21 jump street"));
-        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(0);
+        FireStation result = fireStationService.getFireStationAtAddress("21 jump street");
 
+        assertThat(result).isNull();
+        assertThat(memoryAppender.countEventsForLogger(LOGGER_NAME)).isEqualTo(1);
+        assertThat(memoryAppender.search("Get fire station at address", Level.DEBUG)).hasSize(1);
     }
 
     @Test

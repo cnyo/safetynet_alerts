@@ -44,13 +44,12 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void apiController_getPersonByStationNumberStationDoesNotExist() throws Exception {
-        MvcResult result = mockMvc.perform(get("/firestation")
+    public void apiControllerGetPersonByStationNumberStationDoesNotExist() throws Exception {
+        mockMvc.perform(get("/firestation")
                         .param("stationNumber", "10"))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$").isEmpty())
                 .andReturn();
-
-        assertThat(result.getResponse().getContentAsString()).isEqualTo("None person found");
     }
 
     @Test
@@ -103,11 +102,11 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getAllPhoneNumberByStationStationNotFound() throws Exception {
-        MvcResult result = mockMvc.perform(get("/phoneAlert")
+    public void getAllPhoneNumberWithNotFoundStationShouldReturnEmptyList() throws Exception {
+        mockMvc.perform(get("/phoneAlert")
                         .param("fireStation", "10"))
-                .andExpect(status().is4xxClientError())
-                .andExpect(content().string(containsStringIgnoringCase("addresses cannot be empty")))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$").isEmpty())
                 .andReturn();
     }
 
@@ -123,11 +122,11 @@ class ApiControllerSIT {
     }
 
     @Test
-    public void getAddressPersonsStationNotFoundAtAddress() throws Exception {
+    public void getAddressPersonsWithNotFoundStationShouldReturnEmptyList() throws Exception {
         mockMvc.perform(get("/fire")
                         .param("address", "15 Cuver"))
-                .andExpect(status().is4xxClientError())
-                .andExpect(content().string(containsStringIgnoringCase("Fire station not found")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty())
                 .andReturn();
     }
 

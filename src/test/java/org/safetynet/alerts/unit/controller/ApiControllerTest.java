@@ -89,8 +89,9 @@ class ApiControllerTest {
 
         mockMvc.perform(get("/firestation")
                         .param("stationNumber", "3"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("None person found")))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(containsString("[]")))
+                .andExpect(jsonPath("$").isEmpty())
                 .andReturn();
     }
 
@@ -171,6 +172,17 @@ class ApiControllerTest {
     }
 
     @Test
+    public void getAllPhoneNumberWithNotFoundStationShouldReturnEmptyList() throws Exception {
+        given(fireStationService.getAddressesForFireStation(anyString())).willReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/phoneAlert")
+                        .param("fireStation", "30"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty())
+                .andReturn();
+    }
+
+    @Test
     public void getAllPhoneNumberByStationWithBadArgumentShouldReturnException() throws Exception {
         given(fireStationService.getAddressesForFireStation(anyString())).willThrow(new IllegalArgumentException("Bad argument"));
 
@@ -229,13 +241,13 @@ class ApiControllerTest {
     }
 
     @Test
-    public void getAddressPersonsNotFoundShouldReturnException() throws Exception {
-        given(fireStationService.getFireStationAtAddress(anyString())).willThrow(new NoSuchElementException());
+    public void getAddressPersonsWithNotFoundStationShouldReturnEmptyList() throws Exception {
+        given(fireStationService.getFireStationAtAddress(anyString())).willReturn(null);
 
         mockMvc.perform(get("/fire")
-                        .param("address", "1509 Culver St"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Fire station not found")))
+                        .param("address", "21 jump street"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty())
                 .andReturn();
     }
 

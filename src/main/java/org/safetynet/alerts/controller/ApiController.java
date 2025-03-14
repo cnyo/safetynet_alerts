@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -49,7 +50,7 @@ public class ApiController {
 
             if (persons.isEmpty()) {
                 log.info("GET /firestation No person found");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("None person found");
+                return ResponseEntity.ok().body(Collections.emptyList());
             }
 
             List<String> fullNames = personService.getFullNamesFromPersons(persons);
@@ -111,6 +112,12 @@ public class ApiController {
 
         try {
             List<String> addresses = fireStationService.getAddressesForFireStation(fireStation);
+
+            if (addresses.isEmpty()) {
+                log.info("GET /phoneAlert No fire station found");
+                return ResponseEntity.ok().body(Collections.emptyList());
+            }
+
             List<String> phones = personService.getAllPhoneNumberFromAddresses(addresses);
             log.info("GET /phoneAlert Get all phone numbers by station number success");
 
@@ -139,6 +146,12 @@ public class ApiController {
 
         try {
             FireStation fireStation = fireStationService.getFireStationAtAddress(address);
+
+            if (fireStation == null) {
+                log.info("GET /fire No fire station found");
+                return ResponseEntity.ok().body(Collections.emptyList());
+            }
+
             List<Person> persons = personService.getAllPersonAtAddress(address);
             Map<String, MedicalRecord> medicalRecordMap = medicalRecordService.getAllByFullName();
             FireInfoDto fireInfoDto = personService.toFireInfoDto(persons, fireStation, medicalRecordMap);

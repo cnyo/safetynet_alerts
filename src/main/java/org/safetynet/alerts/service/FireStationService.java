@@ -38,9 +38,9 @@ public class FireStationService {
             log.debug("Address is blank");
             throw new IllegalArgumentException("address is null or empty");
         }
-        FireStation fireStation = fireStationRepository.findFireStationAtAddress(address)
-                .orElseThrow(() -> new NoSuchElementException("No fire station found"));
-        log.debug("Get fire station at address {} success", fireStation.getAddress());
+
+        FireStation fireStation = fireStationRepository.findFireStationAtAddress(address).orElse(null);
+        log.debug("Get fire station at address {} success", address);
 
         return fireStation;
     }

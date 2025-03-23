@@ -64,7 +64,6 @@ public class JsonDataServiceIT {
         assertThat(memoryAppender.search("JSON file not found at path", Level.ERROR)).hasSize(1);
     }
 
-    // todo: test à revoir
     @ParameterizedTest
     @ValueSource(strings = {
             "test-bad-structured-data.json",

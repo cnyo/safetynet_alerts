@@ -7,6 +7,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.safetynet.alerts.model.FireStation;
 import org.safetynet.alerts.model.JsonData;
+import org.safetynet.alerts.repository.FireStationJsonRepository;
 import org.safetynet.alerts.repository.FireStationRepository;
 import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.core.io.ClassPathResource;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @Tag("FireStationRepositoryTest")
-public class FireStationRepositoryTest {
+public class FireStationJsonRepositoryTest {
 
     FireStationRepository fireStationRepository;
 
@@ -35,7 +36,7 @@ public class FireStationRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        fireStationRepository = new FireStationRepository();
+        fireStationRepository = new FireStationJsonRepository();
         ObjectMapper objectMapper = new ObjectMapper();
 
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {

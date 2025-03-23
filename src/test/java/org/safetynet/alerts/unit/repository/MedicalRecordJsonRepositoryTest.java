@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.MedicalRecord;
 import org.safetynet.alerts.model.Person;
+import org.safetynet.alerts.repository.MedicalRecordJsonRepository;
 import org.safetynet.alerts.repository.MedicalRecordRepository;
 import org.safetynet.alerts.repository.PersonRepository;
 import org.safetynet.alerts.service.JsonDataService;
@@ -27,8 +28,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-@Tag("MedicalRecordRepositoryTest")
-public class MedicalRecordRepositoryTest {
+@Tag("MedicalRecordJsonRepositoryTest")
+public class MedicalRecordJsonRepositoryTest {
 
     private static MedicalRecordRepository medicalRecordRepository;
 
@@ -43,7 +44,7 @@ public class MedicalRecordRepositoryTest {
 
     @BeforeEach
     public void init() {
-        medicalRecordRepository = new MedicalRecordRepository(personRepository);
+        medicalRecordRepository = new MedicalRecordJsonRepository(personRepository);
         ObjectMapper objectMapper = new ObjectMapper();
 
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {

@@ -12,8 +12,8 @@ import org.mockito.*;
 import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.logging.MemoryAppender;
 import org.safetynet.alerts.model.FireStation;
-import org.safetynet.alerts.repository.FireStationRepository;
-import org.safetynet.alerts.service.FireStationService;
+import org.safetynet.alerts.repository.FireStationJsonRepository;
+import org.safetynet.alerts.service.FireStationServiceImpl;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -29,17 +29,17 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @Tag("FireStation")
-public class FireStationServiceTest {
+public class FireStationServiceImplTest {
 
-    private final String LOGGER_NAME = "org.safetynet.alerts.service.FireStationService";
+    private final String LOGGER_NAME = "org.safetynet.alerts.service.FireStationServiceImpl";
 
     private final MemoryAppender memoryAppender = new MemoryAppender();
 
     @InjectMocks
-    private FireStationService fireStationService;
+    private FireStationServiceImpl fireStationService;
 
     @Mock
-    private FireStationRepository fireStationRepository;
+    private FireStationJsonRepository fireStationRepository;
 
     @BeforeAll
     public static void beforeAll() {

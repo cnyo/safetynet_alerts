@@ -10,8 +10,9 @@ import org.mockito.*;
 import org.safetynet.alerts.LogWorker;
 import org.safetynet.alerts.logging.MemoryAppender;
 import org.safetynet.alerts.model.MedicalRecord;
-import org.safetynet.alerts.repository.MedicalRecordRepository;
+import org.safetynet.alerts.repository.MedicalRecordJsonRepository;
 import org.safetynet.alerts.service.MedicalRecordService;
+import org.safetynet.alerts.service.MedicalRecordServiceImpl;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -29,14 +30,14 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @Tag("FireStation")
-public class MedicalRecordServiceTest {
+public class MedicalRecordServiceImplTest {
 
-    private final String LOGGER_NAME = "org.safetynet.alerts.service.MedicalRecordService";
+    private final String LOGGER_NAME = "org.safetynet.alerts.service.MedicalRecordServiceImpl";
 
     private final MemoryAppender memoryAppender = new MemoryAppender();
 
     @Mock
-    MedicalRecordRepository medicalRecordRepository;
+    MedicalRecordJsonRepository medicalRecordRepository;
 
     private MedicalRecordService medicalRecordService;
 
@@ -48,7 +49,7 @@ public class MedicalRecordServiceTest {
 
     @BeforeEach
     public void setUp() {
-        medicalRecordService = new MedicalRecordService(medicalRecordRepository);
+        medicalRecordService = new MedicalRecordServiceImpl(medicalRecordRepository);
 
         Logger logger = (Logger) LoggerFactory.getLogger(LOGGER_NAME);
         logger.setLevel(Level.DEBUG);
@@ -328,7 +329,7 @@ public class MedicalRecordServiceTest {
         medicalRecord.setFirstName("John");
         medicalRecord.setLastName("Doe");
 
-        when(medicalRecordRepository.findOneByFullName(anyString())).thenReturn(Optional.ofNullable(null));
+        when(medicalRecordRepository.findOneByFullName(anyString())).thenReturn(Optional.empty());
 
         MedicalRecord result = medicalRecordService.getOneByName("John", "Doe");
 

@@ -10,6 +10,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.safetynet.alerts.model.JsonData;
 import org.safetynet.alerts.model.Person;
+import org.safetynet.alerts.repository.PersonJsonRepository;
 import org.safetynet.alerts.repository.PersonRepository;
 import org.safetynet.alerts.service.JsonDataService;
 import org.springframework.core.io.ClassPathResource;
@@ -25,8 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
-@Tag("PersonRepositoryTest")
-public class PersonRepositoryTest {
+@Tag("PersonJsonRepositoryTest")
+public class PersonJsonRepositoryTest {
 
     private static PersonRepository personRepository;
 
@@ -38,7 +39,7 @@ public class PersonRepositoryTest {
 
     @BeforeEach
     public void init() {
-        personRepository = new PersonRepository();
+        personRepository = new PersonJsonRepository();
         ObjectMapper objectMapper = new ObjectMapper();
 
         try (InputStream inputStreamJson = new ClassPathResource(jsonPath).getInputStream()) {
